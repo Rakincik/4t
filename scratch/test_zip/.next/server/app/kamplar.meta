@@ -1,0 +1,14 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/kamplar/layout,_N_T_/kamplar/page,_N_T_/kamplar"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/kamplar/__PAGE__",
+    "/kamplar",
+    "/_index"
+  ]
+}

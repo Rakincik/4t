@@ -1,0 +1,80 @@
+{
+  "node": {
+    "0071ce7fc3e6aa015a4ac3bd95f6820040c4d84d75": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": 90357,
+          "async": true,
+          "exportedName": "getCourses",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "rsc"
+      },
+      "exportedName": "getCourses",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+    },
+    "40042cb9144b1fa111c7dc3f95a7a6e8ec47b91be4": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": 90357,
+          "async": true,
+          "exportedName": "getCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "rsc"
+      },
+      "exportedName": "getCourse",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+    },
+    "40260a1500f4ba990f02718ec205d2ee887f73d383": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": 90357,
+          "async": true,
+          "exportedName": "deleteCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "rsc"
+      },
+      "exportedName": "deleteCourse",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+    },
+    "402fcf17694e1517cf0b17a377b1c0dca4790ebd41": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": 90357,
+          "async": true,
+          "exportedName": "createCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "action-browser"
+      },
+      "exportedName": "createCourse",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+    },
+    "6054ca434059c4c082a8236d4da81a497952de3a54": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": 90357,
+          "async": true,
+          "exportedName": "updateCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "action-browser"
+      },
+      "exportedName": "updateCourse",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+    }
+  },
+  "edge": {}
+}

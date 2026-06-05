@@ -1,0 +1,3 @@
+{
+  "/admin/flix/[id]/page": "app/admin/flix/[id]/page.js"
+}

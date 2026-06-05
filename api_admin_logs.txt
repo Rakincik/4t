@@ -1,0 +1,12 @@
+Found 10 requests to /api/admin:
+
+78.187.73.90 - - [25/May/2026:19:00:18 +0300] "GET /api/admin/page-content?page=home HTTP/1.1" 200 5673 "https://4takademi.on7medya.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+78.187.73.90 - - [25/May/2026:19:00:24 +0300] "GET /api/admin/page-content?page=home HTTP/1.1" 200 5695 "https://4takademi.on7medya.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+78.187.73.90 - - [25/May/2026:19:05:38 +0300] "GET /api/admin/page-content?page=home HTTP/1.1" 200 5695 "https://4takademi.on7medya.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+78.187.73.90 - - [25/May/2026:19:11:01 +0300] "GET /api/admin/page-content?page=home HTTP/1.1" 200 5673 "https://4takademi.on7medya.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+78.187.73.90 - - [25/May/2026:19:44:36 +0300] "GET /api/admin/page-content?page=home HTTP/1.1" 200 5695 "https://4takademi.on7medya.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+78.184.80.62 - - [27/May/2026:16:30:31 +0300] "GET /api/admin/page-content?page=home HTTP/1.1" 200 5695 "https://4takademi.on7medya.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+217.131.90.214 - - [28/May/2026:00:05:51 +0300] "GET /api/admin/page-content?page=home HTTP/1.1" 200 5695 "https://4takademi.on7medya.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+54.87.58.180 - - [29/May/2026:15:19:05 +0300] "GET /api/admin/page-content?page=home HTTP/1.1" 200 7184 "https://4takademi.on7medya.com/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/138.0.7204.23 Safari/537.36"
+149.86.157.82 - - [01/Jun/2026:21:21:40 +0300] "GET /api/admin/page-content?page=home HTTP/1.1" 200 7184 "https://4takademi.on7medya.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+149.86.157.82 - - [01/Jun/2026:21:27:42 +0300] "GET /api/admin/page-content?page=home HTTP/1.1" 200 7184 "https://4takademi.on7medya.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"

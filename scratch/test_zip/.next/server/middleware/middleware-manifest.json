@@ -1,0 +1,35 @@
+{
+  "sorted_middleware": [],
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge/chunks/Desktop_4t-akademi-yeni_edge-wrapper_3d82c5ee.js",
+        "server/edge/chunks/[root-of-the-server]__9b10d4df._.js",
+        "server/edge/chunks/turbopack-Desktop_4t-akademi-yeni_edge-wrapper_b506c530.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/admin/:path*{(\\\\.json)}?",
+          "originalSource": "/admin/:path*"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/giris{(\\\\.json)}?",
+          "originalSource": "/giris"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "5vv2R_Q4tXOVSb7TzNtch",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "BVAmBOKyLmaqskprGFXM/d1lgaum0+UEuTtZY4yJbi4=",
+        "__NEXT_PREVIEW_MODE_ID": "6dc3d99c2e66232d2717f1ed0b4d1b8a",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "7630cd961f7faca3b36a9d8860799561c83bc2d771aac2cdb9e10178de6c9b05",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "c819efe132c6df22b5f046346081b0dd8f294eb521a29360387ed2ad3d3481b4"
+      }
+    }
+  },
+  "instrumentation": null,
+  "functions": {}
+}

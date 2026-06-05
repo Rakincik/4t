@@ -1,0 +1,35 @@
+{
+  "node": {
+    "401a8afaf8e6451e4c2fa15496b475c087f23580e9": {
+      "workers": {
+        "app/admin/siparisler/[id]/page": {
+          "moduleId": 48551,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_1",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/siparisler/[id]/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/siparisler/[id]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_1",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/siparisler/[id]/page.tsx"
+    },
+    "4038122db796c587b256fed5fb011eb9f59546773b": {
+      "workers": {
+        "app/admin/siparisler/[id]/page": {
+          "moduleId": 48551,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/siparisler/[id]/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/siparisler/[id]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/siparisler/[id]/page.tsx"
+    }
+  },
+  "edge": {}
+}

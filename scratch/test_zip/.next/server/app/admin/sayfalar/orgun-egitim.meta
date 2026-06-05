@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/admin/layout,_N_T_/admin/sayfalar/layout,_N_T_/admin/sayfalar/orgun-egitim/layout,_N_T_/admin/sayfalar/orgun-egitim/page,_N_T_/admin/sayfalar/orgun-egitim"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/admin/sayfalar/orgun-egitim/__PAGE__",
+    "/admin/sayfalar/orgun-egitim",
+    "/admin/sayfalar",
+    "/admin",
+    "/_index"
+  ]
+}

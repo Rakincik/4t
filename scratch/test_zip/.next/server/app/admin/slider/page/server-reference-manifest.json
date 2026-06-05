@@ -1,0 +1,65 @@
+{
+  "node": {
+    "4049215bd5f09f5b15e4534ffc14664edb7d75c1ed": {
+      "workers": {
+        "app/admin/slider/page": {
+          "moduleId": 48634,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/slider/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+    },
+    "407904ac14f01c47c4c6761a2ce55804e63aae3d42": {
+      "workers": {
+        "app/admin/slider/page": {
+          "moduleId": 48634,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_2",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/slider/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_2",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+    },
+    "409b2d2de956e2bef2075989cc4cd5f2cc736ecd10": {
+      "workers": {
+        "app/admin/slider/page": {
+          "moduleId": 48634,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_1",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/slider/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_1",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+    },
+    "40d57c57bacdf9f39fc47784d1e4c6ffa3cb570b99": {
+      "workers": {
+        "app/admin/slider/page": {
+          "moduleId": 48634,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_3",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/slider/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_3",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+    }
+  },
+  "edge": {}
+}

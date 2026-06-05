@@ -1,0 +1,50 @@
+{
+  "node": {
+    "4076e7282aa98d6c9e36b916aeb52ed376cd7a86df": {
+      "workers": {
+        "app/admin/blog/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/blog/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_1",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/blog/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_1",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+    },
+    "4087c3eb0d403ffcabc97f38473d6de71ffdfe50ed": {
+      "workers": {
+        "app/admin/blog/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/blog/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/blog/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+    },
+    "409503c702fdcbc1768f2f98108d3ef912bc8cadaa": {
+      "workers": {
+        "app/admin/blog/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/blog/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_2",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/blog/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_2",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,19 @@
+{
+  "/admin/page": "app/admin/page.js",
+  "/admin/sayfalar/anasayfa/page": "app/admin/sayfalar/anasayfa/page.js",
+  "/admin/sayfalar/hakkimizda/page": "app/admin/sayfalar/hakkimizda/page.js",
+  "/admin/sayfalar/page": "app/admin/sayfalar/page.js",
+  "/api/admin/page-content/route": "app/api/admin/page-content/route.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/blog/latest/route": "app/api/blog/latest/route.js",
+  "/api/settings/announcement/route": "app/api/settings/announcement/route.js",
+  "/api/settings/global/route": "app/api/settings/global/route.js",
+  "/api/settings/menu/route": "app/api/settings/menu/route.js",
+  "/giris/page": "app/giris/page.js",
+  "/hakkimizda/page": "app/hakkimizda/page.js",
+  "/iletisim/page": "app/iletisim/page.js",
+  "/orgun-egitim/page": "app/orgun-egitim/page.js",
+  "/page": "app/page.js",
+  "/profil/kurslarim/page": "app/profil/kurslarim/page.js",
+  "/profil/page": "app/profil/page.js"
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "id": "cmkake69h000148su7mj8kxpr",
+    "slug": "footer-uzaktan",
+    "title": "Uzaktan Eğitim",
+    "createdAt": "2026-01-12T02:49:32.213Z",
+    "updatedAt": "2026-01-12T02:49:32.213Z",
+    "items": []
+  },
+  {
+    "id": "cmkake6a3000248su75ndxcqv",
+    "slug": "footer-urunler",
+    "title": "Ürünler",
+    "createdAt": "2026-01-12T02:49:32.235Z",
+    "updatedAt": "2026-01-12T02:49:32.235Z",
+    "items": []
+  },
+  {
+    "id": "cmkake6ai000348suge9p2c4v",
+    "slug": "footer-kurumsal",
+    "title": "Kurumsal",
+    "createdAt": "2026-01-12T02:49:32.249Z",
+    "updatedAt": "2026-01-12T02:49:32.249Z",
+    "items": []
+  },
+  {
+    "id": "cmkake6b2000448suqai946c4",
+    "slug": "footer-yasal",
+    "title": "Yasal",
+    "createdAt": "2026-01-12T02:49:32.270Z",
+    "updatedAt": "2026-01-12T02:49:32.270Z",
+    "items": []
+  },
+  {
+    "id": "cmo20pcd80000j8sujftud33m",
+    "slug": "header-uzaktan",
+    "title": "Uzaktan Eğitim (Header)",
+    "createdAt": "2026-04-16T21:55:00.956Z",
+    "updatedAt": "2026-04-16T21:55:00.956Z",
+    "items": []
+  },
+  {
+    "id": "cmo20pcdk0001j8sueovx4qra",
+    "slug": "header-orgun",
+    "title": "Ankara Örgün (Header)",
+    "createdAt": "2026-04-16T21:55:00.968Z",
+    "updatedAt": "2026-04-16T21:55:00.968Z",
+    "items": []
+  },
+  {
+    "id": "cmo20pcdv0002j8suucmv2ni6",
+    "slug": "header-kamplar",
+    "title": "Kamplar (Header)",
+    "createdAt": "2026-04-16T21:55:00.979Z",
+    "updatedAt": "2026-04-16T21:55:00.979Z",
+    "items": []
+  },
+  {
+    "id": "cmo20pce60003j8suwmmx3vv9",
+    "slug": "header-flix",
+    "title": "4T Flix (Header)",
+    "createdAt": "2026-04-16T21:55:00.990Z",
+    "updatedAt": "2026-04-16T21:55:00.990Z",
+    "items": []
+  },
+  {
+    "id": "cmo20pcef0004j8suq35jtour",
+    "slug": "header-blog",
+    "title": "Blog (Header)",
+    "createdAt": "2026-04-16T21:55:00.999Z",
+    "updatedAt": "2026-04-16T21:55:00.999Z",
+    "items": []
+  },
+  {
+    "id": "cmo20pceq0005j8su42oaph8o",
+    "slug": "header-hakkimizda",
+    "title": "Hakkımızda (Header)",
+    "createdAt": "2026-04-16T21:55:01.010Z",
+    "updatedAt": "2026-04-16T21:55:01.010Z",
+    "items": []
+  }
+]

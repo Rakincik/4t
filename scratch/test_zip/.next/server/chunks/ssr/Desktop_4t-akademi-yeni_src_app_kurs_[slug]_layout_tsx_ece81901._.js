@@ -1,0 +1,3 @@
+module.exports=[53977,a=>{"use strict";function b(){return[{slug:"115-donem-kaymakamlik"},{slug:"kaymakamlik-soru-kampi"},{slug:"kpss-a-premium"},{slug:"kpss-a-iktisat-kampi"},{slug:"sayistay-soru-kampi"},{slug:"guy-hazirlik"}]}function c({children:a}){return a}a.s(["default",()=>c,"generateStaticParams",()=>b])}];
+
+//# sourceMappingURL=Desktop_4t-akademi-yeni_src_app_kurs_%5Bslug%5D_layout_tsx_ece81901._.js.map

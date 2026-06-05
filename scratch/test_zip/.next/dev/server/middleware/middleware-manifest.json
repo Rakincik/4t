@@ -1,0 +1,35 @@
+{
+  "sorted_middleware": [],
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge/chunks/Desktop_4t-akademi-yeni_71542498._.js",
+        "server/edge/chunks/[root-of-the-server]__58a98e28._.js",
+        "server/edge/chunks/turbopack-Desktop_4t-akademi-yeni_edge-wrapper_7b664fb8.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/admin/:path*{(\\\\.json)}?",
+          "originalSource": "/admin/:path*"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/giris{(\\\\.json)}?",
+          "originalSource": "/giris"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "development",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "aU7VtGPqkrRYcrxplQwardXwbtCc3wTjOfvSx0exOtw=",
+        "__NEXT_PREVIEW_MODE_ID": "e8a1c2b5129585452bfe373a7fec4a41",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "eed6cafed3e657556b53fd8aec892e81175146c2517755569fd48a91cd64c24c",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "64fc261bf5f7cfefa1784b9072d6cdc265ff986a33cf6149a3540e1744588965"
+      }
+    }
+  },
+  "instrumentation": null,
+  "functions": {}
+}

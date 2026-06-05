@@ -1,0 +1,80 @@
+{
+  "node": {
+    "0015669388053c33703555afe1c2778f0a19c030bf": {
+      "workers": {
+        "app/admin/flix/page": {
+          "moduleId": 67018,
+          "async": true,
+          "exportedName": "getFlixPackages",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/flix/page": "rsc"
+      },
+      "exportedName": "getFlixPackages",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+    },
+    "404a450a957f94819c9c23dde4b5e14ca3927c18e7": {
+      "workers": {
+        "app/admin/flix/page": {
+          "moduleId": 67018,
+          "async": true,
+          "exportedName": "deleteFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/flix/page": "rsc"
+      },
+      "exportedName": "deleteFlixPackage",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+    },
+    "404b34824482f92fc900c8f68217b2aafb9950f3c6": {
+      "workers": {
+        "app/admin/flix/page": {
+          "moduleId": 67018,
+          "async": true,
+          "exportedName": "createFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/flix/page": "rsc"
+      },
+      "exportedName": "createFlixPackage",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+    },
+    "408c1a9290c1cef1a3ef0161c42bf73da34754ccda": {
+      "workers": {
+        "app/admin/flix/page": {
+          "moduleId": 67018,
+          "async": true,
+          "exportedName": "getFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/flix/page": "rsc"
+      },
+      "exportedName": "getFlixPackage",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+    },
+    "609b898ed80cf22f5cebb57347829c3b17134b3b2c": {
+      "workers": {
+        "app/admin/flix/page": {
+          "moduleId": 67018,
+          "async": true,
+          "exportedName": "updateFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/flix/page": "rsc"
+      },
+      "exportedName": "updateFlixPackage",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+    }
+  },
+  "edge": {}
+}

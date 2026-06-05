@@ -1,0 +1,149 @@
+TOTAL_FAILURES: 1097
+
+STATUS CODE COUNTS:
+HTTP 400: 48 times
+HTTP 403: 95 times
+HTTP 404: 837 times
+HTTP 405: 8 times
+HTTP 408: 81 times
+HTTP 500: 15 times
+HTTP 502: 13 times
+
+MOST COMMON FAILED PATHS (Top 30):
+31 times - /
+15 times - /.git/config
+13 times - /.env
+13 times - /robots.txt
+12 times - /_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1531297461136-82lw33a4c8f0f%3Fq%3D80%26w%3D1600%26auto%3Dformat%26fit%3Dcrop&w=1920&q=75
+11 times - /info.php
+10 times - /config.json
+9 times - /server
+9 times - /server-status
+9 times - /about
+9 times - /login.action
+9 times - /___proxy_subdomain_whm/login
+9 times - /___proxy_subdomain_cpanel
+9 times - /v2/_catalog
+9 times - /.DS_Store
+9 times - /ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application
+9 times - /graphql
+9 times - /api
+9 times - /api/graphql
+9 times - /graphql/api
+9 times - /api/gql
+9 times - /s/331313e22353e24313e21333/_/;/META-INF/maven/com.atlassian.jira/jira-webapp-dist/pom.properties
+9 times - /telescope/requests
+9 times - /actuator/env
+9 times - /trace.axd
+9 times - /@vite/env
+9 times - /.vscode/sftp.json
+9 times - /debug/default/view?panel=config
+8 times - /php-cgi/php-cgi.exe?%ADd+cgi.force_redirect%3D0+%ADd+disable_functions%3D\"\"+%ADd+allow_url_include%3D1+%ADd+auto_prepend_file%3Dphp://input
+8 times - /exec?cmd=hostname
+
+ALL UNIQUE FAILED PATHS BY STATUS CODE:
+
+--- HTTP 400 ---
+  9 times: LEAKIX
+  9 times: 
+  3 times: /
+  1 times: /console/
+  1 times: /server
+  1 times: /server-status
+  1 times: /about
+  1 times: /login.action
+  1 times: /___proxy_subdomain_whm/login
+  1 times: /___proxy_subdomain_cpanel
+  1 times: /v2/_catalog
+  1 times: /.DS_Store
+  1 times: /.env
+  1 times: /ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application
+  1 times: /.git/config
+  1 times: /graphql
+  1 times: /api
+  1 times: /api/graphql
+  1 times: /graphql/api
+  1 times: /api/gql
+
+--- HTTP 403 ---
+  14 times: /.git/config
+  12 times: /.env
+  8 times: /php-cgi/php-cgi.exe?%ADd+cgi.force_redirect%3D0+%ADd+disable_functions%3D\"\"+%ADd+allow_url_include%3D1+%ADd+auto_prepend_file%3Dphp://input
+  8 times: /trace.axd
+  3 times: /.env.production
+  2 times: /.env.local
+  2 times: /.git/HEAD
+  1 times: /.env.development
+  1 times: /composer.json
+  1 times: /admin/.env
+  1 times: /core/.env
+  1 times: /server/.env
+  1 times: /site/all/libraries/mailchimp/.env
+  1 times: /panel/.env
+  1 times: /media/.env
+  1 times: /.env.save
+  1 times: /wp-content/.env
+  1 times: /.git/logs/HEAD
+  1 times: /application/.env
+  1 times: /app/.env
+
+--- HTTP 404 ---
+  13 times: /robots.txt
+  12 times: /_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1531297461136-82lw33a4c8f0f%3Fq%3D80%26w%3D1600%26auto%3Dformat%26fit%3Dcrop&w=1920&q=75
+  10 times: /info.php
+  9 times: /config.json
+  8 times: /server
+  8 times: /server-status
+  8 times: /about
+  8 times: /login.action
+  8 times: /___proxy_subdomain_whm/login
+  8 times: /___proxy_subdomain_cpanel
+  8 times: /v2/_catalog
+  8 times: /.DS_Store
+  8 times: /ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application
+  8 times: /graphql
+  8 times: /api
+  8 times: /api/graphql
+  8 times: /graphql/api
+  8 times: /api/gql
+  8 times: /s/331313e22353e24313e21333/_/;/META-INF/maven/com.atlassian.jira/jira-webapp-dist/pom.properties
+  8 times: /telescope/requests
+
+--- HTTP 405 ---
+  8 times: /
+
+--- HTTP 408 ---
+  1 times: /NNdiWq?z=kill%20-9%20729799%202%3E/dev/null
+  1 times: /NNdiWq?z=kill%20-9%20729802%202%3E/dev/null
+  1 times: /NNdiWq?z=kill%20-9%20729768%202%3E/dev/null
+  1 times: /NNdiWq?z=kill%20-9%20729792%202%3E/dev/null
+  1 times: /NNdiWq?z=kill%20-9%20729784%202%3E/dev/null
+  1 times: /NNdiWq?z=kill%20-9%20729743%202%3E/dev/null
+  1 times: /NNdiWq?z=crontab%20-l%202%3E/dev/null%20%7C%20grep%20-F%20%27ps%27%20%7C%7C%20crontab%20-l%202%3E/dev/null%20%7C%20grep%20-F%20%27ps%27
+  1 times: /NNdiWq?z=systemctl%20stop%20e2scrub_reap.service%202%3E/dev/null
+  1 times: /NNdiWq?z=systemctl%20disable%20e2scrub_reap.service%202%3E/dev/null
+  1 times: /NNdiWq?z=systemctl%20stop%20%2A%202%3E/dev/null
+  1 times: /NNdiWq?z=systemctl%20disable%20%2A%202%3E/dev/null
+  1 times: /NNdiWq?z=systemctl%20stop%20lvm2-monitor.service%202%3E/dev/null
+  1 times: /NNdiWq?z=systemctl%20disable%20lvm2-monitor.service%202%3E/dev/null
+  1 times: /NNdiWq?z=systemctl%20disable%20modprobe%40efi_pstore.service%202%3E/dev/null
+  1 times: /NNdiWq?z=systemctl%20stop%20modprobe%40efi_pstore.service%202%3E/dev/null
+  1 times: /NNdiWq?z=systemctl%20stop%20pollinate.service%202%3E/dev/null
+  1 times: /lAewrM?z=kill%20-9%201241548%202%3E/dev/null
+  1 times: /lAewrM?z=kill%20-9%201241535%202%3E/dev/null
+  1 times: /lAewrM?z=kill%20-9%201241546%202%3E/dev/null
+  1 times: /lAewrM?z=kill%20-9%201241506%202%3E/dev/null
+
+--- HTTP 500 ---
+  15 times: /
+
+--- HTTP 502 ---
+  5 times: /
+  1 times: /admin/kurslar/cmpf9brp50002aihkequggcwl?_rsc=lmyea
+  1 times: /admin/kurslar/cmpf9hqbl0004aihkrqdijeew?_rsc=lmyea
+  1 times: /api/auth/session
+  1 times: /admin/kurslar/cmpf9tvph0008aihkw4atj8t3?_rsc=lmyea
+  1 times: /admin/kurslar/cmo23fe5m0026alhkyzzyyo68?_rsc=lmyea
+  1 times: /admin/kurslar/cmpf9lf590006aihkqu82ljiu?_rsc=1g4xu
+  1 times: /admin/kurslar/cmpf9tvph0008aihkw4atj8t3?_rsc=1g4xu
+  1 times: /admin/kurslar/cmpf9hqbl0004aihkrqdijeew?_rsc=1g4xu

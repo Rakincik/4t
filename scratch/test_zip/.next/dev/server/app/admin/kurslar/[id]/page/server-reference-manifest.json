@@ -1,0 +1,80 @@
+{
+  "node": {
+    "00c095d751fd2f8507d76e45623f2a2cfeb6ed38f3": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/kurslar/[id]/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getCourses",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "rsc"
+      },
+      "exportedName": "getCourses",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+    },
+    "402aae9e933edd736cd626420373f81e21fdb1b922": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/kurslar/[id]/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "createCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "action-browser"
+      },
+      "exportedName": "createCourse",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+    },
+    "403ecfde35d15e8683db4745fcf6872b7da3bf1bad": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/kurslar/[id]/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "rsc"
+      },
+      "exportedName": "getCourse",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+    },
+    "4053bf9bcf2ca0bf5328eb402444830862d9ee789c": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/kurslar/[id]/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "deleteCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "rsc"
+      },
+      "exportedName": "deleteCourse",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+    },
+    "6038dd6a94108c9b37029a7e1ddddf2a5293f1cc70": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/kurslar/[id]/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "updateCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "action-browser"
+      },
+      "exportedName": "updateCourse",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+    }
+  },
+  "edge": {}
+}

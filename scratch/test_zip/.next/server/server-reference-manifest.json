@@ -1,0 +1,752 @@
+{
+  "node": {
+    "40595b696d2b868d5e32bc6ae6ca81235cc492066b": {
+      "workers": {
+        "app/admin/blog/page": {
+          "moduleId": 79667,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_1",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/blog/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_1"
+    },
+    "4099b9268045242f37e7b64e9d4c6b80923dc9558e": {
+      "workers": {
+        "app/admin/blog/page": {
+          "moduleId": 79667,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_2",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/blog/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_2"
+    },
+    "40cdfedbcfa2ef4b0f359f73deee151a00ab280df4": {
+      "workers": {
+        "app/admin/blog/page": {
+          "moduleId": 79667,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/blog/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "401830219f453021d11af03c6d3fd8edd71b80e9f6": {
+      "workers": {
+        "app/admin/blog/[id]/page": {
+          "moduleId": 12560,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/[id]/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/blog/[id]/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/[id]/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "0015669388053c33703555afe1c2778f0a19c030bf": {
+      "workers": {
+        "app/admin/flix/[id]/page": {
+          "moduleId": 24249,
+          "async": true,
+          "exportedName": "getFlixPackages",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        },
+        "app/admin/flix/ekle/page": {
+          "moduleId": 24515,
+          "async": true,
+          "exportedName": "getFlixPackages",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        },
+        "app/admin/flix/page": {
+          "moduleId": 67018,
+          "async": true,
+          "exportedName": "getFlixPackages",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/flix/[id]/page": "rsc",
+        "app/admin/flix/ekle/page": "rsc",
+        "app/admin/flix/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts",
+      "exportedName": "getFlixPackages"
+    },
+    "404a450a957f94819c9c23dde4b5e14ca3927c18e7": {
+      "workers": {
+        "app/admin/flix/[id]/page": {
+          "moduleId": 24249,
+          "async": true,
+          "exportedName": "deleteFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        },
+        "app/admin/flix/ekle/page": {
+          "moduleId": 24515,
+          "async": true,
+          "exportedName": "deleteFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        },
+        "app/admin/flix/page": {
+          "moduleId": 67018,
+          "async": true,
+          "exportedName": "deleteFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/flix/[id]/page": "rsc",
+        "app/admin/flix/ekle/page": "rsc",
+        "app/admin/flix/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts",
+      "exportedName": "deleteFlixPackage"
+    },
+    "404b34824482f92fc900c8f68217b2aafb9950f3c6": {
+      "workers": {
+        "app/admin/flix/[id]/page": {
+          "moduleId": 24249,
+          "async": true,
+          "exportedName": "createFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        },
+        "app/admin/flix/ekle/page": {
+          "moduleId": 24515,
+          "async": true,
+          "exportedName": "createFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        },
+        "app/admin/flix/page": {
+          "moduleId": 67018,
+          "async": true,
+          "exportedName": "createFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/flix/[id]/page": "rsc",
+        "app/admin/flix/ekle/page": "rsc",
+        "app/admin/flix/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts",
+      "exportedName": "createFlixPackage"
+    },
+    "408c1a9290c1cef1a3ef0161c42bf73da34754ccda": {
+      "workers": {
+        "app/admin/flix/[id]/page": {
+          "moduleId": 24249,
+          "async": true,
+          "exportedName": "getFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        },
+        "app/admin/flix/ekle/page": {
+          "moduleId": 24515,
+          "async": true,
+          "exportedName": "getFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        },
+        "app/admin/flix/page": {
+          "moduleId": 67018,
+          "async": true,
+          "exportedName": "getFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/flix/[id]/page": "rsc",
+        "app/admin/flix/ekle/page": "rsc",
+        "app/admin/flix/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts",
+      "exportedName": "getFlixPackage"
+    },
+    "609b898ed80cf22f5cebb57347829c3b17134b3b2c": {
+      "workers": {
+        "app/admin/flix/[id]/page": {
+          "moduleId": 24249,
+          "async": true,
+          "exportedName": "updateFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        },
+        "app/admin/flix/ekle/page": {
+          "moduleId": 24515,
+          "async": true,
+          "exportedName": "updateFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        },
+        "app/admin/flix/page": {
+          "moduleId": 67018,
+          "async": true,
+          "exportedName": "updateFlixPackage",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/flix/[id]/page": "rsc",
+        "app/admin/flix/ekle/page": "rsc",
+        "app/admin/flix/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/actions.ts",
+      "exportedName": "updateFlixPackage"
+    },
+    "600d76c3a54d5d3733fd5cf2fb015be5b207c38a00": {
+      "workers": {
+        "app/admin/flix/[id]/page": {
+          "moduleId": 24249,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/[id]/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/flix/[id]/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/flix/[id]/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "401699ccff8d5d5f08ce270515a5626d56c81bfc63": {
+      "workers": {
+        "app/admin/kuponlar/page": {
+          "moduleId": 72197,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/kuponlar/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "404686e0775e5ef00b4ae5e13225df08bacd5f5a87": {
+      "workers": {
+        "app/admin/kuponlar/page": {
+          "moduleId": 72197,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_1",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/kuponlar/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_1"
+    },
+    "40c0a72b444178b4d58a1b6145525a209847c8d5e9": {
+      "workers": {
+        "app/admin/kuponlar/page": {
+          "moduleId": 72197,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_2",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/kuponlar/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_2"
+    },
+    "40260a1500f4ba990f02718ec205d2ee887f73d383": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": 90357,
+          "async": true,
+          "exportedName": "deleteCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        },
+        "app/admin/kurslar/page": {
+          "moduleId": 1190,
+          "async": true,
+          "exportedName": "deleteCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "rsc",
+        "app/admin/kurslar/page": "action-browser"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts",
+      "exportedName": "deleteCourse"
+    },
+    "0071ce7fc3e6aa015a4ac3bd95f6820040c4d84d75": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": 90357,
+          "async": true,
+          "exportedName": "getCourses",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts",
+      "exportedName": "getCourses"
+    },
+    "40042cb9144b1fa111c7dc3f95a7a6e8ec47b91be4": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": 90357,
+          "async": true,
+          "exportedName": "getCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts",
+      "exportedName": "getCourse"
+    },
+    "402fcf17694e1517cf0b17a377b1c0dca4790ebd41": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": 90357,
+          "async": true,
+          "exportedName": "createCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        },
+        "app/admin/kurslar/ekle/page": {
+          "moduleId": 77840,
+          "async": true,
+          "exportedName": "createCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "action-browser",
+        "app/admin/kurslar/ekle/page": "action-browser"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts",
+      "exportedName": "createCourse"
+    },
+    "6054ca434059c4c082a8236d4da81a497952de3a54": {
+      "workers": {
+        "app/admin/kurslar/[id]/page": {
+          "moduleId": 90357,
+          "async": true,
+          "exportedName": "updateCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        },
+        "app/admin/kurslar/ekle/page": {
+          "moduleId": 77840,
+          "async": true,
+          "exportedName": "updateCourse",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/kurslar/[id]/page": "action-browser",
+        "app/admin/kurslar/ekle/page": "action-browser"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kurslar/actions.ts",
+      "exportedName": "updateCourse"
+    },
+    "4076a81057bf275a73ad2420f0a35d64c890fd3093": {
+      "workers": {
+        "app/admin/ogrenciler/page": {
+          "moduleId": 23995,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/ogrenciler/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/ogrenciler/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/ogrenciler/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "401a8afaf8e6451e4c2fa15496b475c087f23580e9": {
+      "workers": {
+        "app/admin/siparisler/[id]/page": {
+          "moduleId": 48551,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_1",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/siparisler/[id]/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/siparisler/[id]/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/siparisler/[id]/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_1"
+    },
+    "4038122db796c587b256fed5fb011eb9f59546773b": {
+      "workers": {
+        "app/admin/siparisler/[id]/page": {
+          "moduleId": 48551,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/siparisler/[id]/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/siparisler/[id]/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/siparisler/[id]/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "00bbdb4997785485e7eca47917d4885502d754e399": {
+      "workers": {
+        "app/admin/site/menuler/page": {
+          "moduleId": 36735,
+          "async": true,
+          "exportedName": "getSiteConfig",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        },
+        "app/admin/site/page": {
+          "moduleId": 27260,
+          "async": true,
+          "exportedName": "getSiteConfig",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/menuler/page": "rsc",
+        "app/admin/site/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts",
+      "exportedName": "getSiteConfig"
+    },
+    "00fa8e0eabf82a63c9fb5c11f5142e7bc57e66f3ba": {
+      "workers": {
+        "app/admin/site/menuler/page": {
+          "moduleId": 36735,
+          "async": true,
+          "exportedName": "getMenus",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        },
+        "app/admin/site/page": {
+          "moduleId": 27260,
+          "async": true,
+          "exportedName": "getMenus",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/menuler/page": "rsc",
+        "app/admin/site/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts",
+      "exportedName": "getMenus"
+    },
+    "4015f7b090d31637e65cbdb58ff118b0bba3bdb82a": {
+      "workers": {
+        "app/admin/site/menuler/page": {
+          "moduleId": 36735,
+          "async": true,
+          "exportedName": "updateMenuItem",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        },
+        "app/admin/site/page": {
+          "moduleId": 27260,
+          "async": true,
+          "exportedName": "updateMenuItem",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/menuler/page": "action-browser",
+        "app/admin/site/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts",
+      "exportedName": "updateMenuItem"
+    },
+    "4033a275fd515ad6e3cb36b6f76deee253b9b0a5b6": {
+      "workers": {
+        "app/admin/site/menuler/page": {
+          "moduleId": 36735,
+          "async": true,
+          "exportedName": "createMenu",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        },
+        "app/admin/site/page": {
+          "moduleId": 27260,
+          "async": true,
+          "exportedName": "createMenu",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/menuler/page": "rsc",
+        "app/admin/site/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts",
+      "exportedName": "createMenu"
+    },
+    "40634661633fb09fc6de4dafc4c9b7a0e5ac2dc864": {
+      "workers": {
+        "app/admin/site/menuler/page": {
+          "moduleId": 36735,
+          "async": true,
+          "exportedName": "reorderMenuItems",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        },
+        "app/admin/site/page": {
+          "moduleId": 27260,
+          "async": true,
+          "exportedName": "reorderMenuItems",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/menuler/page": "rsc",
+        "app/admin/site/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts",
+      "exportedName": "reorderMenuItems"
+    },
+    "4077f6725340b4b7ea0b87b3b5069eb6b33c08a548": {
+      "workers": {
+        "app/admin/site/menuler/page": {
+          "moduleId": 36735,
+          "async": true,
+          "exportedName": "deleteMenu",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        },
+        "app/admin/site/page": {
+          "moduleId": 27260,
+          "async": true,
+          "exportedName": "deleteMenu",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/menuler/page": "rsc",
+        "app/admin/site/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts",
+      "exportedName": "deleteMenu"
+    },
+    "40933546fd4b2b4e97ff0b6d2764baaf37cd301f57": {
+      "workers": {
+        "app/admin/site/menuler/page": {
+          "moduleId": 36735,
+          "async": true,
+          "exportedName": "deleteMenuItem",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        },
+        "app/admin/site/page": {
+          "moduleId": 27260,
+          "async": true,
+          "exportedName": "deleteMenuItem",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/menuler/page": "action-browser",
+        "app/admin/site/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts",
+      "exportedName": "deleteMenuItem"
+    },
+    "409c31cd5ab3b3b6573be657882f5ffce963541dcb": {
+      "workers": {
+        "app/admin/site/menuler/page": {
+          "moduleId": 36735,
+          "async": true,
+          "exportedName": "updateSiteConfig",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        },
+        "app/admin/site/page": {
+          "moduleId": 27260,
+          "async": true,
+          "exportedName": "updateSiteConfig",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/menuler/page": "rsc",
+        "app/admin/site/page": "action-browser"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts",
+      "exportedName": "updateSiteConfig"
+    },
+    "40a75a63db178c9c7ed01b08d1e84c435d0fd5c294": {
+      "workers": {
+        "app/admin/site/menuler/page": {
+          "moduleId": 36735,
+          "async": true,
+          "exportedName": "addMenuItem",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        },
+        "app/admin/site/page": {
+          "moduleId": 27260,
+          "async": true,
+          "exportedName": "addMenuItem",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/menuler/page": "action-browser",
+        "app/admin/site/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts",
+      "exportedName": "addMenuItem"
+    },
+    "40a981a39b1ca059d29caa1b95a4dc3eee3444610e": {
+      "workers": {
+        "app/admin/site/menuler/page": {
+          "moduleId": 36735,
+          "async": true,
+          "exportedName": "getMenu",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        },
+        "app/admin/site/page": {
+          "moduleId": 27260,
+          "async": true,
+          "exportedName": "getMenu",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/menuler/page": "rsc",
+        "app/admin/site/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts",
+      "exportedName": "getMenu"
+    },
+    "4049215bd5f09f5b15e4534ffc14664edb7d75c1ed": {
+      "workers": {
+        "app/admin/slider/page": {
+          "moduleId": 48634,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/slider/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "407904ac14f01c47c4c6761a2ce55804e63aae3d42": {
+      "workers": {
+        "app/admin/slider/page": {
+          "moduleId": 48634,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_2",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/slider/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_2"
+    },
+    "409b2d2de956e2bef2075989cc4cd5f2cc736ecd10": {
+      "workers": {
+        "app/admin/slider/page": {
+          "moduleId": 48634,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_1",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/slider/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_1"
+    },
+    "40d57c57bacdf9f39fc47784d1e4c6ffa3cb570b99": {
+      "workers": {
+        "app/admin/slider/page": {
+          "moduleId": 48634,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_3",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/slider/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/slider/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_3"
+    },
+    "403ab13bd0b66eb6252a38b830a7f365ac03b0db8f": {
+      "workers": {
+        "app/admin/sss/page": {
+          "moduleId": 94797,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_1",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/sss/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/sss/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/sss/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_1"
+    },
+    "40592c6630970d8b16e686a2f9af313c4ae279d157": {
+      "workers": {
+        "app/admin/sss/page": {
+          "moduleId": 94797,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/sss/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/sss/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/sss/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "40894f048a43d4db43e1405861984dc89151d8504c": {
+      "workers": {
+        "app/admin/sss/page": {
+          "moduleId": 94797,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_2",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/sss/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/sss/page": "rsc"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/sss/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_2"
+    },
+    "609b0aa1269e387d2088e043b69430d44375b3988e": {
+      "workers": {
+        "app/sepet/page": {
+          "moduleId": 30439,
+          "async": true,
+          "exportedName": "validateCouponAction",
+          "filename": "Desktop/4t-akademi-yeni/src/app/sepet/actions.ts"
+        }
+      },
+      "layer": {
+        "app/sepet/page": "action-browser"
+      },
+      "filename": "Desktop/4t-akademi-yeni/src/app/sepet/actions.ts",
+      "exportedName": "validateCouponAction"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "BVAmBOKyLmaqskprGFXM/d1lgaum0+UEuTtZY4yJbi4="
+}

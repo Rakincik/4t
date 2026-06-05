@@ -1,0 +1,155 @@
+{
+  "node": {
+    "00738c1a634a0fb3217bf4460f9e55b3a58054bd1e": {
+      "workers": {
+        "app/admin/site/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/site/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getSiteConfig",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/page": "rsc"
+      },
+      "exportedName": "getSiteConfig",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+    },
+    "0082a050396bd5780c10aa8e3a257d1ace8c9de052": {
+      "workers": {
+        "app/admin/site/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/site/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getMenus",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/page": "rsc"
+      },
+      "exportedName": "getMenus",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+    },
+    "40185ef1fe6d1f2bbe706bd1eb1859476b8e5941b7": {
+      "workers": {
+        "app/admin/site/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/site/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "deleteMenu",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/page": "rsc"
+      },
+      "exportedName": "deleteMenu",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+    },
+    "40516ff7af8b1d12b9f59952c9587a8b08c72e694e": {
+      "workers": {
+        "app/admin/site/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/site/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "updateMenuItem",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/page": "rsc"
+      },
+      "exportedName": "updateMenuItem",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+    },
+    "4058fc63b597059627957d40878665e796a8a51830": {
+      "workers": {
+        "app/admin/site/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/site/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "createMenu",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/page": "rsc"
+      },
+      "exportedName": "createMenu",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+    },
+    "4079dc8a4a9b8639a535019d40ec88d83b6d50e9ca": {
+      "workers": {
+        "app/admin/site/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/site/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "updateSiteConfig",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/page": "action-browser"
+      },
+      "exportedName": "updateSiteConfig",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+    },
+    "407b23ba479e2bb19fb2d8e71300ccd9ec574bf399": {
+      "workers": {
+        "app/admin/site/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/site/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "deleteMenuItem",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/page": "rsc"
+      },
+      "exportedName": "deleteMenuItem",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+    },
+    "40845f70fb4e26576a0c4a04edff990d83c2a8350a": {
+      "workers": {
+        "app/admin/site/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/site/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getMenu",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/page": "rsc"
+      },
+      "exportedName": "getMenu",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+    },
+    "40e8cd83f3eee536f418090b70618f5101051f4631": {
+      "workers": {
+        "app/admin/site/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/site/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "reorderMenuItems",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/page": "rsc"
+      },
+      "exportedName": "reorderMenuItems",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+    },
+    "40fe25308bc3c54aa13ce25049308ffce1eb4a6c75": {
+      "workers": {
+        "app/admin/site/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/site/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "addMenuItem",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/site/page": "rsc"
+      },
+      "exportedName": "addMenuItem",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/site/actions.ts"
+    }
+  },
+  "edge": {}
+}

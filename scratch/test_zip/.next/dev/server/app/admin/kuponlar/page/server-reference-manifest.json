@@ -1,0 +1,35 @@
+{
+  "node": {
+    "40058b06f5e01ad1de693a4966ce0bdcb0a2d08cd6": {
+      "workers": {
+        "app/admin/kuponlar/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/kuponlar/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/kuponlar/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx"
+    },
+    "40f328bfc80733bfb156d371d7dd19dcb7c6d23199": {
+      "workers": {
+        "app/admin/kuponlar/page": {
+          "moduleId": "[project]/Desktop/4t-akademi-yeni/.next-internal/server/app/admin/kuponlar/page/actions.js { ACTIONS_MODULE0 => \"[project]/Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_1",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/kuponlar/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_1",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/kuponlar/page.tsx"
+    }
+  },
+  "edge": {}
+}

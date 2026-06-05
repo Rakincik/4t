@@ -1,0 +1,50 @@
+{
+  "node": {
+    "40595b696d2b868d5e32bc6ae6ca81235cc492066b": {
+      "workers": {
+        "app/admin/blog/page": {
+          "moduleId": 79667,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_1",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/blog/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_1",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+    },
+    "4099b9268045242f37e7b64e9d4c6b80923dc9558e": {
+      "workers": {
+        "app/admin/blog/page": {
+          "moduleId": 79667,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_2",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/blog/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_2",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+    },
+    "40cdfedbcfa2ef4b0f359f73deee151a00ab280df4": {
+      "workers": {
+        "app/admin/blog/page": {
+          "moduleId": 79667,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/blog/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "Desktop/4t-akademi-yeni/src/app/admin/blog/page.tsx"
+    }
+  },
+  "edge": {}
+}
