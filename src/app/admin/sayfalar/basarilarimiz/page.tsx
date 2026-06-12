@@ -5,19 +5,21 @@ import {
     TrophyIcon, PlusIcon, TrashIcon, PhotoIcon, ChevronDownIcon,
     ComputerDesktopIcon, DevicePhoneMobileIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon,
     ArrowPathIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon, CheckCircleIcon,
-    UserGroupIcon,
+    UserGroupIcon, ChartBarIcon, PlayIcon
 } from "@heroicons/react/24/outline";
 import RichTextEditor from "@/app/admin/components/RichTextEditor";
 import SortableList from "@/app/admin/components/SortableList";
 import VersionHistory from "@/app/admin/components/VersionHistory";
+import AdminBackButton from "@/app/admin/components/AdminBackButton";
 
-type SectionId = "hero" | "stories";
+type SectionId = "hero" | "stats" | "stories";
 const SECTION_META: Record<SectionId, { label: string; icon: any; color: string }> = {
     hero: { label: "Hero Bölümü", icon: TrophyIcon, color: "text-yellow-500 bg-yellow-50" },
+    stats: { label: "Gurur İstatistikleri", icon: ChartBarIcon, color: "text-green-500 bg-green-50" },
     stories: { label: "Başarı Hikayeleri", icon: UserGroupIcon, color: "text-blue-500 bg-blue-50" },
 };
 
-type StoryItem = { name: string; title: string; testimonial: string; imageUrl: string; category: string; year: number };
+type StoryItem = { name: string; title: string; testimonial: string; imageUrl: string; category: string; year: number; videoUrl?: string };
 
 export default function BasarilarimizEditorPage() {
     const [loading, setLoading] = useState(true);
@@ -34,25 +36,43 @@ export default function BasarilarimizEditorPage() {
 
     const [heroTitle, setHeroTitle] = useState("Gurur Tablomuz");
     const [heroDesc, setHeroDesc] = useState("4T Akademi ailesi olarak, hayallerine ulaşan öğrencilerimizin başarılarını paylaşmaktan gurur duyarız.");
+    const [stats, setStats] = useState([{ label: "Kaymakam", value: "500+" }, { label: "Hakim & Savcı", value: "1200+" }, { label: "Yerleşme Oranı", value: "%98" }]);
     const [stories, setStories] = useState<StoryItem[]>([
-        { name: "Ahmet Yılmaz", title: "Kaymakam Adayı", testimonial: "4T Akademi'nin disiplinli programı ve Yüksel Hoca'nın İktisat dersleri olmasaydı başaramazdım.", imageUrl: "", category: "kaymakamlik", year: 2024 },
-        { name: "Mehmet Öztürk", title: "Sayıştay Denetçisi", testimonial: "Hukuk derslerindeki detaylı anlatım sayesinde rakiplerimin önüne geçtim.", imageUrl: "", category: "sayistay", year: 2024 },
-        { name: "Zeynep Demir", title: "Gelir Uzman Yrd.", testimonial: "Soru çözüm kampları, sınavdaki zaman yönetimimi mükemmel hale getirdi.", imageUrl: "", category: "guy", year: 2024 },
+        { name: "Ahmet Yılmaz", title: "Kaymakam Adayı", testimonial: "4T Akademi'nin disiplinli programı ve Yüksel Hoca'nın İktisat dersleri olmasaydı başaramazdım.", imageUrl: "", category: "kaymakamlik", year: 2024, videoUrl: "" },
+        { name: "Mehmet Öztürk", title: "Sayıştay Denetçisi", testimonial: "Hukuk derslerindeki detaylı anlatım sayesinde rakiplerimin önüne geçtim.", imageUrl: "", category: "sayistay", year: 2024, videoUrl: "" },
+        { name: "Zeynep Demir", title: "Gelir Uzman Yrd.", testimonial: "Soru çözüm kampları, sınavdaki zaman yönetimimi mükemmel hale getirdi.", imageUrl: "", category: "guy", year: 2024, videoUrl: "" },
     ]);
+    const [emptyTitle, setEmptyTitle] = useState("Sonuç Bulunamadı");
+    const [emptyDesc, setEmptyDesc] = useState("Bu filtreye uygun bir başarı hikayesi henüz eklenmemiş.");
+    const [filterAll, setFilterAll] = useState("Tümü");
+    const [filterKaymakamlik, setFilterKaymakamlik] = useState("Kaymakamlık");
+    const [filterSayistay, setFilterSayistay] = useState("Sayıştay");
+    const [filterGuy, setFilterGuy] = useState("GUY / Diğer");
+    const [filter2024, setFilter2024] = useState("2024 Yılı");
+    const [filter2023, setFilter2023] = useState("2023 Yılı");
 
     const loadData = useCallback(async () => {
         try {
             const res = await fetch("/api/admin/page-content?page=basarilarimiz");
             const data = await res.json();
             if (data.hero) { if (data.hero.title) setHeroTitle(data.hero.title); if (data.hero.content) setHeroDesc(data.hero.content); }
+            if (data.stats?.metadata?.items) setStats(data.stats.metadata.items);
             if (data.stories?.metadata?.items) setStories(data.stories.metadata.items);
+            if (data.stories?.metadata?.emptyTitle) setEmptyTitle(data.stories.metadata.emptyTitle);
+            if (data.stories?.metadata?.emptyDesc) setEmptyDesc(data.stories.metadata.emptyDesc);
+            if (data.stories?.metadata?.filterAll) setFilterAll(data.stories.metadata.filterAll);
+            if (data.stories?.metadata?.filterKaymakamlik) setFilterKaymakamlik(data.stories.metadata.filterKaymakamlik);
+            if (data.stories?.metadata?.filterSayistay) setFilterSayistay(data.stories.metadata.filterSayistay);
+            if (data.stories?.metadata?.filterGuy) setFilterGuy(data.stories.metadata.filterGuy);
+            if (data.stories?.metadata?.filter2024) setFilter2024(data.stories.metadata.filter2024);
+            if (data.stories?.metadata?.filter2023) setFilter2023(data.stories.metadata.filter2023);
         } catch (e) { console.error(e); }
         finally { setLoading(false); setHasChanges(false); }
     }, []);
 
     useEffect(() => { loadData(); }, [loadData, reloadKey]);
 
-    useEffect(() => { if (!loading) setHasChanges(true); }, [heroTitle, heroDesc, stories]);
+    useEffect(() => { if (!loading) setHasChanges(true); }, [heroTitle, heroDesc, stats, stories, emptyTitle, emptyDesc, filterAll, filterKaymakamlik, filterSayistay, filterGuy, filter2024, filter2023]);
 
     const handleSave = useCallback(async () => {
         setSaving(true); setSaveStatus("saving");
@@ -63,7 +83,8 @@ export default function BasarilarimizEditorPage() {
                     pageSlug: "basarilarimiz",
                     sections: {
                         hero: { title: heroTitle, content: heroDesc, metadata: {} },
-                        stories: { title: "Başarı Hikayeleri", content: null, metadata: { items: stories } },
+                        stats: { title: "İstatistikler", content: null, metadata: { items: stats } },
+                        stories: { title: "Başarı Hikayeleri", content: null, metadata: { items: stories, emptyTitle, emptyDesc, filterAll, filterKaymakamlik, filterSayistay, filterGuy, filter2024, filter2023 } },
                     },
                 }),
             });
@@ -72,7 +93,7 @@ export default function BasarilarimizEditorPage() {
             setTimeout(() => setSaveStatus("idle"), 3000);
         } catch { setSaveStatus("error"); setTimeout(() => setSaveStatus("idle"), 3000); }
         finally { setSaving(false); }
-    }, [heroTitle, heroDesc, stories]);
+    }, [heroTitle, heroDesc, stats, stories, emptyTitle, emptyDesc, filterAll, filterKaymakamlik, filterSayistay, filterGuy, filter2024, filter2023]);
 
     async function uploadFile(file: File): Promise<string | null> {
         const fd = new FormData(); fd.append("file", file);
@@ -96,6 +117,9 @@ export default function BasarilarimizEditorPage() {
                 {/* LEFT NAV */}
                 <div className="w-52 bg-gray-50 border-r border-gray-200 flex flex-col shrink-0">
                     <div className="px-4 py-4 border-b border-gray-200">
+                        <div className="mb-4">
+                            <AdminBackButton fallbackUrl="/admin/sayfalar" fullWidth={true} />
+                        </div>
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-bold text-gray-900">Başarılarımız</h2>
                             <VersionHistory pageSlug="basarilarimiz" onRestore={() => { setReloadKey(k => k + 1); setLoading(true); }} />
@@ -131,8 +155,38 @@ export default function BasarilarimizEditorPage() {
                             </div>
                         </SectionAccordion>
 
+                        <SectionAccordion id="stats" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
+                            <div className="space-y-3">
+                                <label className={labelCls}>Sayısal İstatistikler (Örn: 500+ Kaymakam)</label>
+                                <SortableList
+                                    items={stats}
+                                    onChange={setStats}
+                                    renderItem={(s, i) => (
+                                        <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-100 p-2">
+                                            <input className="flex-[2] px-2 py-1 rounded border border-gray-200 text-sm font-bold focus:outline-none focus:border-blue-400" value={s.value} onChange={e => { const n = [...stats]; n[i] = { ...n[i], value: e.target.value }; setStats(n); }} placeholder="Değer (Örn: 500+)" />
+                                            <input className="flex-[3] px-2 py-1 rounded border border-gray-200 text-sm focus:outline-none focus:border-blue-400" value={s.label} onChange={e => { const n = [...stats]; n[i] = { ...n[i], label: e.target.value }; setStats(n); }} placeholder="Etiket (Örn: Kaymakam)" />
+                                            <button onClick={() => setStats(stats.filter((_, idx) => idx !== i))} className="p-1 text-red-400 hover:text-red-600"><TrashIcon className="w-3.5 h-3.5" /></button>
+                                        </div>
+                                    )}
+                                />
+                                <button onClick={() => setStats([...stats, { label: "", value: "" }])} className="mt-2 text-[10px] text-green-600 font-bold flex items-center gap-1 hover:underline"><PlusIcon className="w-3 h-3" /> İstatistik Ekle</button>
+                            </div>
+                        </SectionAccordion>
+
                         <SectionAccordion id="stories" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div className="grid grid-cols-2 gap-3 pb-3 mb-3 border-b border-gray-100">
+                                    <div><label className={labelCls}>Boş Durum Başlığı</label><input className={inputCls} value={emptyTitle} onChange={e => setEmptyTitle(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Boş Durum Açıklaması</label><input className={inputCls} value={emptyDesc} onChange={e => setEmptyDesc(e.target.value)} /></div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-3 pb-3 mb-3 border-b border-gray-100">
+                                    <div><label className={labelCls}>Filtre 1 (Tümü)</label><input className={inputCls} value={filterAll} onChange={e => setFilterAll(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Filtre 2</label><input className={inputCls} value={filterKaymakamlik} onChange={e => setFilterKaymakamlik(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Filtre 3</label><input className={inputCls} value={filterSayistay} onChange={e => setFilterSayistay(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Filtre 4</label><input className={inputCls} value={filterGuy} onChange={e => setFilterGuy(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Filtre 5 (Yıl)</label><input className={inputCls} value={filter2024} onChange={e => setFilter2024(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Filtre 6 (Yıl)</label><input className={inputCls} value={filter2023} onChange={e => setFilter2023(e.target.value)} /></div>
+                                </div>
                                 <label className={labelCls}>Başarı Kartları</label>
                                 <SortableList
                                     items={stories}
@@ -146,7 +200,11 @@ export default function BasarilarimizEditorPage() {
                                                 <button onClick={() => setStories(stories.filter((_, idx) => idx !== i))} className="p-1 text-red-400 hover:text-red-600"><TrashIcon className="w-3.5 h-3.5" /></button>
                                             </div>
                                             <RichTextEditor value={s.testimonial} onChange={val => { const n = [...stories]; n[i] = { ...n[i], testimonial: val }; setStories(n); }} placeholder="Yorum / Testimonial" minRows={2} />
-                                            <div className="grid grid-cols-3 gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <PlayIcon className="w-4 h-4 text-gray-400" />
+                                                <input className="flex-1 px-2 py-1 rounded border border-gray-200 text-sm focus:outline-none focus:border-blue-400" value={s.videoUrl || ""} onChange={e => { const n = [...stories]; n[i] = { ...n[i], videoUrl: e.target.value }; setStories(n); }} placeholder="YouTube Video Linki (Opsiyonel)" />
+                                            </div>
+                                            <div className="grid grid-cols-3 gap-2 mt-2">
                                                 <select className={inputCls} value={s.category} onChange={e => { const n = [...stories]; n[i] = { ...n[i], category: e.target.value }; setStories(n); }}>
                                                     <option value="kaymakamlik">Kaymakamlık</option>
                                                     <option value="sayistay">Sayıştay</option>
@@ -175,7 +233,7 @@ export default function BasarilarimizEditorPage() {
                                         </div>
                                     )}
                                 />
-                                <button onClick={() => setStories([...stories, { name: "", title: "", testimonial: "", imageUrl: "", category: "kaymakamlik", year: 2024 }])} className="mt-2 text-[10px] text-blue-600 font-bold flex items-center gap-1 hover:underline"><PlusIcon className="w-3 h-3" /> Yeni Başarı Hikayesi Ekle</button>
+                                <button onClick={() => setStories([...stories, { name: "", title: "", testimonial: "", imageUrl: "", category: "kaymakamlik", year: 2024, videoUrl: "" }])} className="mt-2 text-[10px] text-blue-600 font-bold flex items-center gap-1 hover:underline"><PlusIcon className="w-3 h-3" /> Yeni Başarı Hikayesi Ekle</button>
                             </div>
                         </SectionAccordion>
                     </div>

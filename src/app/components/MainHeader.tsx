@@ -5,6 +5,7 @@ import {
   QuestionMarkCircleIcon,
   UserCircleIcon,
   ChevronDownIcon,
+  ChevronRightIcon,
   Bars3Icon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
@@ -67,12 +68,7 @@ export default function MainHeader() {
   const DEFAULT_MENUS: MenuBlock[] = [
     {
       id: "m1", slug: "header-uzaktan", title: "Uzaktan Eğitim",
-      items: [
-        { id: "i1", label: "Kaymakamlık Eğitimleri", url: "/kurslar", desc: "Sınav odaklı hazırlık programı" },
-        { id: "i2", label: "KPSS A Eğitimleri", url: "/kurslar", desc: "Alan bilgisi uzman anlatımı" },
-        { id: "i3", label: "Kurum Sınavları", url: "/kurslar", desc: "Hedefe yönelik özel taktikler" },
-        { id: "i4", label: "Tüm Eğitimler", url: "/kurslar", desc: "Tüm online listeyi görüntüle" }
-      ]
+      items: []
     },
     {
       id: "m2", slug: "header-kamplar", title: "Kamplar",
@@ -83,7 +79,7 @@ export default function MainHeader() {
     {
       id: "m3", slug: "header-flix", title: "4T FLIX",
       items: [
-        { id: "i6", label: "FLIX", url: "/flix" }
+        { id: "i6", label: "4T FLIX", url: "/flix" }
       ]
     },
     {
@@ -93,15 +89,11 @@ export default function MainHeader() {
       ]
     },
     {
-      id: "m5", slug: "header-blog", title: "Blog",
+      id: "m5", slug: "header-kurumsal", title: "Kurumsal",
       items: [
-        { id: "i8", label: "Blog", url: "/blog" }
-      ]
-    },
-    {
-      id: "m6", slug: "header-hakkimizda", title: "Hakkımızda",
-      items: [
-        { id: "i9", label: "Hakkımızda", url: "/hakkimizda" }
+        { id: "i8", label: "Hakkımızda", url: "/hakkimizda" },
+        { id: "i9", label: "Başarılarımız", url: "/basarilarimiz" },
+        { id: "i10", label: "Blog", url: "/blog" }
       ]
     }
   ];
@@ -142,12 +134,25 @@ export default function MainHeader() {
             "header-orgun",
             "header-kamplar",
             "header-flix",
+            "header-kurumsal",
             "header-blog",
             "header-hakkimizda"
           ];
-          const sorted = orderedSlugs
-            .map(slug => data.menus.find((m: MenuBlock) => m.slug === slug))
-            .filter(Boolean);
+          const sorted: MenuBlock[] = [];
+          
+          // Önce bilinenleri sıraya göre ekle
+          orderedSlugs.forEach(slug => {
+            const found = data.menus.find((m: MenuBlock) => m.slug === slug);
+            if (found) sorted.push(found);
+          });
+          
+          // Sonra listede olmayan (adminin yeni eklediği) diğer tüm menüleri sona ekle
+          data.menus.forEach((m: MenuBlock) => {
+            if (!orderedSlugs.includes(m.slug)) {
+              sorted.push(m);
+            }
+          });
+          
           if (sorted.length > 0) {
             const merged = sorted.map((sm: any) => {
                const dm = DEFAULT_MENUS.find(d => d.slug === sm.slug);
@@ -207,7 +212,7 @@ export default function MainHeader() {
       <header className="w-full sticky top-0 z-[200]">
         <div className="bg-[#0B1221] h-10 w-full"></div>
         <div className="bg-white border-b border-black/10">
-          <div className="container mx-auto max-w-7xl px-4 h-[74px] flex items-center">
+          <div className="container mx-auto max-w-[1440px] px-4 h-[74px] flex items-center">
             <a href="/" aria-label="4T Akademi">
               <img src="/Logo.svg" alt="4T Akademi" className="h-10 w-auto" />
             </a>
@@ -224,7 +229,7 @@ export default function MainHeader() {
       <div className="bg-[#0B1221] border-b border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-full bg-blue-600/10 blur-xl pointer-events-none"></div>
 
-        <div className="container mx-auto max-w-7xl px-4">
+        <div className="container mx-auto max-w-[1440px] px-4">
           <div className="flex justify-between items-center h-10 text-xs sm:text-sm">
             <div className="flex items-center gap-6">
               <a href={`tel:${phone.replace(/[^0-9+]/g, '')}`} className="flex items-center text-gray-400 hover:text-white transition-colors">
@@ -277,27 +282,35 @@ export default function MainHeader() {
           scrolled && "shadow-lg shadow-gray-200/50"
         )}
       >
-        <div className="container mx-auto max-w-7xl px-4">
-          <div className="flex justify-between items-center h-[74px]">
+        <div className="container mx-auto max-w-[1440px] px-4 xl:px-6">
+          <div className="flex items-center h-[74px]">
 
-            {/* LOGO */}
-            <a href="/" aria-label="4T Akademi" className="flex items-center group">
-              <img
-                src="/Logo.svg"
-                alt="4T Akademi"
-                className="h-10 w-auto group-hover:opacity-90 transition-opacity"
-              />
-            </a>
+            {/* SOL TARAF: LOGO + NAV */}
+            <div className="flex items-center flex-1">
+              {/* LOGO */}
+              <a href="/" aria-label="4T Akademi" className="flex items-center group mr-8 xl:mr-12">
+                <img
+                  src="/Logo.svg"
+                  alt="4T Akademi"
+                  className="h-10 w-auto group-hover:opacity-90 transition-opacity"
+                />
+              </a>
 
-            {/* DESKTOP NAV */}
-            <nav className="hidden lg:flex items-center gap-1">
+              {/* DESKTOP NAV */}
+              <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2">
               
               {headerMenus.map(menuBlock => {
                 const items = menuBlock.items || [];
                 if (items.length === 0) return null;
 
-                // Eğer tek bir öğe varsa, alt öğesi yoksa direkt buton/link olarak bas
-                if (items.length === 1 && (!items[0].children || items[0].children.length === 0)) {
+                const displayTitle = menuBlock.title.replace(/\s*\(Header\)\s*/i, "").trim();
+                
+                // Eğer tek bir öğe varsa, alt öğesi yoksa ve öğenin adı menü grubu adıyla AYNIYSA direkt buton/link olarak bas.
+                // Eğer isimler FARKLIYSA (örneğin Ankara Örgün altına 'Kırıkkale' eklendiyse) bunu açılır menü (dropdown) yap.
+                const isForceDropdown = menuBlock.slug === "header-uzaktan" || 
+                                       (items.length === 1 && items[0].label.toLowerCase() !== displayTitle.toLowerCase());
+                
+                if (!isForceDropdown && items.length === 1 && (!items[0].children || items[0].children.length === 0)) {
                   const child = items[0];
                   
                   // Flix için özel animasyonlu tasarım
@@ -308,21 +321,20 @@ export default function MainHeader() {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                         </span>
-                        {child.label}
+                        {displayTitle}
                       </a>
                     );
                   }
 
                   // Normal link tasarımı (Örgün, Blog, Hakkımızda, Kamplar vb.)
-
                   return (
                     <a key={child.id} href={child.url} className="px-3 xl:px-4 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-[15px] font-bold text-gray-700 hover:bg-gray-100 hover:border-gray-200 hover:text-[#0B1221] transition-all whitespace-nowrap">
-                      {child.label}
+                      {displayTitle}
                     </a>
                   );
                 }
 
-                // Çoklu öğe varsa Dropdown olarak bas
+                // Çoklu öğe (veya force dropdown) varsa Dropdown olarak bas
                 const title = menuBlock.title.replace(/\s*\(Header\)\s*/, "").trim();
                 const isOpen = openDropdownId === menuBlock.slug;
 
@@ -349,32 +361,51 @@ export default function MainHeader() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           {items.map(child => {
                             return (
-                              <a
-                                key={child.id}
-                                href={child.url}
-                                className="flex flex-col p-3 rounded-xl hover:bg-gray-50 transition-colors group/child border border-transparent hover:border-gray-100"
-                              >
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-bold text-[14px] text-gray-800 group-hover/child:text-[#DC2626] transition-colors truncate">
-                                    {child.label}
-                                  </div>
-                                  {child.desc && (
-                                    <div className="text-[12px] text-gray-500 font-medium leading-relaxed mt-1 line-clamp-2">
-                                      {child.desc}
+                              <div key={child.id} className="flex flex-col">
+                                <a
+                                  href={child.url}
+                                  className="flex flex-col p-3 rounded-xl hover:bg-gray-50 transition-colors group/child border border-transparent hover:border-gray-100"
+                                >
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-bold text-[14px] text-gray-800 group-hover/child:text-[#DC2626] transition-colors truncate">
+                                      {child.label}
                                     </div>
-                                  )}
-                                </div>
-                              </a>
+                                    {child.desc && (
+                                      <div className="text-[12px] text-gray-500 font-medium leading-relaxed mt-1 line-clamp-2">
+                                        {child.desc}
+                                      </div>
+                                    )}
+                                  </div>
+                                </a>
+                                {/* Alt Öğeler (Sub Items) */}
+                                {child.children && child.children.length > 0 && (
+                                  <div className="pl-4 pr-2 pb-2 flex flex-col gap-1 -mt-1">
+                                    {child.children.map(sub => (
+                                      <a key={sub.id} href={sub.url} className="text-[13px] text-gray-600 font-medium hover:text-[#DC2626] hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-colors flex items-center">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mr-2"></span>
+                                        {sub.label}
+                                      </a>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             );
                           })}
                         </div>
+                        {items.length > 1 && (
+                          <div className="mt-3 pt-3 border-t border-gray-100 flex justify-center">
+                            <a href="/kurslar" className="text-[13px] font-bold text-gray-600 hover:text-[#DC2626] flex items-center transition-colors group/viewall">
+                              Tümünü Görüntüle <ChevronRightIcon className="w-3.5 h-3.5 ml-1 transition-transform group-hover/viewall:translate-x-1" />
+                            </a>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 );
               })}
-
             </nav>
+          </div>
 
             {/* RIGHT ACTIONS */}
             <div className="flex items-center gap-3">
@@ -477,26 +508,46 @@ export default function MainHeader() {
               <div className="space-y-2">
                 <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Menü</div>
                 {/* Tekli Linkler */}
-                {headerMenus.filter(m => m.items?.length === 1 && (!m.items[0].children || m.items[0].children.length === 0)).map(menuBlock => {
+                {headerMenus.filter(m => {
+                  const displayTitle = m.title.replace(/\s*\(Header\)\s*/i, "").trim();
+                  const isForceDropdown = m.slug === "header-uzaktan" || (m.items?.length === 1 && m.items[0].label.toLowerCase() !== displayTitle.toLowerCase());
+                  return !isForceDropdown && m.items?.length === 1 && (!m.items[0].children || m.items[0].children.length === 0);
+                }).map(menuBlock => {
+                  const displayTitle = menuBlock.title.replace(/\s*\(Header\)\s*/i, "").trim();
                   const child = menuBlock.items[0];
                   if (menuBlock.slug === "header-flix") {
-                    return <a key={child.id} href={child.url} className="block py-3 text-lg font-bold text-[#DC2626]">{child.label}</a>;
+                    return <a key={child.id} href={child.url} className="block py-3 text-lg font-bold text-[#DC2626]">{displayTitle}</a>;
                   }
-                  return <a key={child.id} href={child.url} className="block py-3 text-lg font-bold text-[#0B1221]">{child.label}</a>;
+                  return <a key={child.id} href={child.url} className="block py-3 text-lg font-bold text-[#0B1221]">{displayTitle}</a>;
                 })}
                 <a href="/iletisim" className="block py-3 text-lg font-bold text-[#0B1221]">İletişim</a>
               </div>
 
               {/* Açılır Menüler / Submenüler */}
-              {headerMenus.filter(m => (m.items?.length || 0) > 1 || (m.items?.length === 1 && (m.items[0]?.children?.length || 0) > 0)).map(menuBlock => {
-                const title = menuBlock.title.replace(/\s*\(Header\)\s*/, "").trim();
+              {headerMenus.filter(m => {
+                const displayTitle = m.title.replace(/\s*\(Header\)\s*/i, "").trim();
+                const isForceDropdown = m.slug === "header-uzaktan" || (m.items?.length === 1 && m.items[0].label.toLowerCase() !== displayTitle.toLowerCase());
+                return isForceDropdown || (m.items?.length || 0) > 1 || (m.items?.length === 1 && (m.items[0]?.children?.length || 0) > 0);
+              }).map(menuBlock => {
+                const title = menuBlock.title.replace(/\s*\(Header\)\s*/i, "").trim();
                 return (
                   <div key={menuBlock.id} className="pt-6 border-t border-gray-100">
                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{title}</div>
                     {menuBlock.items.map(l => (
-                      <a key={l.id} href={l.url} className="block py-2 text-gray-600 font-medium">
-                        {l.label}
-                      </a>
+                      <div key={l.id} className="mb-2">
+                        <a href={l.url} className="block py-1.5 text-gray-800 font-bold">
+                          {l.label}
+                        </a>
+                        {l.children && l.children.length > 0 && (
+                          <div className="pl-4 border-l-2 border-gray-100 ml-2 space-y-1 mt-1">
+                            {l.children.map(sub => (
+                              <a key={sub.id} href={sub.url} className="block py-1.5 text-sm text-gray-500 font-medium">
+                                {sub.label}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 );

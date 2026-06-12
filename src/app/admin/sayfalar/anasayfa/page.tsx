@@ -26,12 +26,14 @@ import RichTextEditor from "@/app/admin/components/RichTextEditor";
 import SortableList from "@/app/admin/components/SortableList";
 import VersionHistory from "@/app/admin/components/VersionHistory";
 import ResizableSplitter from "@/app/components/ResizableSplitter";
+import AdminBackButton from "@/app/admin/components/AdminBackButton";
 
-type SectionId = "heroSlides" | "stats" | "categories" | "flix" | "blog";
+type SectionId = "heroSlides" | "stats" | "categories" | "flixRibbon" | "flix" | "blog";
 const SECTION_META: Record<SectionId, { label: string; icon: any; color: string }> = {
     heroSlides: { label: "Slider (Afiş)", icon: PhotoIcon, color: "text-amber-500 bg-amber-50" },
     stats: { label: "İstatistikler", icon: ChartBarIcon, color: "text-blue-500 bg-blue-50" },
     categories: { label: "Kategoriler", icon: RectangleGroupIcon, color: "text-red-500 bg-red-50" },
+    flixRibbon: { label: "FLIX Yönlendirme Şeridi", icon: SparklesIcon, color: "text-rose-500 bg-rose-50" },
     flix: { label: "FLIX Bölümü", icon: FilmIcon, color: "text-purple-500 bg-purple-50" },
     blog: { label: "Blog Başlığı", icon: NewspaperIcon, color: "text-green-500 bg-green-50" },
 };
@@ -67,8 +69,28 @@ export default function AnasayfaEditorPage() {
         { title: "Sayıştay", desc: "Denetçi Yardımcılığı sınavının zorlu müfredatına tam hakimiyet.", href: "/kurs-kategori/sayistay" },
         { title: "Adli & İdari Yargı", desc: "Hakimlik ve Savcılık sınavlarına yönelik derinlemesine hukuk eğitimi.", href: "/kurs-kategori/hakimlik" },
     ]);
+    const [catAllLinkText, setCatAllLinkText] = useState("Tüm Programlar");
+    const [catAllLinkUrl, setCatAllLinkUrl] = useState("/kurslar");
+    const [catInspectText, setCatInspectText] = useState("Programı İncele");
+    
+    // FLIX Ribbon
+    const [flixRibbonActive, setFlixRibbonActive] = useState(true);
+    const [flixRibbonBadge, setFlixRibbonBadge] = useState("SINIRSIZ ÖĞRENME");
+    const [flixRibbonTitle, setFlixRibbonTitle] = useState("Tüm Eğitimlere Tek Pakette Sınırsız Erişin: 4T FLIX");
+    const [flixRibbonDesc, setFlixRibbonDesc] = useState("4T FLIX ile 10.000+ saatlik dev arşive 7/24 kesintisiz ulaşın.");
+    const [flixRibbonBtn, setFlixRibbonBtn] = useState("FLIX'i Keşfet");
+    const [flixRibbonUrl, setFlixRibbonUrl] = useState("/flix");
+    const [flixRibbonGradient, setFlixRibbonGradient] = useState("from-purple-900 via-red-900 to-red-600");
+    const [flixRibbonColor1, setFlixRibbonColor1] = useState("");
+    const [flixRibbonColor2, setFlixRibbonColor2] = useState("");
+
     const [flixTitle, setFlixTitle] = useState("4T FLIX ile Özgürce Öğren.");
     const [flixDesc, setFlixDesc] = useState("Mesaiden sonra, yolda veya evde. 10.000 saati aşkın video ders arşivine 7/24 kesintisiz erişim.");
+    const [flixBadge, setFlixBadge] = useState("Sınırsız Video Kütüphanesi");
+    const [flixBtn1Text, setFlixBtn1Text] = useState("Hemen Başla");
+    const [flixBtn1Url, setFlixBtn1Url] = useState("/flix");
+    const [flixBtn2Text, setFlixBtn2Text] = useState("Detaylı Bilgi");
+    const [flixBtn2Url, setFlixBtn2Url] = useState("/flix");
     const [flixBtnBg, setFlixBtnBg] = useState("#FFFFFF");
     const [flixBtnColor, setFlixBtnColor] = useState("#0B1221");
     const [flixBtnPosition, setFlixBtnPosition] = useState("left");
@@ -87,10 +109,29 @@ export default function AnasayfaEditorPage() {
                 if (data.categories.title) setCatTitle(data.categories.title);
                 if (data.categories.content) setCatDesc(data.categories.content);
                 if (data.categories.metadata.items) setCatItems(data.categories.metadata.items);
+                if (data.categories.metadata.allLinkText) setCatAllLinkText(data.categories.metadata.allLinkText);
+                if (data.categories.metadata.allLinkUrl) setCatAllLinkUrl(data.categories.metadata.allLinkUrl);
+                if (data.categories.metadata.inspectText) setCatInspectText(data.categories.metadata.inspectText);
+            }
+            if (data.flixRibbon?.metadata) {
+                if (typeof data.flixRibbon.metadata.isActive === 'boolean') setFlixRibbonActive(data.flixRibbon.metadata.isActive);
+                if (data.flixRibbon.title) setFlixRibbonBadge(data.flixRibbon.title);
+                if (data.flixRibbon.content) setFlixRibbonTitle(data.flixRibbon.content);
+                if (data.flixRibbon.metadata.desc) setFlixRibbonDesc(data.flixRibbon.metadata.desc);
+                if (data.flixRibbon.metadata.btn) setFlixRibbonBtn(data.flixRibbon.metadata.btn);
+                if (data.flixRibbon.metadata.url) setFlixRibbonUrl(data.flixRibbon.metadata.url);
+                if (data.flixRibbon.metadata.gradient) setFlixRibbonGradient(data.flixRibbon.metadata.gradient);
+                if (data.flixRibbon.metadata.color1) setFlixRibbonColor1(data.flixRibbon.metadata.color1);
+                if (data.flixRibbon.metadata.color2) setFlixRibbonColor2(data.flixRibbon.metadata.color2);
             }
             if (data.flix?.metadata) {
                 if (data.flix.title) setFlixTitle(data.flix.title);
                 if (data.flix.content) setFlixDesc(data.flix.content);
+                if (data.flix.metadata.badgeText) setFlixBadge(data.flix.metadata.badgeText);
+                if (data.flix.metadata.btn1Text) setFlixBtn1Text(data.flix.metadata.btn1Text);
+                if (data.flix.metadata.btn1Url) setFlixBtn1Url(data.flix.metadata.btn1Url);
+                if (data.flix.metadata.btn2Text) setFlixBtn2Text(data.flix.metadata.btn2Text);
+                if (data.flix.metadata.btn2Url) setFlixBtn2Url(data.flix.metadata.btn2Url);
                 if (data.flix.metadata.btnBg) setFlixBtnBg(data.flix.metadata.btnBg);
                 if (data.flix.metadata.btnColor) setFlixBtnColor(data.flix.metadata.btnColor);
                 if (data.flix.metadata.btnPosition) setFlixBtnPosition(data.flix.metadata.btnPosition);
@@ -107,7 +148,7 @@ export default function AnasayfaEditorPage() {
 
     useEffect(() => { loadData(); }, [loadData, reloadKey]);
 
-    useEffect(() => { if (!loading) setHasChanges(true); }, [slides, stats, catTitle, catDesc, catItems, flixTitle, flixDesc, flixBtnBg, flixBtnColor, flixBtnPosition, flixBg, flixDevice, blogTitle, blogSubtitle]);
+    useEffect(() => { if (!loading) setHasChanges(true); }, [slides, stats, catTitle, catDesc, catItems, catAllLinkText, catAllLinkUrl, catInspectText, flixRibbonActive, flixRibbonBadge, flixRibbonTitle, flixRibbonDesc, flixRibbonBtn, flixRibbonUrl, flixRibbonGradient, flixRibbonColor1, flixRibbonColor2, flixTitle, flixDesc, flixBadge, flixBtn1Text, flixBtn1Url, flixBtn2Text, flixBtn2Url, flixBtnBg, flixBtnColor, flixBtnPosition, flixBg, flixDevice, blogTitle, blogSubtitle]);
 
     const handleSave = useCallback(async () => {
         setSaving(true); setSaveStatus("saving");
@@ -119,8 +160,9 @@ export default function AnasayfaEditorPage() {
                     sections: {
                         heroSlides: { title: "Ana Sayfa Slider", content: null, metadata: { items: slides } },
                         stats: { title: "İstatistikler", content: null, metadata: { items: stats } },
-                        categories: { title: catTitle, content: catDesc, metadata: { items: catItems } },
-                        flix: { title: flixTitle, content: flixDesc, metadata: { btnBg: flixBtnBg, btnColor: flixBtnColor, btnPosition: flixBtnPosition, bgImage: flixBg, deviceImage: flixDevice } },
+                        categories: { title: catTitle, content: catDesc, metadata: { items: catItems, allLinkText: catAllLinkText, allLinkUrl: catAllLinkUrl, inspectText: catInspectText } },
+                        flixRibbon: { title: flixRibbonBadge, content: flixRibbonTitle, metadata: { isActive: flixRibbonActive, desc: flixRibbonDesc, btn: flixRibbonBtn, url: flixRibbonUrl, gradient: flixRibbonGradient, color1: flixRibbonColor1, color2: flixRibbonColor2 } },
+                        flix: { title: flixTitle, content: flixDesc, metadata: { btnBg: flixBtnBg, btnColor: flixBtnColor, btnPosition: flixBtnPosition, bgImage: flixBg, deviceImage: flixDevice, badgeText: flixBadge, btn1Text: flixBtn1Text, btn1Url: flixBtn1Url, btn2Text: flixBtn2Text, btn2Url: flixBtn2Url } },
                         blog: { title: blogTitle, content: blogSubtitle, metadata: {} },
                     },
                 }),
@@ -130,7 +172,7 @@ export default function AnasayfaEditorPage() {
             setTimeout(() => setSaveStatus("idle"), 3000);
         } catch { setSaveStatus("error"); setTimeout(() => setSaveStatus("idle"), 3000); }
         finally { setSaving(false); }
-    }, [slides, stats, catTitle, catDesc, catItems, flixTitle, flixDesc, flixBtnBg, flixBtnColor, flixBtnPosition, blogTitle, blogSubtitle]);
+    }, [slides, stats, catTitle, catDesc, catItems, catAllLinkText, catAllLinkUrl, catInspectText, flixRibbonActive, flixRibbonBadge, flixRibbonTitle, flixRibbonDesc, flixRibbonBtn, flixRibbonUrl, flixRibbonGradient, flixRibbonColor1, flixRibbonColor2, flixTitle, flixDesc, flixBadge, flixBtn1Text, flixBtn1Url, flixBtn2Text, flixBtn2Url, flixBtnBg, flixBtnColor, flixBtnPosition, blogTitle, blogSubtitle]);
 
     async function uploadFile(file: File): Promise<string | null> {
         const fd = new FormData(); fd.append("file", file);
@@ -155,6 +197,9 @@ export default function AnasayfaEditorPage() {
                 {/* LEFT NAV */}
                 <div className="w-52 bg-gray-50 border-r border-gray-200 flex flex-col shrink-0">
                     <div className="px-4 py-4 border-b border-gray-200">
+                        <div className="mb-4">
+                            <AdminBackButton fallbackUrl="/admin/sayfalar" fullWidth={true} />
+                        </div>
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-bold text-gray-900">Ana Sayfa</h2>
                             <VersionHistory pageSlug="home" onRestore={() => { setReloadKey(k => k + 1); setLoading(true); }} />
@@ -276,6 +321,11 @@ export default function AnasayfaEditorPage() {
                                     <div><label className={labelCls}>Bölüm Başlığı</label><input className={inputCls} value={catTitle} onChange={e => setCatTitle(e.target.value)} /></div>
                                     <div><label className={labelCls}>Bölüm Açıklaması</label><input className={inputCls} value={catDesc} onChange={e => setCatDesc(e.target.value)} /></div>
                                 </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <div><label className={labelCls}>Tümü Link Yazısı</label><input className={inputCls} value={catAllLinkText} onChange={e => setCatAllLinkText(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Tümü Link URL</label><input className={inputCls} value={catAllLinkUrl} onChange={e => setCatAllLinkUrl(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Kart Hover Yazısı</label><input className={inputCls} value={catInspectText} onChange={e => setCatInspectText(e.target.value)} /></div>
+                                </div>
                                 <label className={labelCls}>Kategori Kartları</label>
                                 <SortableList
                                     items={catItems}
@@ -296,11 +346,71 @@ export default function AnasayfaEditorPage() {
                             </div>
                         </SectionAccordion>
 
+                        {/* FLIX RIBBON */}
+                        <SectionAccordion id="flixRibbon" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
+                            <div className="space-y-3">
+                                <label className="flex items-center gap-3 cursor-pointer mb-4">
+                                    <div className="relative inline-block w-10 h-6 select-none transition duration-200 ease-in">
+                                        <input type="checkbox" className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer top-1 left-1 checked:right-1 checked:left-auto checked:border-blue-500 transition-all z-10" checked={flixRibbonActive} onChange={e => setFlixRibbonActive(e.target.checked)} />
+                                        <div className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${flixRibbonActive ? "bg-blue-500" : "bg-gray-300"}`}></div>
+                                    </div>
+                                    <span className="text-sm font-bold text-gray-700">{flixRibbonActive ? "Şerit Açık (Anasayfada Görünür)" : "Şerit Kapalı (Gizli)"}</span>
+                                </label>
+                                
+                                {flixRibbonActive && (
+                                    <>
+                                        <div><label className={labelCls}>Rozet (Badge)</label><input className={inputCls} value={flixRibbonBadge} onChange={e => setFlixRibbonBadge(e.target.value)} /></div>
+                                        <div><label className={labelCls}>Ana Başlık</label><input className={inputCls + " font-bold"} value={flixRibbonTitle} onChange={e => setFlixRibbonTitle(e.target.value)} /></div>
+                                        <div><label className={labelCls}>Kısa Açıklama</label><input className={inputCls} value={flixRibbonDesc} onChange={e => setFlixRibbonDesc(e.target.value)} /></div>
+                                        <div>
+                                            <label className={labelCls}>Tema (Arka Plan Gradienti)</label>
+                                            <select className={inputCls} value={flixRibbonGradient} onChange={e => setFlixRibbonGradient(e.target.value)}>
+                                                <option value="from-purple-900 via-red-900 to-red-600">Varsayılan (Mor - Kırmızı - Kırmızı)</option>
+                                                <option value="from-blue-900 via-blue-800 to-blue-600">Okyanus (Koyu Mavi - Açık Mavi)</option>
+                                                <option value="from-emerald-900 via-emerald-800 to-emerald-600">Zümrüt (Koyu Yeşil - Açık Yeşil)</option>
+                                                <option value="from-[#0B1221] via-gray-900 to-gray-800">Gece Modu (Siyah - Koyu Gri)</option>
+                                                <option value="from-orange-600 via-amber-500 to-yellow-400">Gün Batımı (Turuncu - Sarı)</option>
+                                                <option value="from-slate-100 via-gray-100 to-white">Sade (Açık Gri - Beyaz)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className={labelCls}>Özel Renk Geçişi (Opsiyonel)</label>
+                                            <p className="text-[10px] text-gray-500 mb-2">Yukarıdaki temalardan bağımsız olarak kendi renklerinizi seçmek isterseniz burayı kullanın.</p>
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex items-center gap-2">
+                                                    <input type="color" value={flixRibbonColor1 || "#4c1d95"} onChange={e => setFlixRibbonColor1(e.target.value)} className="w-8 h-8 rounded cursor-pointer" />
+                                                    <span className="text-xs text-gray-600">Başlangıç</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <input type="color" value={flixRibbonColor2 || "#dc2626"} onChange={e => setFlixRibbonColor2(e.target.value)} className="w-8 h-8 rounded cursor-pointer" />
+                                                    <span className="text-xs text-gray-600">Bitiş</span>
+                                                </div>
+                                                {(flixRibbonColor1 || flixRibbonColor2) && (
+                                                    <button onClick={() => { setFlixRibbonColor1(""); setFlixRibbonColor2(""); }} className="ml-auto text-xs text-red-500 hover:text-red-700">Özel Rengi Sıfırla</button>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div><label className={labelCls}>Buton Yazısı</label><input className={inputCls} value={flixRibbonBtn} onChange={e => setFlixRibbonBtn(e.target.value)} /></div>
+                                            <div><label className={labelCls}>Buton Linki</label><input className={inputCls} value={flixRibbonUrl} onChange={e => setFlixRibbonUrl(e.target.value)} /></div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </SectionAccordion>
+
                         {/* FLIX */}
                         <SectionAccordion id="flix" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
                                 <div><label className={labelCls}>Başlık</label><input className={inputCls} value={flixTitle} onChange={e => setFlixTitle(e.target.value)} /></div>
                                 <div><label className={labelCls}>Açıklama</label><RichTextEditor value={flixDesc} onChange={setFlixDesc} placeholder="FLIX açıklaması..." minRows={3} /></div>
+                                <div><label className={labelCls}>Üst Rozet Yazısı</label><input className={inputCls} value={flixBadge} onChange={e => setFlixBadge(e.target.value)} /></div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div><label className={labelCls}>Buton 1 Yazısı</label><input className={inputCls} value={flixBtn1Text} onChange={e => setFlixBtn1Text(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Buton 1 URL</label><input className={inputCls} value={flixBtn1Url} onChange={e => setFlixBtn1Url(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Buton 2 Yazısı</label><input className={inputCls} value={flixBtn2Text} onChange={e => setFlixBtn2Text(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Buton 2 URL</label><input className={inputCls} value={flixBtn2Url} onChange={e => setFlixBtn2Url(e.target.value)} /></div>
+                                </div>
                                 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>

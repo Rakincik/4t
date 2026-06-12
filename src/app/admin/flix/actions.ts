@@ -3,23 +3,31 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function getFlixPackages() {
-    return prisma.course.findMany({
-        where: { type: "FLIX" as any },
-        orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-        select: {
-            id: true,
-            title: true,
-            slug: true,
-            price: true,
-            oldPrice: true,
-            isActive: true,
-            sortOrder: true,
-            createdAt: true,
-            _count: { select: { orderItems: true, courseAccess: true } },
-            variants: { orderBy: { order: 'asc' } }
-        },
-    });
+export async function getFlixPackages(page: number = 1, limit: number = 12) {
+    const where = { type: "FLIX" as any };
+    const [packages, totalCount] = await Promise.all([
+        prisma.course.findMany({
+            where,
+            orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+            skip: (page - 1) * limit,
+            take: limit,
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                price: true,
+                oldPrice: true,
+                isActive: true,
+                sortOrder: true,
+                createdAt: true,
+                imageUrl: true,
+                _count: { select: { orderItems: true, courseAccess: true } },
+                variants: { orderBy: { order: 'asc' } }
+            },
+        }),
+        prisma.course.count({ where })
+    ]);
+    return { packages, totalCount };
 }
 
 export async function getFlixPackage(id: string) {

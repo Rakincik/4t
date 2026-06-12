@@ -20,12 +20,14 @@ import {
     MagnifyingGlassMinusIcon,
     MagnifyingGlassPlusIcon,
     UsersIcon,
-    QuestionMarkCircleIcon
+    QuestionMarkCircleIcon,
+    ChevronLeftIcon
 } from "@heroicons/react/24/outline";
 import RichTextEditor from "@/app/admin/components/RichTextEditor";
 import SortableList from "@/app/admin/components/SortableList";
 import VersionHistory from "@/app/admin/components/VersionHistory";
 import ResizableSplitter from "@/app/components/ResizableSplitter";
+import AdminBackButton from "@/app/admin/components/AdminBackButton";
 
 /* ======================================================= */
 /* TYPES                                                   */
@@ -60,7 +62,10 @@ export default function HakkimizdaPremiumEditor() {
         { value: "%98", label: "Memnuniyet" },
     ]);
     const [heroBgImage, setHeroBgImage] = useState("");
+    const [heroBadge, setHeroBadge] = useState("4T AKADEMİ FARKI");
 
+    const [missionSectionTitle, setMissionSectionTitle] = useState("Rotamız ve Hedefimiz");
+    const [missionSectionDesc, setMissionSectionDesc] = useState("Başarıya giden yolda pusulamız belli.");
     const [missionTitle, setMissionTitle] = useState("Misyonumuz");
     const [missionContent, setMissionContent] = useState("Her bir öğrencinin potansiyelini en üst düzeye çıkarmak için kişiselleştirilmiş eğitim modelini benimsiyoruz. Sadece bilgi yüklemek değil, bilgiyi kullanma becerisi kazandırarak kariyer yolculuklarında onlara rehberlik ediyoruz.");
 
@@ -82,8 +87,13 @@ export default function HakkimizdaPremiumEditor() {
     const [teamImages, setTeamImages] = useState<TeamImage[]>([]);
     const [teamStatValue, setTeamStatValue] = useState("150+");
     const [teamStatLabel, setTeamStatLabel] = useState("Uzman Eğitmen");
+    const [teamTag1, setTeamTag1] = useState("Aktif Canlı Dersler");
+    const [teamTag2, setTeamTag2] = useState("Soru Çözüm Kampları");
+    const [teamBtnText, setTeamBtnText] = useState("Eğitmenlerimizi Tanıyın");
     
     // ---- FAQ ----
+    const [faqTitle, setFaqTitle] = useState("Hakkımızda Sıkça Sorulanlar");
+    const [faqDesc, setFaqDesc] = useState("Kurumumuzla ilgili merak edilenler");
     const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
 
     // ---- UI States ----
@@ -114,10 +124,13 @@ export default function HakkimizdaPremiumEditor() {
                 if (data.hero.content) setHeroDesc(data.hero.content);
                 if (m.stats) setHeroStats(m.stats);
                 if (m.bgImage) setHeroBgImage(m.bgImage);
+                if (m.badgeText) setHeroBadge(m.badgeText);
             }
             if (data.mission) {
                 if (data.mission.title) setMissionTitle(data.mission.title);
                 if (data.mission.content) setMissionContent(data.mission.content);
+                if (data.mission.metadata?.sectionTitle) setMissionSectionTitle(data.mission.metadata.sectionTitle);
+                if (data.mission.metadata?.sectionDesc) setMissionSectionDesc(data.mission.metadata.sectionDesc);
             }
             if (data.vision) {
                 if (data.vision.title) setVisionTitle(data.vision.title);
@@ -136,9 +149,14 @@ export default function HakkimizdaPremiumEditor() {
                 if (m.images) setTeamImages(m.images);
                 if (m.statValue) setTeamStatValue(m.statValue);
                 if (m.statLabel) setTeamStatLabel(m.statLabel);
+                if (m.tag1) setTeamTag1(m.tag1);
+                if (m.tag2) setTeamTag2(m.tag2);
+                if (m.btnText) setTeamBtnText(m.btnText);
             }
-            if (data.faq?.metadata) {
-                if (data.faq.metadata.items) setFaqItems(data.faq.metadata.items);
+            if (data.faq) {
+                if (data.faq.title) setFaqTitle(data.faq.title);
+                if (data.faq.content) setFaqDesc(data.faq.content);
+                if (data.faq.metadata?.items) setFaqItems(data.faq.metadata.items);
             }
         } catch (e) { console.error(e); }
         finally { setLoading(false); setHasChanges(false); }
@@ -149,7 +167,7 @@ export default function HakkimizdaPremiumEditor() {
     // Track changes
     useEffect(() => {
         if (!loading) setHasChanges(true);
-    }, [heroTitle1, heroTitle2, heroDesc, heroStats, heroBgImage, missionTitle, missionContent, visionTitle, visionContent, valuesSectionTitle, valuesSectionDesc, valuesItems, teamTitle1, teamTitle2, teamDesc, teamImages, teamStatValue, teamStatLabel, faqItems]);
+    }, [heroTitle1, heroTitle2, heroDesc, heroStats, heroBgImage, heroBadge, missionSectionTitle, missionSectionDesc, missionTitle, missionContent, visionTitle, visionContent, valuesSectionTitle, valuesSectionDesc, valuesItems, teamTitle1, teamTitle2, teamDesc, teamImages, teamStatValue, teamStatLabel, teamTag1, teamTag2, teamBtnText, faqTitle, faqDesc, faqItems]);
 
     // ---- Save ----
     const handleSave = useCallback(async () => {
@@ -162,12 +180,12 @@ export default function HakkimizdaPremiumEditor() {
                 body: JSON.stringify({
                     pageSlug: "hakkimizda",
                     sections: {
-                        hero: { title: heroTitle1, content: heroDesc, metadata: { title1: heroTitle1, title2: heroTitle2, stats: heroStats, bgImage: heroBgImage } },
-                        mission: { title: missionTitle, content: missionContent, metadata: {} },
+                        hero: { title: heroTitle1, content: heroDesc, metadata: { title1: heroTitle1, title2: heroTitle2, stats: heroStats, bgImage: heroBgImage, badgeText: heroBadge } },
+                        mission: { title: missionTitle, content: missionContent, metadata: { sectionTitle: missionSectionTitle, sectionDesc: missionSectionDesc } },
                         vision: { title: visionTitle, content: visionContent, metadata: {} },
                         values: { title: valuesSectionTitle, content: valuesSectionDesc, metadata: { items: valuesItems } },
-                        team: { title: teamTitle1, content: teamDesc, metadata: { title1: teamTitle1, title2: teamTitle2, images: teamImages, statValue: teamStatValue, statLabel: teamStatLabel } },
-                        faq: { title: "Sıkça Sorulan Sorular", content: null, metadata: { items: faqItems } },
+                        team: { title: teamTitle1, content: teamDesc, metadata: { title1: teamTitle1, title2: teamTitle2, images: teamImages, statValue: teamStatValue, statLabel: teamStatLabel, tag1: teamTag1, tag2: teamTag2, btnText: teamBtnText } },
+                        faq: { title: faqTitle, content: faqDesc, metadata: { items: faqItems } },
                     },
                 }),
             });
@@ -184,7 +202,7 @@ export default function HakkimizdaPremiumEditor() {
             setSaveStatus("error");
             setTimeout(() => setSaveStatus("idle"), 3000);
         } finally { setSaving(false); }
-    }, [heroTitle1, heroTitle2, heroDesc, heroStats, heroBgImage, missionTitle, missionContent, visionTitle, visionContent, valuesSectionTitle, valuesSectionDesc, valuesItems, teamTitle1, teamTitle2, teamDesc, teamImages, teamStatValue, teamStatLabel, faqItems]);
+    }, [heroTitle1, heroTitle2, heroDesc, heroStats, heroBgImage, heroBadge, missionSectionTitle, missionSectionDesc, missionTitle, missionContent, visionTitle, visionContent, valuesSectionTitle, valuesSectionDesc, valuesItems, teamTitle1, teamTitle2, teamDesc, teamImages, teamStatValue, teamStatLabel, teamTag1, teamTag2, teamBtnText, faqTitle, faqDesc, faqItems]);
 
     // ---- Image Upload ----
     async function uploadFile(file: File): Promise<string | null> {
@@ -274,6 +292,9 @@ export default function HakkimizdaPremiumEditor() {
                 <div className="w-52 bg-gray-50 border-r border-gray-200 flex flex-col shrink-0">
                     {/* Header */}
                     <div className="px-4 py-4 border-b border-gray-200">
+                        <div className="mb-4">
+                            <AdminBackButton fallbackUrl="/admin/sayfalar" fullWidth={true} />
+                        </div>
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-bold text-gray-900">Hakkımızda</h2>
                             <VersionHistory pageSlug="hakkimizda" onRestore={() => { setReloadKey(k => k + 1); setLoading(true); }} />
@@ -351,6 +372,7 @@ export default function HakkimizdaPremiumEditor() {
                         {/* ---- HERO ---- */}
                         <SectionAccordion id="hero" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div><label className={labelCls}>Üst Rozet Yazısı</label><input className={inputCls} value={heroBadge} onChange={e => setHeroBadge(e.target.value)} /></div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div><label className={labelCls}>Başlık Satır 1</label><input className={inputCls} value={heroTitle1} onChange={e => setHeroTitle1(e.target.value)} /></div>
                                     <div><label className={labelCls}>Başlık Satır 2 (Renkli)</label><input className={inputCls} value={heroTitle2} onChange={e => setHeroTitle2(e.target.value)} /></div>
@@ -396,7 +418,11 @@ export default function HakkimizdaPremiumEditor() {
                         {/* ---- MISSION ---- */}
                         <SectionAccordion id="mission" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
-                                <div><label className={labelCls}>Başlık</label><input className={inputCls} value={missionTitle} onChange={e => setMissionTitle(e.target.value)} /></div>
+                                <div className="grid grid-cols-2 gap-3 pb-3 mb-3 border-b border-gray-100">
+                                    <div><label className={labelCls}>Üst Ana Başlık</label><input className={inputCls} value={missionSectionTitle} onChange={e => setMissionSectionTitle(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Üst Ana Açıklama</label><input className={inputCls} value={missionSectionDesc} onChange={e => setMissionSectionDesc(e.target.value)} /></div>
+                                </div>
+                                <div><label className={labelCls}>Misyon Kutu Başlığı</label><input className={inputCls} value={missionTitle} onChange={e => setMissionTitle(e.target.value)} /></div>
                                 <div><label className={labelCls}>İçerik</label><RichTextEditor value={missionContent} onChange={setMissionContent} placeholder="Misyon metni..." minRows={5} /></div>
                             </div>
                         </SectionAccordion>
@@ -454,6 +480,11 @@ export default function HakkimizdaPremiumEditor() {
                                     <div><label className={labelCls}>İstatistik Değer</label><input className={inputCls} value={teamStatValue} onChange={e => setTeamStatValue(e.target.value)} /></div>
                                     <div><label className={labelCls}>İstatistik Etiket</label><input className={inputCls} value={teamStatLabel} onChange={e => setTeamStatLabel(e.target.value)} /></div>
                                 </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <div><label className={labelCls}>Etiket 1</label><input className={inputCls} value={teamTag1} onChange={e => setTeamTag1(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Etiket 2</label><input className={inputCls} value={teamTag2} onChange={e => setTeamTag2(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Buton Yazısı</label><input className={inputCls} value={teamBtnText} onChange={e => setTeamBtnText(e.target.value)} /></div>
+                                </div>
                                 {/* Team Images */}
                                 <div>
                                     <label className={labelCls}>Ekip Görselleri</label>
@@ -480,6 +511,10 @@ export default function HakkimizdaPremiumEditor() {
                         {/* ---- FAQ ---- */}
                         <SectionAccordion id="faq" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div><label className={labelCls}>SSS Başlık</label><input className={inputCls} value={faqTitle} onChange={e => setFaqTitle(e.target.value)} /></div>
+                                    <div><label className={labelCls}>SSS Açıklama</label><input className={inputCls} value={faqDesc} onChange={e => setFaqDesc(e.target.value)} /></div>
+                                </div>
                                 <div>
                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Soru ve Cevaplar</label>
                                     <SortableList

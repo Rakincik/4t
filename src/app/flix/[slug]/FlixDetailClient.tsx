@@ -261,7 +261,7 @@ export default function FlixDetailClient({ course }: { course: any }) {
 
                                 {(course.subtitle || course.description) && (
                                     <div 
-                                        className="text-gray-300 text-lg leading-relaxed mb-8 font-light break-normal [word-break:normal] text-pretty prose prose-invert max-w-none whitespace-normal line-clamp-3"
+                                        className="text-gray-300 text-lg leading-relaxed mb-8 font-light break-normal [word-break:normal] text-pretty prose prose-invert max-w-none whitespace-normal"
                                         dangerouslySetInnerHTML={{ __html: (course.subtitle || course.description || "").replace(/&nbsp;|\u00A0/g, " ") }}
                                     />
                                 )}

@@ -12,8 +12,9 @@ import RichTextEditor from "@/app/admin/components/RichTextEditor";
 import SortableList from "@/app/admin/components/SortableList";
 import VersionHistory from "@/app/admin/components/VersionHistory";
 import ResizableSplitter from "@/app/components/ResizableSplitter";
+import AdminBackButton from "@/app/admin/components/AdminBackButton";
 
-type SectionId = "heroSlides" | "gallery" | "location" | "programs" | "faculty" | "timeline";
+type SectionId = "heroSlides" | "gallery" | "location" | "programs" | "faculty" | "timeline" | "richContent";
 const SECTION_META: Record<SectionId, { label: string; icon: any; color: string }> = {
     heroSlides: { label: "Slider (Afişler)", icon: PhotoIcon, color: "text-amber-500 bg-amber-50" },
     gallery: { label: "Kampüs Yaşamı (Galeri)", icon: SparklesIcon, color: "text-indigo-500 bg-indigo-50" },
@@ -21,6 +22,7 @@ const SECTION_META: Record<SectionId, { label: string; icon: any; color: string 
     programs: { label: "Eğitim Modeli", icon: AcademicCapIcon, color: "text-blue-500 bg-blue-50" },
     faculty: { label: "Eğitmen Kadrosu", icon: UserGroupIcon, color: "text-purple-500 bg-purple-50" },
     timeline: { label: "Başarı Adımları", icon: ClockIcon, color: "text-green-500 bg-green-50" },
+    richContent: { label: "Detaylı İçerik ve Müfredat", icon: BuildingLibraryIcon, color: "text-teal-500 bg-teal-50" },
 };
 
 type ProgramItem = { title: string; desc: string };
@@ -47,6 +49,8 @@ export default function OrgunEgitimEditorPage() {
         { id: 3, image: "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2000&auto=format&fit=crop", subtitle: "7/24 KÜTÜPHANE", title: "Sessiz, Nezih ve Verimli.", description: "Kendi masanızda, dikkatiniz dağılmadan saatlerce çalışabileceğiniz çalışma alanlarınız hazır.", cta: "Kütüphaneyi Gör", href: "#detaylar", btnBg: "#DC2626", btnColor: "#FFFFFF", btnPosition: "left" },
         { id: 4, image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2000&auto=format&fit=crop", subtitle: "BİREBİR İLGİ", title: "Her Öğrenci Bizim İçin Özeldir.", description: "Rehberlik servisimiz ve etüt programlarımızla başarı yolculuğunuzda yalnız değilsiniz.", cta: "İletişime Geç", href: "/iletisim", btnBg: "#DC2626", btnColor: "#FFFFFF", btnPosition: "left" }
     ]);
+    // Gallery
+    const [galleryTitle, setGalleryTitle] = useState("Kampüs Yaşamı");
     const [galleryImages, setGalleryImages] = useState<string[]>([
         "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=600&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=600&auto=format&fit=crop",
@@ -56,10 +60,16 @@ export default function OrgunEgitimEditorPage() {
     ]);
 
     // Location
+    const [locSubTitle, setLocSubTitle] = useState("Lokasyon");
     const [locTitle, setLocTitle] = useState("Ankara'nın Kalbinde, Ulaşımın Merkezinde.");
     const [locDesc, setLocDesc] = useState("Kızılay Metro istasyonuna 2 dakika yürüme mesafesinde.");
     const [locAddress, setLocAddress] = useState("Karanfil Sokak No: 44, Kızılay");
     const [locHours, setLocHours] = useState("09:00 - 23:00");
+    const [locHoursLabel, setLocHoursLabel] = useState("Çalışma Saatleri");
+    const [locMapUrl, setLocMapUrl] = useState("https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12239.529241517457!2d32.84444983088915!3d39.92131926615965!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34faa85d58ad9%3A0x6b8d96bba622a5a5!2sKaranfil%20Sk.%20No%3A44%2C%20K%C4%B1z%C4%B1lay%2C%2006420%20%C3%87ankaya%2FAnkara!5e0!3m2!1str!2str!4v1713454238531!5m2!1str!2str");
+    
+    // Programs
+    const [progSubTitle, setProgSubTitle] = useState("Eğitim Modeli");
     const [progSectionTitle, setProgSectionTitle] = useState("Neden 4T Örgün Eğitim?");
     const [programs, setPrograms] = useState<ProgramItem[]>([
         { title: "Tam Kapsamlı Konu Anlatımı", desc: "Alanında uzman hocalarımızla tüm dersleri en ince ayrıntısına kadar işliyoruz." },
@@ -77,6 +87,8 @@ export default function OrgunEgitimEditorPage() {
     ]);
     const [timelineTitle, setTimelineTitle] = useState("Kazanma Garantili Sistem.");
     const [timelineImage, setTimelineImage] = useState<string>("https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1000&auto=format&fit=crop");
+    const [badgeTitle, setBadgeTitle] = useState("Başarı Oranı");
+    const [badgeValue, setBadgeValue] = useState("%85");
     const [steps, setSteps] = useState<StepItem[]>([
         { title: "Seviye Belirleme", desc: "İlk gün yapılan deneme ile size en uygun sınıfı belirliyoruz." },
         { title: "Kamp Programı", desc: "Eksiklerinizi kapatmak için yoğunlaştırılmış konu anlatım kampları." },
@@ -84,21 +96,33 @@ export default function OrgunEgitimEditorPage() {
         { title: "Zirveye Yolculuk", desc: "Sınav provası niteliğinde Türkiye geneli denemeler ve son taktikler." },
     ]);
 
+    // Rich Content
+    const [richContentActive, setRichContentActive] = useState(true);
+    const [richContentTitle, setRichContentTitle] = useState("Detaylı İçerik ve Müfredat");
+    const [richContentHtml, setRichContentHtml] = useState("<p>Eğitim programımızın detaylarını ve öğretmen kadromuzu aşağıdan inceleyebilirsiniz.</p><table><thead><tr><th>Ders Adı</th><th>Eğitmen</th><th>Saat</th></tr></thead><tbody><tr><td>İktisat</td><td>Prof. Dr. Yüksel Bilgili</td><td>210 Saat</td></tr><tr><td>Maliye</td><td>Doç. Dr. Arda Hakan Öğretir</td><td>80 Saat</td></tr></tbody></table>");
+
     const loadData = useCallback(async () => {
         try {
             const res = await fetch("/api/admin/page-content?page=orgun-egitim");
             const data = await res.json();
             if (data.heroSlides?.metadata?.items?.length > 0) { setSlides(data.heroSlides.metadata.items); }
-            if (data.gallery?.metadata?.items?.length > 0) { setGalleryImages(data.gallery.metadata.items); }
+            if (data.gallery?.metadata) {
+                if (data.gallery.title) setGalleryTitle(data.gallery.title);
+                if (data.gallery.metadata.items?.length > 0) { setGalleryImages(data.gallery.metadata.items); }
+            }
             if (data.location?.metadata) {
                 if (data.location.title) setLocTitle(data.location.title);
                 if (data.location.content) setLocDesc(data.location.content);
                 if (data.location.metadata.address) setLocAddress(data.location.metadata.address);
                 if (data.location.metadata.hours) setLocHours(data.location.metadata.hours);
+                if (data.location.metadata.subTitle) setLocSubTitle(data.location.metadata.subTitle);
+                if (data.location.metadata.hoursLabel) setLocHoursLabel(data.location.metadata.hoursLabel);
+                if (data.location.metadata.mapUrl) setLocMapUrl(data.location.metadata.mapUrl);
             }
             if (data.programs?.metadata) {
                 if (data.programs.title) setProgSectionTitle(data.programs.title);
                 if (data.programs.metadata.items) setPrograms(data.programs.metadata.items);
+                if (data.programs.metadata.subTitle) setProgSubTitle(data.programs.metadata.subTitle);
             }
             if (data.faculty?.metadata) {
                 if (data.faculty.title) setFacTitle(data.faculty.title);
@@ -109,6 +133,13 @@ export default function OrgunEgitimEditorPage() {
                 if (data.timeline.title) setTimelineTitle(data.timeline.title);
                 if (data.timeline.metadata.items) setSteps(data.timeline.metadata.items);
                 if (data.timeline.metadata.imageUrl) setTimelineImage(data.timeline.metadata.imageUrl);
+                if (data.timeline.metadata.badgeTitle) setBadgeTitle(data.timeline.metadata.badgeTitle);
+                if (data.timeline.metadata.badgeValue) setBadgeValue(data.timeline.metadata.badgeValue);
+            }
+            if (data.richContent?.metadata) {
+                if (typeof data.richContent.metadata.isActive === 'boolean') setRichContentActive(data.richContent.metadata.isActive);
+                if (data.richContent.title) setRichContentTitle(data.richContent.title);
+                if (data.richContent.content) setRichContentHtml(data.richContent.content);
             }
         } catch (e) { console.error(e); }
         finally { setLoading(false); setHasChanges(false); }
@@ -116,7 +147,7 @@ export default function OrgunEgitimEditorPage() {
 
     useEffect(() => { loadData(); }, [loadData, reloadKey]);
 
-    useEffect(() => { if (!loading) setHasChanges(true); }, [slides, galleryImages, locTitle, locDesc, locAddress, locHours, progSectionTitle, programs, facTitle, facDesc, teachers, timelineTitle, steps, timelineImage]);
+    useEffect(() => { if (!loading) setHasChanges(true); }, [slides, galleryImages, galleryTitle, locTitle, locDesc, locAddress, locHours, locSubTitle, locHoursLabel, locMapUrl, progSectionTitle, programs, progSubTitle, facTitle, facDesc, teachers, timelineTitle, steps, timelineImage, badgeTitle, badgeValue, richContentActive, richContentTitle, richContentHtml]);
 
     const handleSave = useCallback(async () => {
         setSaving(true); setSaveStatus("saving");
@@ -127,11 +158,12 @@ export default function OrgunEgitimEditorPage() {
                     pageSlug: "orgun-egitim",
                     sections: {
                         heroSlides: { title: "Örgün Eğitim Slider", content: null, metadata: { items: slides } },
-                        gallery: { title: "Kampüs Galerisi", content: null, metadata: { items: galleryImages } },
-                        location: { title: locTitle, content: locDesc, metadata: { address: locAddress, hours: locHours } },
-                        programs: { title: progSectionTitle, content: null, metadata: { items: programs } },
+                        gallery: { title: galleryTitle || "Kampüs Galerisi", content: null, metadata: { items: galleryImages } },
+                        location: { title: locTitle, content: locDesc, metadata: { address: locAddress, hours: locHours, subTitle: locSubTitle, hoursLabel: locHoursLabel, mapUrl: locMapUrl } },
+                        programs: { title: progSectionTitle, content: null, metadata: { items: programs, subTitle: progSubTitle } },
                         faculty: { title: facTitle, content: facDesc, metadata: { items: teachers } },
-                        timeline: { title: timelineTitle, content: null, metadata: { items: steps, imageUrl: timelineImage } },
+                        timeline: { title: timelineTitle, content: null, metadata: { items: steps, imageUrl: timelineImage, badgeTitle: badgeTitle, badgeValue: badgeValue } },
+                        richContent: { title: richContentTitle, content: richContentHtml, metadata: { isActive: richContentActive } }
                     },
                 }),
             });
@@ -140,7 +172,7 @@ export default function OrgunEgitimEditorPage() {
             setTimeout(() => setSaveStatus("idle"), 3000);
         } catch { setSaveStatus("error"); setTimeout(() => setSaveStatus("idle"), 3000); }
         finally { setSaving(false); }
-    }, [slides, galleryImages, locTitle, locDesc, locAddress, locHours, progSectionTitle, programs, facTitle, facDesc, teachers, timelineTitle, steps, timelineImage]);
+    }, [slides, galleryTitle, galleryImages, locSubTitle, locTitle, locDesc, locAddress, locHours, locHoursLabel, locMapUrl, progSectionTitle, programs, progSubTitle, facTitle, facDesc, teachers, timelineTitle, timelineImage, badgeTitle, badgeValue, steps, richContentActive, richContentTitle, richContentHtml]);
 
     async function uploadFile(file: File): Promise<string | null> {
         const fd = new FormData(); fd.append("file", file);
@@ -162,6 +194,9 @@ export default function OrgunEgitimEditorPage() {
                 {/* LEFT NAV */}
                 <div className="w-52 bg-gray-50 border-r border-gray-200 flex flex-col shrink-0">
                     <div className="px-4 py-4 border-b border-gray-200">
+                        <div className="mb-4">
+                            <AdminBackButton fallbackUrl="/admin/sayfalar" fullWidth={true} />
+                        </div>
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-bold text-gray-900">Örgün Eğitim</h2>
                             <VersionHistory pageSlug="orgun-egitim" onRestore={() => { setReloadKey(k => k + 1); setLoading(true); }} />
@@ -259,6 +294,7 @@ export default function OrgunEgitimEditorPage() {
                         {/* GALLERY */}
                         <SectionAccordion id="gallery" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div><label className={labelCls}>Galeri Üst Başlığı (örn: Kampüs Yaşamı)</label><input className={inputCls} value={galleryTitle} onChange={e => setGalleryTitle(e.target.value)} /></div>
                                 <label className={labelCls}>Kampüs Yaşamı Görselleri</label>
                                 <SortableList
                                     items={galleryImages.map((img, idx) => ({ id: idx, url: img }))}
@@ -290,18 +326,22 @@ export default function OrgunEgitimEditorPage() {
                         {/* LOCATION */}
                         <SectionAccordion id="location" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div><label className={labelCls}>Kırmızı Üst Başlık (örn: Lokasyon)</label><input className={inputCls} value={locSubTitle} onChange={e => setLocSubTitle(e.target.value)} /></div>
                                 <div><label className={labelCls}>Başlık</label><input className={inputCls} value={locTitle} onChange={e => setLocTitle(e.target.value)} /></div>
                                 <div><label className={labelCls}>Açıklama</label><RichTextEditor value={locDesc} onChange={setLocDesc} placeholder="Lokasyon açıklaması..." minRows={3} /></div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div><label className={labelCls}>Adres</label><input className={inputCls} value={locAddress} onChange={e => setLocAddress(e.target.value)} /></div>
+                                    <div><label className={labelCls}>Saatler Etiketi</label><input className={inputCls} value={locHoursLabel} onChange={e => setLocHoursLabel(e.target.value)} /></div>
                                     <div><label className={labelCls}>Çalışma Saatleri</label><input className={inputCls} value={locHours} onChange={e => setLocHours(e.target.value)} /></div>
                                 </div>
+                                <div><label className={labelCls}>Google Harita İframe URL'si</label><input className={inputCls} value={locMapUrl} onChange={e => setLocMapUrl(e.target.value)} placeholder="https://www.google.com/maps/embed?pb=..." /></div>
                             </div>
                         </SectionAccordion>
 
                         {/* PROGRAMS */}
                         <SectionAccordion id="programs" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div><label className={labelCls}>Kırmızı Üst Başlık (örn: Eğitim Modeli)</label><input className={inputCls} value={progSubTitle} onChange={e => setProgSubTitle(e.target.value)} /></div>
                                 <div><label className={labelCls}>Bölüm Başlığı</label><input className={inputCls} value={progSectionTitle} onChange={e => setProgSectionTitle(e.target.value)} /></div>
                                 <label className={labelCls}>Program Kartları</label>
                                 <SortableList
@@ -373,6 +413,12 @@ export default function OrgunEgitimEditorPage() {
                             <div className="space-y-3">
                                 <div><label className={labelCls}>Bölüm Başlığı</label><input className={inputCls} value={timelineTitle} onChange={e => setTimelineTitle(e.target.value)} /></div>
                                 
+                                <div className="grid grid-cols-2 gap-3 p-3 bg-green-50/50 rounded-lg border border-green-100">
+                                    <div className="col-span-2"><label className={labelCls}>Rozet Ayarları (Görselin Üstündeki Kutucuk)</label></div>
+                                    <div><label className={labelCls}>Rozet Başlığı</label><input className={inputCls} value={badgeTitle} onChange={e => setBadgeTitle(e.target.value)} placeholder="Başarı Oranı" /></div>
+                                    <div><label className={labelCls}>Rozet Değeri</label><input className={inputCls} value={badgeValue} onChange={e => setBadgeValue(e.target.value)} placeholder="%85" /></div>
+                                </div>
+                                
                                 <div>
                                     <label className={labelCls}>Bölüm Görseli (Sağ Taraftaki Görsel)</label>
                                     {timelineImage ? (
@@ -411,6 +457,33 @@ export default function OrgunEgitimEditorPage() {
                                     )}
                                 />
                                 <button onClick={() => setSteps([...steps, { title: "", desc: "" }])} className="mt-2 text-[10px] text-blue-600 font-bold flex items-center gap-1 hover:underline"><PlusIcon className="w-3 h-3" /> Adım Ekle</button>
+                            </div>
+                                </SectionAccordion>
+
+                        {/* RICH CONTENT (TABLES) */}
+                        <SectionAccordion id="richContent" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
+                            <div className="space-y-4">
+                                <div className="p-4 bg-yellow-50 text-yellow-800 rounded-lg text-sm mb-4 border border-yellow-200">
+                                    <strong>İpucu:</strong> Müfredat tabloları, ders saatleri veya eğitmen grupları gibi karmaşık listeleri/tabloları aşağıya kopyalayıp yapıştırabilirsiniz. Sitede otomatik olarak modern bir tasarımla gösterilecektir.
+                                </div>
+                                <div className="flex items-center gap-3 mb-4 relative">
+                                    <input type="checkbox" className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer top-1 left-1 checked:right-1 checked:left-auto checked:border-blue-500 transition-all z-10" checked={richContentActive} onChange={e => setRichContentActive(e.target.checked)} />
+                                    <div className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer w-10 ${richContentActive ? "bg-blue-500" : "bg-gray-300"}`}></div>
+                                    <span className="text-sm font-bold text-gray-700">{richContentActive ? "Açık (Sitede Görünür)" : "Kapalı (Gizli)"}</span>
+                                </div>
+
+                                {richContentActive && (
+                                    <>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Bölüm Başlığı</label>
+                                            <input className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold" value={richContentTitle} onChange={e => setRichContentTitle(e.target.value)} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Tablolar ve İçerik</label>
+                                            <RichTextEditor value={richContentHtml} onChange={setRichContentHtml} />
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </SectionAccordion>
                     </div>

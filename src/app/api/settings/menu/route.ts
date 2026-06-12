@@ -27,6 +27,29 @@ export async function GET(request: Request) {
           }
         }
       });
+
+      // Auto-populate 'header-uzaktan' with categories if it's empty
+      const uzaktanMenu = menus.find(m => m.slug === "header-uzaktan");
+      if (uzaktanMenu && uzaktanMenu.items.length === 0) {
+        const activeCategories = await prisma.category.findMany({
+          where: { isActive: true },
+          orderBy: { order: "asc" }
+        });
+
+        // Add them as dynamic items
+        uzaktanMenu.items = activeCategories.map((cat, idx) => ({
+          id: `auto-cat-${cat.id}`,
+          menuId: uzaktanMenu.id,
+          label: cat.name,
+          url: `/kurslar?kategori=${encodeURIComponent(cat.name)}`,
+          desc: "Kategoriye ait tüm eğitimler",
+          order: idx,
+          isActive: true,
+          parentId: null,
+          children: []
+        }));
+      }
+
       return NextResponse.json({ menus }, {
         headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" },
       });
@@ -50,6 +73,24 @@ export async function GET(request: Request) {
 
     if (!menu) {
       return NextResponse.json({ items: [] });
+    }
+
+    if (menu.slug === "header-uzaktan" && menu.items.length === 0) {
+      const activeCategories = await prisma.category.findMany({
+        where: { isActive: true },
+        orderBy: { order: "asc" }
+      });
+      menu.items = activeCategories.map((cat, idx) => ({
+        id: `auto-cat-${cat.id}`,
+        menuId: menu.id,
+        label: cat.name,
+        url: `/kurslar?kategori=${encodeURIComponent(cat.name)}`,
+        desc: "Kategoriye ait tüm eğitimler",
+        order: idx,
+        isActive: true,
+        parentId: null,
+        children: []
+      }));
     }
 
     return NextResponse.json({ items: menu.items }, {

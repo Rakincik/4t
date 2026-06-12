@@ -99,11 +99,15 @@ export default async function AboutPage() {
     title2: cms.hero?.title2 || DEFAULTS.hero.title2,
     description: cms.hero?.content || DEFAULTS.hero.description,
     stats: cms.hero?.stats || DEFAULTS.hero.stats,
+    badgeText: cms.hero?.metadata?.badgeText || "4T AKADEMİ FARKI",
+    bgImage: cms.hero?.metadata?.bgImage || null,
   };
 
   const mission = {
     title: cms.mission?.title || DEFAULTS.mission.title,
     content: cms.mission?.content || DEFAULTS.mission.content,
+    sectionTitle: cms.mission?.metadata?.sectionTitle || "Rotamız ve Hedefimiz",
+    sectionDesc: cms.mission?.metadata?.sectionDesc || "Başarıya giden yolda pusulamız belli.",
   };
 
   const vision = {
@@ -124,9 +128,14 @@ export default async function AboutPage() {
     images: cms.team?.images?.length > 0 ? cms.team.images : DEFAULTS.team.images,
     statValue: cms.team?.statValue || DEFAULTS.team.statValue,
     statLabel: cms.team?.statLabel || DEFAULTS.team.statLabel,
+    tag1: cms.team?.metadata?.tag1 || "Aktif Canlı Dersler",
+    tag2: cms.team?.metadata?.tag2 || "Soru Çözüm Kampları",
+    btnText: cms.team?.metadata?.btnText || "Eğitmenlerimizi Tanıyın",
   };
 
-  const faqItems = cms.faq?.items || [];
+  const faqItems = cms.faq?.metadata?.items || [];
+  const faqTitle = cms.faq?.title || "Hakkımızda Sıkça Sorulanlar";
+  const faqDesc = cms.faq?.content || "Kurumumuzla ilgili merak edilenler";
 
   return (
     <main className="flex min-h-screen flex-col bg-white font-sans">
@@ -134,6 +143,11 @@ export default async function AboutPage() {
 
       {/* ============ HERO ============ */}
       <div className="relative w-full bg-[#0B1221] overflow-hidden">
+        {hero.bgImage && (
+          <div className="absolute inset-0 z-0">
+            <Image src={hero.bgImage} fill className="object-cover opacity-20" alt="Hero Background" />
+          </div>
+        )}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
           <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#DC2626]/20 rounded-full blur-3xl opacity-50 animate-pulse"></div>
           <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-3xl opacity-30"></div>
@@ -143,7 +157,7 @@ export default async function AboutPage() {
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md">
               <SparklesIcon className="w-5 h-5 text-yellow-400" />
-              <span className="text-sm font-bold text-white tracking-wide">4T AKADEMİ FARKI</span>
+              <span className="text-sm font-bold text-white tracking-wide">{hero.badgeText}</span>
             </div>
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white leading-tight">
               {hero.title1} <br />
@@ -151,9 +165,7 @@ export default async function AboutPage() {
                 {hero.title2}
               </span>
             </h1>
-            <p className="text-xl text-gray-300 leading-relaxed max-w-2xl mx-auto">
-              {hero.description}
-            </p>
+            <div className="text-xl text-gray-300 leading-relaxed max-w-2xl mx-auto" dangerouslySetInnerHTML={{ __html: hero.description }} />
             <div className="flex flex-wrap items-center justify-center gap-8 pt-8 text-white/80">
               {hero.stats.map((stat: any, i: number) => (
                 <div key={i} className="flex items-center gap-6">
@@ -174,8 +186,8 @@ export default async function AboutPage() {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0B1221]">Rotamız ve Hedefimiz</h2>
-            <p className="mt-4 text-gray-600">Başarıya giden yolda pusulamız belli.</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0B1221]">{mission.sectionTitle}</h2>
+            <div className="mt-4 text-gray-600" dangerouslySetInnerHTML={{ __html: mission.sectionDesc }} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* MİSYON */}
@@ -186,7 +198,7 @@ export default async function AboutPage() {
                   <LightBulbIcon className="w-8 h-8 text-[#DC2626]" />
                 </div>
                 <h3 className="text-2xl font-bold text-[#0B1221] mb-4">{mission.title}</h3>
-                <p className="text-gray-600 leading-relaxed text-lg">{mission.content}</p>
+                <div className="text-gray-600 leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: mission.content }} />
               </div>
             </div>
             {/* VİZYON */}
@@ -197,7 +209,7 @@ export default async function AboutPage() {
                   <EyeIcon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-4">{vision.title}</h3>
-                <p className="text-gray-400 leading-relaxed text-lg">{vision.content}</p>
+                <div className="text-gray-400 leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: vision.content }} />
               </div>
             </div>
           </div>
@@ -208,8 +220,8 @@ export default async function AboutPage() {
       <section className="bg-white py-24">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0B1221]">{valuesData.sectionTitle}</h2>
-            <p className="mt-4 text-gray-600 max-w-2xl mx-auto">{valuesData.sectionDesc}</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0B1221] [&_p]:inline [&_font]:inline [&_span]:inline" dangerouslySetInnerHTML={{ __html: valuesData.sectionTitle }} />
+            <div className="mt-4 text-gray-600 max-w-2xl mx-auto" dangerouslySetInnerHTML={{ __html: valuesData.sectionDesc }} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {valuesData.items.map((item: any, i: number) => {
@@ -219,8 +231,8 @@ export default async function AboutPage() {
                   <div className={`w-16 h-16 ${vi.bg} rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                     <vi.icon className={`h-8 w-8 ${vi.color}`} />
                   </div>
-                  <h3 className="text-xl font-bold text-[#0B1221] mb-2">{item.name}</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                  <h3 className="text-xl font-bold text-[#0B1221] mb-2 [&_p]:inline [&_font]:inline [&_span]:inline" dangerouslySetInnerHTML={{ __html: item.name }} />
+                  <div className="text-gray-600 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: item.description }} />
                 </div>
               );
             })}
@@ -239,19 +251,19 @@ export default async function AboutPage() {
                 {team.title1} <br />
                 <span className="text-[#DC2626]">{team.title2}</span>
               </h2>
-              <p className="text-lg text-gray-400">{team.description}</p>
+              <div className="text-lg text-gray-400" dangerouslySetInnerHTML={{ __html: team.description }} />
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-white text-sm font-medium">Aktif Canlı Dersler</span>
+                  <span className="text-white text-sm font-medium">{team.tag1}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10">
                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                  <span className="text-white text-sm font-medium">Soru Çözüm Kampları</span>
+                  <span className="text-white text-sm font-medium">{team.tag2}</span>
                 </div>
               </div>
               <button className="flex items-center gap-3 bg-[#DC2626] text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-red-900/40">
-                <span>Eğitmenlerimizi Tanıyın</span>
+                <span>{team.btnText}</span>
                 <ArrowRightIcon className="w-5 h-5" />
               </button>
             </div>
@@ -280,7 +292,7 @@ export default async function AboutPage() {
 
       {/* ============ FAQ (Optinal) ============ */}
       {faqItems && faqItems.length > 0 && (
-          <DynamicFaqBlock items={faqItems} title="Hakkımızda Sıkça Sorulanlar" description="Kurumumuzla ilgili merak edilenler" />
+          <DynamicFaqBlock items={faqItems} title={faqTitle} description={faqDesc} />
       )}
 
       <Footer />

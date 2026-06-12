@@ -68,6 +68,8 @@ function parseFormData(formData: FormData) {
         tags: formData.get("tags") ? JSON.parse(formData.get("tags") as string) : null,
         accessEndDate: formData.get("accessEndDate") ? new Date(formData.get("accessEndDate") as string) : null,
         accessDurationDays: formData.get("accessDurationDays") ? parseInt(formData.get("accessDurationDays") as string) : null,
+        flixUpsellText: formData.get("flixUpsellText") as string || null,
+        flixUpsellLink: formData.get("flixUpsellLink") as string || null,
     };
 }
 
@@ -79,15 +81,21 @@ function parseRelations(formData: FormData) {
     return {
         variants: variantsList.map((v: any, i: number) => ({ id: v.id, title: v.title, price: Number(v.price), oldPrice: v.oldPrice ? Number(v.oldPrice) : null, order: i, accessDurationDays: v.accessDurationDays ? Number(v.accessDurationDays) : null })),
         addons: addonsList.map((a: any, i: number) => ({ id: a.id, title: a.title, price: Number(a.price), order: i })),
-        coupons: couponsList.map((c: any) => ({
-            id: c.id,
-            code: c.code.toUpperCase(),
-            type: c.type,
-            amount: Number(c.amount),
-            maxUses: c.maxUses ? Number(c.maxUses) : null,
-            expiresAt: c.expiresAt ? new Date(c.expiresAt) : null,
-            isActive: c.isActive
-        }))
+        coupons: couponsList.map((c: any) => {
+            const parsedAmount = Number(c.amount);
+            if (!parsedAmount || parsedAmount <= 0) {
+                throw new Error("Kupon indirimi sıfırdan büyük olmalıdır.");
+            }
+            return {
+                id: c.id,
+                code: c.code.toUpperCase(),
+                type: c.type,
+                amount: parsedAmount,
+                maxUses: c.maxUses ? Number(c.maxUses) : null,
+                expiresAt: c.expiresAt ? new Date(c.expiresAt) : null,
+                isActive: c.isActive
+            };
+        })
     };
 }
 

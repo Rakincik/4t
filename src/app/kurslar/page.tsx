@@ -9,6 +9,8 @@ export const metadata = {
 // Next.js ISR veya dinamik ayarları isteğe bağlı eklenebilir
 export const revalidate = 60; // 1 dakikada bir cache yeniler
 
+import { Suspense } from "react";
+
 export default async function KurslarPage() {
   // Veritabanından AKTİF kursları çek. (Mock data yerine canlı data)
   const courses = await prisma.course.findMany({
@@ -25,6 +27,7 @@ export default async function KurslarPage() {
       type: true,
       color: true,
       learningOutcomes: true,
+      createdAt: true,
     }
   });
 
@@ -50,8 +53,30 @@ export default async function KurslarPage() {
       price: c.price,
       learningOutcomes: finalLearningOutcomes,
       color: c.color || "#3B82F6",
+      createdAt: c.createdAt,
     };
   });
 
-  return <KurslarClient initialCourses={formattedCourses} />;
+  const activeCategoriesDB = await prisma.category.findMany({
+    where: { isActive: true },
+    orderBy: { order: 'asc' },
+    select: { name: true, slug: true }
+  });
+
+  const normalizeTR = (s: string) => s.trim().toLowerCase()
+    .replaceAll("ı", "i").replaceAll("ğ", "g").replaceAll("ü", "u")
+    .replaceAll("ş", "s").replaceAll("ö", "o").replaceAll("ç", "c");
+
+  const usedCategories = new Set(formattedCourses.map(c => c.category ? c.category.toLowerCase() : ""));
+  const relevantCategories = activeCategoriesDB.filter(cat => 
+    usedCategories.has(cat.slug.toLowerCase()) || 
+    usedCategories.has(normalizeTR(cat.name))
+  );
+
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>}>
+      <KurslarClient initialCourses={formattedCourses} activeCategories={relevantCategories} />
+    </Suspense>
+  );
 }
+

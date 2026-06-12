@@ -71,11 +71,11 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
   const totalPrice = withBook ? p.price + p.bookPrice : p.price;
 
   return (
-    <div className="group bg-white/[0.04] border border-white/10 rounded-2xl overflow-hidden hover:border-[#DC2626]/30 hover:bg-white/[0.07] transition-all duration-300">
+    <div className="group bg-white/[0.04] border border-white/10 rounded-2xl overflow-hidden hover:border-[#DC2626]/30 hover:bg-white/[0.07] transition-all duration-300 flex flex-col h-full">
       {/* Kırmızı üst çizgi */}
-      <div className="h-1 bg-[#DC2626]" />
+      <div className="h-1 bg-[#DC2626] shrink-0" />
 
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-grow">
         {/* Badge */}
         {p.badge && (
           <span className="inline-block px-2 py-0.5 bg-[#DC2626] text-[10px] font-bold text-white rounded mb-2 uppercase tracking-wider">
@@ -135,37 +135,39 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
           )}
         </div>
 
-        {/* Fiyat Dökümü */}
-        <div className="mb-4 space-y-1 text-xs border-t border-white/5 pt-3">
-          <div className="flex justify-between">
-            <span className="text-gray-500">Ürün toplamı</span>
-            <span className="text-gray-400 line-through">{formatCurrency(p.originalPrice)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-500">İndirimli fiyat</span>
-            <span className="text-white font-bold">{formatCurrency(p.price)}</span>
-          </div>
-          {withBook && (
+        <div className="mt-auto">
+          {/* Fiyat Dökümü */}
+          <div className="mb-4 space-y-1 text-xs border-t border-white/5 pt-3">
             <div className="flex justify-between">
-              <span className="text-gray-500">Kitap seti</span>
-              <span className="text-white font-bold">+{formatCurrency(p.bookPrice)}</span>
+              <span className="text-gray-500">Ürün toplamı</span>
+              <span className="text-gray-400 line-through">{formatCurrency(p.originalPrice)}</span>
             </div>
-          )}
-          <div className="flex justify-between pt-2 border-t border-white/10 mt-1">
-            <span className="text-white font-bold">Genel toplam</span>
-            <span className="text-lg font-black text-white">{formatCurrency(totalPrice)}</span>
+            <div className="flex justify-between">
+              <span className="text-gray-500">İndirimli fiyat</span>
+              <span className="text-white font-bold">{formatCurrency(p.price)}</span>
+            </div>
+            {withBook && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Kitap seti</span>
+                <span className="text-white font-bold">+{formatCurrency(p.bookPrice)}</span>
+              </div>
+            )}
+            <div className="flex justify-between pt-2 border-t border-white/10 mt-1">
+              <span className="text-white font-bold">Genel toplam</span>
+              <span className="text-lg font-black text-white">{formatCurrency(totalPrice)}</span>
+            </div>
+            <div className="text-[10px] text-green-400 font-medium text-right">Peşin fiyatına 12 taksit</div>
           </div>
-          <div className="text-[10px] text-green-400 font-medium text-right">Peşin fiyatına 12 taksit</div>
-        </div>
 
-        {/* Sepete Ekle Butonu */}
-        <a
-          href={`/flix/${p.slug}`}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#DC2626] text-white text-sm font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-900/20"
-        >
-          <ShoppingCartIcon className="w-4 h-4" />
-          Sepete Ekle
-        </a>
+          {/* Sepete Ekle Butonu */}
+          <a
+            href={`/flix/${p.slug}`}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#DC2626] text-white text-sm font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-900/20"
+          >
+            <ShoppingCartIcon className="w-4 h-4" />
+            Sepete Ekle
+          </a>
+        </div>
       </div>
     </div>
   );

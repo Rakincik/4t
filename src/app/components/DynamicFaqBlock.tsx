@@ -35,9 +35,7 @@ export default function DynamicFaqBlock({
                     <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0B1221] tracking-tight mb-4">
                         {title}
                     </h2>
-                    <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-                        {description}
-                    </p>
+                    <div className="text-lg text-gray-500 max-w-2xl mx-auto" dangerouslySetInnerHTML={{ __html: description }} />
                 </div>
 
                 {/* FAQ List */}
@@ -74,9 +72,10 @@ export default function DynamicFaqBlock({
                                 >
                                     <div className="px-6 pb-6 pt-0">
                                         <div className="w-full h-px bg-gray-100 mb-4" />
-                                        <p className="text-gray-600 leading-relaxed whitespace-pre-line text-base">
-                                            {item.a}
-                                        </p>
+                                        <div 
+                                            className="text-gray-600 leading-relaxed whitespace-pre-line text-base prose prose-sm max-w-none prose-p:my-1"
+                                            dangerouslySetInnerHTML={{ __html: item.a }}
+                                        />
                                     </div>
                                 </div>
                             </div>

@@ -33,10 +33,10 @@ const PAGES = [
     {
         slug: "iletisim",
         name: "İletişim",
-        description: "Adres, telefon, çalışma saatleri (Site Yönetiminden düzenleyin)",
+        description: "İletişim formu, adres, telefon, WhatsApp bilgileri ve harita",
         icon: PhoneIcon,
         color: "bg-green-50 text-green-600",
-        href: "/admin/site",
+        href: "/admin/sayfalar/iletisim",
         ready: true,
     },
     {
@@ -55,6 +55,15 @@ const PAGES = [
         icon: TrophyIcon,
         color: "bg-amber-50 text-amber-600",
         href: "/admin/sayfalar/basarilarimiz",
+        ready: true,
+    },
+    {
+        slug: "kurslar",
+        name: "Kurslar (Tüm Eğitimler)",
+        description: "Hero alanı, istatistik bandı, filtreleme ve arama",
+        icon: DocumentTextIcon,
+        color: "bg-indigo-50 text-indigo-600",
+        href: "/admin/sayfalar/kurslar",
         ready: true,
     },
 ];

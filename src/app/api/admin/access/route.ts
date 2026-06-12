@@ -53,11 +53,17 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        let finalExpiresAt = null;
+        if (expiresAt) {
+            finalExpiresAt = new Date(expiresAt);
+            finalExpiresAt.setUTCHours(23, 59, 59, 999);
+        }
+
         const access = await prisma.courseAccess.create({
             data: {
                 userId,
                 courseId,
-                expiresAt: expiresAt ? new Date(expiresAt) : null,
+                expiresAt: finalExpiresAt,
             },
             include: {
                 user: { select: { id: true, name: true, email: true } },

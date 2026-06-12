@@ -23,6 +23,50 @@ const Footer = dynamic(() => import("@/app/components/Footer"));
 import HeroSlider from "@/app/components/HeroSlider";
 
 /* ===================================================== */
+/* COMPONENT: FLIX RIBBON (UPSELL)                       */
+/* ===================================================== */
+function FlixRibbon({ data }: { data: any }) {
+  // Varsayılan olarak aktif kabul edelim, panelden kapatılınca metadata.isActive false olacak
+  const isActive = data?.metadata?.isActive ?? true;
+  if (!isActive) return null;
+
+  const gradientClass = data?.metadata?.gradient || "from-purple-900 via-red-900 to-red-600";
+  const customColor1 = data?.metadata?.color1;
+  const customColor2 = data?.metadata?.color2;
+  
+  const customStyle = (customColor1 && customColor2) 
+    ? { background: `linear-gradient(to right, ${customColor1}, ${customColor2})` }
+    : {};
+
+  const bgClass = (customColor1 && customColor2) 
+    ? "" 
+    : `bg-gradient-to-r ${gradientClass}`;
+
+  return (
+    <div className="container mx-auto max-w-7xl px-4 lg:px-8 mb-4">
+      <div 
+        className={`${bgClass} rounded-[2rem] p-6 md:p-8 flex flex-col lg:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden group`}
+        style={customStyle}
+      >
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
+        <div className="relative z-10 flex-1 text-center lg:text-left">
+          <div className="flex items-center justify-center lg:justify-start gap-2 text-red-200 text-xs font-bold uppercase tracking-widest mb-2">
+            <SparklesIcon className="w-4 h-4" /> {data?.title || "SINIRSIZ ÖĞRENME"}
+          </div>
+          <h3 className="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-2" dangerouslySetInnerHTML={{ __html: data?.content || "Tüm Eğitimlere Tek Pakette Sınırsız Erişin: 4T FLIX" }} />
+          <div className="text-purple-100 text-sm md:text-base" dangerouslySetInnerHTML={{ __html: data?.metadata?.desc || "4T FLIX ile 10.000+ saatlik dev arşive 7/24 kesintisiz ulaşın." }} />
+        </div>
+        <div className="relative z-10 shrink-0">
+          <Link href={data?.metadata?.url || "/flix"} className="inline-flex items-center gap-2 bg-white text-red-700 font-extrabold px-6 py-3 md:px-8 md:py-4 rounded-xl hover:scale-105 transition-transform shadow-lg shadow-black/20">
+            {data?.metadata?.btn || "FLIX'i Keşfet"} <ArrowRightIcon className="w-5 h-5" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===================================================== */
 /* COMPONENT: TRUST STRIP (AUTHORITY BAR)                */
 /* ===================================================== */
 function TrustStrip({ stats }: { stats: { label: string; value: string }[] }) {
@@ -49,7 +93,7 @@ function TrustStrip({ stats }: { stats: { label: string; value: string }[] }) {
 /* ===================================================== */
 /* COMPONENT: CATEGORY CARD                              */
 /* ===================================================== */
-function CategoryCard({ title, icon: Icon, href, desc }: { title: string, icon: any, href: string, desc: string }) {
+function CategoryCard({ title, icon: Icon, href, desc, inspectText }: { title: string, icon: any, href: string, desc: string, inspectText?: string }) {
   return (
     <Link href={href} className="group relative bg-white border border-gray-100 p-8 rounded-3xl hover:border-red-100/50 transition-all duration-300 hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-2 overflow-hidden block h-full">
       {/* Decor Background */}
@@ -64,7 +108,7 @@ function CategoryCard({ title, icon: Icon, href, desc }: { title: string, icon: 
         <p className="text-gray-500 text-sm leading-relaxed mb-6">{desc}</p>
 
         <div className="flex items-center text-sm font-bold text-[#DC2626] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-          Programı İncele <ArrowRightIcon className="w-4 h-4 ml-2" />
+          {inspectText || "Programı İncele"} <ArrowRightIcon className="w-4 h-4 ml-2" />
         </div>
       </div>
     </Link>
@@ -93,9 +137,18 @@ export default function Home() {
   ];
   const catTitle = cms?.categories?.title || "Hedefine Odaklan.";
   const catDesc = cms?.categories?.content || "4T Akademi'nin 20 yıllık tecrübesiyle hazırlanan, sınav formatına %100 uyumlu eğitim programları.";
+  const catAllLinkText = cms?.categories?.metadata?.allLinkText || "Tüm Programlar";
+  const catAllLinkUrl = cms?.categories?.metadata?.allLinkUrl || "/kurslar";
+  const catInspectText = cms?.categories?.metadata?.inspectText || "Programı İncele";
+  
   const flixTitle = cms?.flix?.title || "4T FLIX ile Özgürce Öğren.";
   const flixDesc = cms?.flix?.content || "Mesaiden sonra, yolda veya evde. 10.000 saati aşkın video ders arşivine 7/24 kesintisiz erişim. Tek üyelik, sınırsız bilgi.";
   
+  const flixBadge = cms?.flix?.metadata?.badgeText || "Sınırsız Video Kütüphanesi";
+  const flixBtn1Text = cms?.flix?.metadata?.btn1Text || "Hemen Başla";
+  const flixBtn1Url = cms?.flix?.metadata?.btn1Url || "/flix";
+  const flixBtn2Text = cms?.flix?.metadata?.btn2Text || "Detaylı Bilgi";
+  const flixBtn2Url = cms?.flix?.metadata?.btn2Url || "/flix";
   const flixBtnBg = cms?.flix?.metadata?.btnBg || "#FFFFFF";
   const flixBtnColor = cms?.flix?.metadata?.btnColor || "#0B1221";
   const flixBtnPosition = cms?.flix?.metadata?.btnPosition || "left";
@@ -145,6 +198,9 @@ export default function Home() {
       {/* 2. TRUST STRIP */}
       <TrustStrip stats={stats} />
 
+      {/* NEW: FLIX PREMIUM RIBBON */}
+      <FlixRibbon data={cms?.flixRibbon} />
+
       {/* 3. MAIN CATEGORIES (Refined Grid) */}
       <section id="kurslar" className="pb-24 pt-12">
         <div className="container mx-auto max-w-7xl px-4 lg:px-8">
@@ -153,8 +209,8 @@ export default function Home() {
               <h2 className="text-4xl font-extrabold text-[#0B1221] mb-4">{catTitle}</h2>
               <div className="text-gray-500 text-lg [&_p]:inline [&_font]:inline [&_span]:inline" dangerouslySetInnerHTML={{ __html: catDesc }} />
             </div>
-            <a href="/kurslar" className="text-[#DC2626] font-bold hover:text-red-800 flex items-center gap-2 group transition-colors">
-              Tüm Programlar <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <a href={catAllLinkUrl} className="text-[#DC2626] font-bold hover:text-red-800 flex items-center gap-2 group transition-colors">
+              {catAllLinkText} <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
 
@@ -164,24 +220,28 @@ export default function Home() {
               desc="Mülki İdare Amirliği sınavına özel, stratejik ve kapsamlı hazırlık seti."
               icon={BuildingLibraryIcon}
               href="/kurs-kategori/kaymakamlik"
+              inspectText={catInspectText}
             />
             <CategoryCard
               title="KPSS A Grubu"
               desc="Uzman, Müfettiş ve Denetçi kadroları için eksiksiz konu anlatımları."
               icon={BriefcaseIcon}
               href="/kurs-kategori/kpss-a"
+              inspectText={catInspectText}
             />
             <CategoryCard
               title="Sayıştay"
               desc="Denetçi Yardımcılığı sınavının zorlu müfredatına tam hakimiyet."
               icon={BanknotesIcon}
               href="/kurs-kategori/sayistay"
+              inspectText={catInspectText}
             />
             <CategoryCard
               title="Adli & İdari Yargı"
               desc="Hakimlik ve Savcılık sınavlarına yönelik derinlemesine hukuk eğitimi."
               icon={ScaleIcon}
               href="/kurs-kategori/hakimlik"
+              inspectText={catInspectText}
             />
           </div>
         </div>
@@ -201,7 +261,7 @@ export default function Home() {
               <div className="space-y-6 md:space-y-8">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/20 border border-blue-400/30 rounded-full text-blue-300 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
                   <SparklesIcon className="w-4 h-4" />
-                  Sınırsız Video Kütüphanesi
+                  {flixBadge}
                 </div>
 
                 <h2 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight">
@@ -211,11 +271,11 @@ export default function Home() {
                 <div className="text-gray-400 text-lg leading-relaxed [&_p]:inline [&_font]:inline [&_span]:inline" dangerouslySetInnerHTML={{ __html: flixDesc }} />
 
                 <div className={`flex flex-col sm:flex-row gap-4 ${flixBtnPosition === "center" ? "justify-center" : flixBtnPosition === "right" ? "justify-end" : "justify-start"}`}>
-                  <a href="/flix" style={{ backgroundColor: flixBtnBg, color: flixBtnColor }} className="px-6 py-3 md:px-8 md:py-4 text-center font-bold rounded-xl hover:brightness-110 transition-colors shadow-lg shadow-white/10">
-                    Hemen Başla
+                  <a href={flixBtn1Url} style={{ backgroundColor: flixBtnBg, color: flixBtnColor }} className="px-6 py-3 md:px-8 md:py-4 text-center font-bold rounded-xl hover:brightness-110 transition-colors shadow-lg shadow-white/10">
+                    {flixBtn1Text}
                   </a>
-                  <a href="/flix" className="px-6 py-3 md:px-8 md:py-4 text-center bg-transparent border border-white/20 text-white font-bold rounded-xl hover:bg-white/5 transition-colors">
-                    Detaylı Bilgi
+                  <a href={flixBtn2Url} className="px-6 py-3 md:px-8 md:py-4 text-center bg-transparent border border-white/20 text-white font-bold rounded-xl hover:bg-white/5 transition-colors">
+                    {flixBtn2Text}
                   </a>
                 </div>
               </div>

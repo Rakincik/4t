@@ -35,8 +35,20 @@ const DEFAULT_CONTACT = {
   whatsappDisplay: "(0553) 172 40 44 (WhatsApp)",
   whatsapp: "905531724044", // sadece rakam: ülke koduyla
   address: "İlkbahar Mah. 593 Sk. No:2 Çankaya/ANKARA",
-  mapsEmbed:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3060.706788574718!2d32.84680807661595!3d39.88081698888941!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0d6350f0f5%3A0x809c91f01c4c107!2s4T%20Akademi!5e0!3m2!1str!2str!4v1730702657801!5m2!1str!2str",
+  mapsEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3060.706788574718!2d32.84680807661595!3d39.88081698888941!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0d6350f0f5%3A0x809c91f01c4c107!2s4T%20Akademi!5e0!3m2!1str!2str!4v1730702657801!5m2!1str!2str",
+  heroBadge: "7/24 dönüş hedefi • Danışman destekli yönlendirme",
+  heroTitle: "Bize Ulaşın",
+  heroDesc: "Kurs seçimi, kayıt, ödeme veya teknik destek… Ne lazımsa hızlıca çözelim. En hızlı yol: WhatsApp.",
+  heroBtn1: "Formu Doldur",
+  heroBtn2: "WhatsApp’tan Yaz",
+  heroBtn3: "Hemen Ara",
+  formTitle: "Ücretsiz Danışmanlık / Destek",
+  formDesc: "Formu doldurun, ekibimiz sizi arayıp en doğru paketi netleştirsin.",
+  formSuccess: "Mesajın ulaştı ✅",
+  formSuccessDesc: "En kısa sürede dönüş yapacağız. Acilse WhatsApp’tan yazabilirsin.",
+  formKvkk: "Formu göndererek KVKK kapsamında iletişim kurulmasını kabul etmiş olursunuz.",
+  mapTitle: "Haritadayız",
+  mapDesc: "Ankara kampüsümüze yol tarifi alabilirsiniz.",
 };
 
 /* ===================================================== */
@@ -54,24 +66,21 @@ function ContactHero({ contactData }: { contactData: typeof DEFAULT_CONTACT }) {
       <div className="relative container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-16 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-semibold text-dark/70">
           <span className="h-2 w-2 rounded-full bg-secondary" />
-          7/24 dönüş hedefi • Danışman destekli yönlendirme
+          {contactData.heroBadge}
         </div>
 
         <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-dark">
-          Bize Ulaşın
+          {contactData.heroTitle}
         </h1>
 
-        <p className="mt-6 text-lg sm:text-xl text-dark/70 max-w-3xl mx-auto">
-          Kurs seçimi, kayıt, ödeme veya teknik destek… Ne lazımsa hızlıca çözelim.
-          En hızlı yol: <span className="font-extrabold text-dark">WhatsApp</span>.
-        </p>
+        <div className="mt-6 text-lg sm:text-xl text-dark/70 max-w-3xl mx-auto" dangerouslySetInnerHTML={{ __html: contactData.heroDesc }} />
 
         <div className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
           <a
             href="#form"
             className="btn-4t rounded-2xl px-8 py-3 text-base font-extrabold inline-flex items-center justify-center"
           >
-            Formu Doldur
+            {contactData.heroBtn1}
             <ArrowRightIcon className="ml-2 h-5 w-5" />
           </a>
 
@@ -83,7 +92,7 @@ function ContactHero({ contactData }: { contactData: typeof DEFAULT_CONTACT }) {
             rel="noreferrer"
             className="btn-4t-secondary rounded-2xl px-8 py-3 text-base font-extrabold inline-flex items-center justify-center"
           >
-            WhatsApp’tan Yaz
+            {contactData.heroBtn2}
             <ChatBubbleLeftRightIcon className="ml-2 h-5 w-5" />
           </a>
 
@@ -92,7 +101,7 @@ function ContactHero({ contactData }: { contactData: typeof DEFAULT_CONTACT }) {
             className="rounded-2xl px-8 py-3 text-base font-extrabold inline-flex items-center justify-center
                        border border-black/10 bg-white text-dark hover:bg-light-muted transition"
           >
-            Hemen Ara
+            {contactData.heroBtn3}
             <PhoneIcon className="ml-2 h-5 w-5 text-primary" />
           </a>
         </div>
@@ -168,11 +177,9 @@ function ContactFormSection({ contactData }: { contactData: typeof DEFAULT_CONTA
             <div className="flex items-start justify-between gap-6">
               <div>
                 <h2 className="text-3xl font-extrabold text-dark">
-                  Ücretsiz Danışmanlık / Destek
+                  {contactData.formTitle}
                 </h2>
-                <p className="mt-2 text-dark/60">
-                  Formu doldurun, ekibimiz sizi arayıp en doğru paketi netleştirsin.
-                </p>
+                <div className="mt-2 text-dark/60" dangerouslySetInnerHTML={{ __html: contactData.formDesc }} />
               </div>
 
               <a
@@ -193,10 +200,10 @@ function ContactFormSection({ contactData }: { contactData: typeof DEFAULT_CONTA
                   <CheckBadgeIcon className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                   <div>
                     <div className="font-extrabold text-dark">
-                      Mesajın ulaştı ✅
+                      {contactData.formSuccess}
                     </div>
                     <div className="text-sm text-dark/60 mt-1">
-                      En kısa sürede dönüş yapacağız. Acilse WhatsApp’tan yazabilirsin.
+                      {contactData.formSuccessDesc}
                     </div>
                   </div>
                 </div>
@@ -335,7 +342,7 @@ function ContactFormSection({ contactData }: { contactData: typeof DEFAULT_CONTA
                 </div>
 
                 <div className="text-xs text-dark/50 text-center">
-                  Formu göndererek KVKK kapsamında iletişim kurulmasını kabul etmiş olursunuz.
+                  {contactData.formKvkk}
                 </div>
               </div>
             </form>
@@ -419,15 +426,18 @@ function ContactFormSection({ contactData }: { contactData: typeof DEFAULT_CONTA
               className="bg-white rounded-3xl border border-black/10 overflow-hidden shadow-[0_30px_80px_rgba(11,60,138,0.10)]"
             >
               <div className="p-6 border-b border-black/10">
-                <div className="text-lg font-extrabold text-dark">Haritadayız</div>
-                <div className="text-sm text-dark/60 mt-1">
-                  Ankara kampüsümüze yol tarifi alabilirsiniz.
-                </div>
+                <div className="text-lg font-extrabold text-dark">{contactData.mapTitle}</div>
+                <div className="text-sm text-dark/60 mt-1" dangerouslySetInnerHTML={{ __html: contactData.mapDesc }} />
               </div>
 
               <div className="aspect-video w-full">
                 <iframe
-                  src={contactData.mapsEmbed}
+                  title="Google Maps"
+                  src={
+                    contactData.mapsEmbed.includes("<iframe") 
+                      ? (contactData.mapsEmbed.match(/src="([^"]+)"/) || [])[1] || contactData.mapsEmbed 
+                      : contactData.mapsEmbed
+                  }
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -457,15 +467,33 @@ export default function ContactPage() {
   const [contactData, setContactData] = useState(DEFAULT_CONTACT);
 
   useEffect(() => {
-    fetch("/api/settings/global")
+    fetch("/api/admin/page-content?page=iletisim")
       .then(res => res.json())
       .then(data => {
-        if (data && data.config) {
-          setContactData({
-            ...DEFAULT_CONTACT,
-            ...data.config,
-            whatsappDisplay: data.config.whatsapp ? `(+90) ${data.config.whatsapp} (WhatsApp)` : DEFAULT_CONTACT.whatsappDisplay
-          });
+        if (data?.contact?.metadata) {
+          const m = data.contact.metadata;
+          setContactData(prev => ({
+            ...prev,
+            email: m.email || prev.email,
+            phone: m.phone || prev.phone,
+            whatsappDisplay: m.whatsappDisplay || prev.whatsappDisplay,
+            whatsapp: m.whatsapp || prev.whatsapp,
+            address: m.address || prev.address,
+            mapsEmbed: m.mapsEmbed || prev.mapsEmbed,
+            heroBadge: m.heroBadge || prev.heroBadge,
+            heroTitle: m.heroTitle || prev.heroTitle,
+            heroDesc: m.heroDesc || prev.heroDesc,
+            heroBtn1: m.heroBtn1 || prev.heroBtn1,
+            heroBtn2: m.heroBtn2 || prev.heroBtn2,
+            heroBtn3: m.heroBtn3 || prev.heroBtn3,
+            formTitle: m.formTitle || prev.formTitle,
+            formDesc: m.formDesc || prev.formDesc,
+            formSuccess: m.formSuccess || prev.formSuccess,
+            formSuccessDesc: m.formSuccessDesc || prev.formSuccessDesc,
+            formKvkk: m.formKvkk || prev.formKvkk,
+            mapTitle: m.mapTitle || prev.mapTitle,
+            mapDesc: m.mapDesc || prev.mapDesc,
+          }));
         }
       })
       .catch(console.error);

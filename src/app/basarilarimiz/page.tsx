@@ -1,7 +1,7 @@
 // Dosya Yolu: app/basarilarimiz/page.tsx
 "use client";
 import { useState, useEffect } from 'react';
-import { TrophyIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
+import { TrophyIcon, CheckBadgeIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 
 // BİLEŞENLERİMİZİ IMPORT EDİYORUZ
 import MainHeader from '@/app/components/MainHeader';
@@ -66,20 +66,12 @@ const allSuccesses = [
   },
 ];
 
-// Filtre kategorileri (Dinamik de çekilebilir, şimdilik statik)
-const filters = [
-  { id: 'all', name: 'Tümü' },
-  { id: 'kaymakamlik', name: 'Kaymakamlık' },
-  { id: 'sayistay', name: 'Sayıştay' },
-  { id: 'guy', name: 'GUY / Diğer' },
-  { id: '2024', name: '2024 Yılı' },
-  { id: '2023', name: '2023 Yılı' },
-];
+// Filtre kategorileri (Dinamik çekiliyor)
 
 /* ---------------------------------- */
 /* 1. Başarı Kartı (Alt-Bileşen)      */
 /* ---------------------------------- */
-function SuccessCard({ name, title, testimonial, imageUrl }: { name: string, title: string, testimonial: string, imageUrl: string }) {
+function SuccessCard({ name, title, testimonial, imageUrl, videoUrl }: { name: string, title: string, testimonial: string, imageUrl: string, videoUrl?: string }) {
   return (
     <div
       className="flex flex-col rounded-lg shadow-xl overflow-hidden
@@ -96,11 +88,15 @@ function SuccessCard({ name, title, testimonial, imageUrl }: { name: string, tit
           <CheckBadgeIcon className="h-5 w-5 mr-1.5" />
           {title}
         </p>
+        {videoUrl && (
+          <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-1.5 mt-4 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-full text-sm font-bold transition-colors">
+            <PlayCircleIcon className="w-5 h-5" />
+            Videoyu İzle
+          </a>
+        )}
       </div>
       <blockquote className="p-8 flex-grow flex flex-col justify-center bg-gray-50 border-t border-gray-100">
-        <p className="text-base text-gray-700 leading-relaxed italic text-center">
-          &ldquo;{testimonial}&rdquo;
-        </p>
+        <div className="text-base text-gray-700 leading-relaxed italic text-center before:content-['\201C'] after:content-['\201D']" dangerouslySetInnerHTML={{ __html: testimonial }} />
       </blockquote>
     </div>
   );
@@ -122,6 +118,22 @@ export default function SuccessPage() {
   const heroDesc = cms?.hero?.content || "4T Akademi ailesi olarak, hayallerine ulaşan öğrencilerimizin başarılarını paylaşmaktan gurur duyarız.";
   const cmsStories = cms?.stories?.metadata?.items;
   const finalSuccesses = cmsStories || allSuccesses;
+  const emptyTitle = cms?.stories?.metadata?.emptyTitle || "Sonuç Bulunamadı";
+  const emptyDesc = cms?.stories?.metadata?.emptyDesc || "Bu filtreye uygun bir başarı hikayesi henüz eklenmemiş.";
+  const stats = cms?.stats?.metadata?.items || [
+    { label: "Kaymakam", value: "500+" },
+    { label: "Hakim & Savcı", value: "1200+" },
+    { label: "Yerleşme Oranı", value: "%98" }
+  ];
+  
+  const filters = [
+    { id: 'all', name: cms?.stories?.metadata?.filterAll || 'Tümü' },
+    { id: 'kaymakamlik', name: cms?.stories?.metadata?.filterKaymakamlik || 'Kaymakamlık' },
+    { id: 'sayistay', name: cms?.stories?.metadata?.filterSayistay || 'Sayıştay' },
+    { id: 'guy', name: cms?.stories?.metadata?.filterGuy || 'GUY / Diğer' },
+    { id: '2024', name: cms?.stories?.metadata?.filter2024 || '2024 Yılı' },
+    { id: '2023', name: cms?.stories?.metadata?.filter2023 || '2023 Yılı' },
+  ];
 
   const filteredSuccesses = finalSuccesses.filter((story: any) => {
     if (activeFilter === 'all') return true;
@@ -143,11 +155,31 @@ export default function SuccessPage() {
           <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900">
             {heroTitle}
           </h1>
-          <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
-            {heroDesc}
-          </p>
+          <div className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto" dangerouslySetInnerHTML={{ __html: heroDesc }} />
         </div>
       </section>
+
+      {/* İstatistikler Bandı */}
+      {stats && stats.length > 0 && (
+        <section className="w-full bg-[#0B1221] py-12 border-b border-white/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-full bg-blue-600/10 blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-full bg-red-600/10 blur-3xl pointer-events-none"></div>
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-center divide-y sm:divide-y-0 sm:divide-x divide-white/10">
+              {stats.map((stat: any, idx: number) => (
+                <div key={idx} className="flex flex-col items-center justify-center pt-8 sm:pt-0">
+                  <div className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-2">
+                    {stat.value}
+                  </div>
+                  <div className="text-sm md:text-base font-bold text-gray-400 uppercase tracking-widest">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 3. Parça: Filtre Butonları ve Galeri */}
       <section className="w-full py-20">
@@ -181,17 +213,16 @@ export default function SuccessPage() {
                   name={story.name}
                   title={story.title}
                   testimonial={story.testimonial}
-                  imageUrl={story.imageUrl}
+                  imageUrl={story.imageUrl || 'https://via.placeholder.com/150'}
+                  videoUrl={story.videoUrl}
                 />
               ))}
             </div>
           ) : (
             // Filtre sonucu bulunamazsa
             <div className="p-10 text-center bg-white rounded-lg shadow-lg max-w-2xl mx-auto">
-              <h3 className="text-xl font-bold text-gray-900">Sonuç Bulunamadı</h3>
-              <p className="mt-2 text-gray-600">
-                Bu filtreye uygun bir başarı hikayesi henüz eklenmemiş.
-              </p>
+              <h3 className="text-xl font-bold text-gray-900">{emptyTitle}</h3>
+              <div className="mt-2 text-gray-600" dangerouslySetInnerHTML={{ __html: emptyDesc }} />
             </div>
           )}
 

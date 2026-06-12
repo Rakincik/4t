@@ -22,7 +22,7 @@ import Footer from "@/app/components/Footer";
 /* ===================================================== */
 /* COMPONENT: INFINITE MARQUEE (CAMPUS LIFE)             */
 /* ===================================================== */
-function CampusMarquee({ images }: { images?: string[] }) {
+function CampusMarquee({ images, title }: { images?: string[], title?: string }) {
   const defaultImages = [
     "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=600&auto=format&fit=crop",
@@ -35,7 +35,7 @@ function CampusMarquee({ images }: { images?: string[] }) {
   return (
     <div className="w-full overflow-hidden bg-[#0B1221] py-12 border-y border-white/10">
       <div className="text-center mb-8">
-        <span className="text-white/40 text-xs font-bold uppercase tracking-[0.3em]">Kampüs Yaşamı</span>
+        <span className="text-white/40 text-xs font-bold uppercase tracking-[0.3em]">{title || "Kampüs Yaşamı"}</span>
       </div>
       <div className="flex gap-6 animate-marquee w-max hover:pause">
         {[...list, ...list].map((src, i) => (
@@ -113,13 +113,13 @@ function CampusHero({ slides }: { slides?: any[] }) {
 /* ===================================================== */
 /* COMPONENT: STYLIZED MAP (LOCATION) - INTERACTIVE      */
 /* ===================================================== */
-function LocationSection({ title, desc, address, hours }: { title?: string; desc?: string; address?: string; hours?: string }) {
+function LocationSection({ title, desc, address, hours, subTitle, hoursLabel, mapUrl }: { title?: string; desc?: string; address?: string; hours?: string; subTitle?: string; hoursLabel?: string; mapUrl?: string }) {
   return (
     <section className="py-24 bg-white">
       <div className="container mx-auto max-w-7xl px-4 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-8">
-            <span className="text-[#DC2626] font-bold uppercase tracking-widest text-sm">Lokasyon</span>
+            <span className="text-[#DC2626] font-bold uppercase tracking-widest text-sm">{subTitle || "Lokasyon"}</span>
             <h2 className="text-4xl font-extrabold text-[#0B1221]">{title || <>Ankara'nın Kalbinde,<br />Ulaşımın Merkezinde.</>}</h2>
             <div className="text-lg text-gray-500 leading-relaxed [&_p]:inline [&_font]:inline [&_span]:inline" dangerouslySetInnerHTML={{ __html: desc || "Kızılay Metro istasyonuna 2 dakika yürüme mesafesinde. Bakanlıklar, Yargıtay ve Danıştay'ın yanı başında, motivasyonun merkezindesiniz." }} />
 
@@ -135,7 +135,7 @@ function LocationSection({ title, desc, address, hours }: { title?: string; desc
                 <ClockIcon className="w-8 h-8 text-[#DC2626]" />
                 <div>
                   <div className="font-bold text-[#0B1221]">{hours || "09:00 - 23:00"}</div>
-                  <div className="text-xs text-gray-500">Çalışma Saatleri</div>
+                  <div className="text-xs text-gray-500">{hoursLabel || "Çalışma Saatleri"}</div>
                 </div>
               </div>
             </div>
@@ -143,7 +143,7 @@ function LocationSection({ title, desc, address, hours }: { title?: string; desc
 
           <div className="h-[400px] rounded-3xl overflow-hidden relative shadow-2xl border-4 border-white/50">
             <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12239.529241517457!2d32.84444983088915!3d39.92131926615965!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34faa85d58ad9%3A0x6b8d96bba622a5a5!2sKaranfil%20Sk.%20No%3A44%2C%20K%C4%B1z%C4%B1lay%2C%2006420%20%C3%87ankaya%2FAnkara!5e0!3m2!1str!2str!4v1713454238531!5m2!1str!2str" 
+              src={mapUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12239.529241517457!2d32.84444983088915!3d39.92131926615965!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34faa85d58ad9%3A0x6b8d96bba622a5a5!2sKaranfil%20Sk.%20No%3A44%2C%20K%C4%B1z%C4%B1lay%2C%2006420%20%C3%87ankaya%2FAnkara!5e0!3m2!1str!2str!4v1713454238531!5m2!1str!2str"}
               width="100%" 
               height="100%" 
               style={{ border: 0 }} 
@@ -162,7 +162,7 @@ function LocationSection({ title, desc, address, hours }: { title?: string; desc
 /* ===================================================== */
 /* COMPONENT: PROGRAM DETAILS (Accordion / Cards)        */
 /* ===================================================== */
-function ProgramDetails({ title, items }: { title?: string; items?: any[] }) {
+function ProgramDetails({ title, items, subTitle }: { title?: string; items?: any[]; subTitle?: string }) {
   const defaultDetails = [
     {
       title: "Tam Kapsamlı Konu Anlatımı",
@@ -197,7 +197,7 @@ function ProgramDetails({ title, items }: { title?: string; items?: any[] }) {
     <section className="py-24 bg-gray-50">
       <div className="container mx-auto max-w-7xl px-4 lg:px-8">
         <div className="text-center mb-16">
-          <span className="text-[#DC2626] font-bold uppercase tracking-widest text-sm">Eğitim Modeli</span>
+          <span className="text-[#DC2626] font-bold uppercase tracking-widest text-sm">{subTitle || "Eğitim Modeli"}</span>
           <h2 className="text-4xl font-extrabold text-[#0B1221] mt-2">{title || "Neden 4T Örgün Eğitim?"}</h2>
         </div>
 
@@ -208,11 +208,45 @@ function ProgramDetails({ title, items }: { title?: string; items?: any[] }) {
                 <item.icon className="w-8 h-8 text-[#DC2626] group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-xl font-bold text-[#0B1221] mb-3">{item.title}</h3>
-              <p className="text-gray-500 leading-relaxed">
-                {item.desc}
-              </p>
+              <div className="text-gray-500 leading-relaxed" dangerouslySetInnerHTML={{ __html: item.desc }} />
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ===================================================== */
+/* COMPONENT: RICH CONTENT (CURRICULUM / TABLES)         */
+/* ===================================================== */
+function RichContentSection({ title, content, isActive }: { title?: string, content?: string, isActive?: boolean }) {
+  if (!isActive || !content) return null;
+
+  return (
+    <section className="py-24 bg-white border-y border-gray-100">
+      <div className="container mx-auto max-w-5xl px-4 lg:px-8">
+        <div className="text-center mb-16">
+          <span className="text-[#DC2626] font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2">
+            <SparklesIcon className="w-4 h-4" /> Eğitim Müfredatı
+          </span>
+          {title && <h2 className="text-3xl font-extrabold text-[#0B1221] mt-2">{title}</h2>}
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-8 md:p-12 overflow-hidden">
+          <div className="prose prose-slate max-w-none 
+            prose-p:text-gray-600 prose-p:leading-relaxed
+            prose-headings:text-[#0B1221] prose-headings:font-bold
+            prose-a:text-[#DC2626] prose-a:font-semibold hover:prose-a:text-red-700
+            prose-strong:text-[#0B1221] prose-strong:font-bold
+            prose-ul:list-disc prose-ul:pl-5
+            prose-ol:list-decimal prose-ol:pl-5
+            prose-li:text-gray-600
+            prose-tables:w-full prose-tables:border-collapse prose-tables:text-sm prose-tables:overflow-hidden prose-tables:rounded-xl
+            prose-th:bg-gray-50 prose-th:text-gray-900 prose-th:font-extrabold prose-th:p-4 prose-th:text-left prose-th:border-b-2 prose-th:border-gray-200
+            prose-td:p-4 prose-td:border-b prose-td:border-gray-100 prose-td:text-gray-600 prose-tr:transition-colors hover:prose-tr:bg-gray-50/50
+            prose-img:rounded-2xl prose-img:shadow-md
+            " dangerouslySetInnerHTML={{ __html: content }} />
         </div>
       </div>
     </section>
@@ -267,7 +301,7 @@ function FacultyShowcase({ title, desc, items }: { title?: string; desc?: string
 /* ===================================================== */
 /* COMPONENT: SUCCESS TIMELINE                           */
 /* ===================================================== */
-function SuccessTimeline({ title, steps, imageUrl }: { title?: string; steps?: any[]; imageUrl?: string }) {
+function SuccessTimeline({ title, steps, imageUrl, badgeTitle, badgeValue }: { title?: string; steps?: any[]; imageUrl?: string; badgeTitle?: string; badgeValue?: string }) {
   const defaultSteps = [
     { title: "Seviye Belirleme", desc: "İlk gün yapılan deneme ile size en uygun sınıfı ve çalışma programını belirliyoruz." },
     { title: "Kamp Programı", desc: "Eksiklerinizi kapatmak için yoğunlaştırılmış konu anlatım kampları." },
@@ -292,7 +326,7 @@ function SuccessTimeline({ title, steps, imageUrl }: { title?: string; steps?: a
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-[#0B1221] mb-2">{step.title}</h3>
-                    <p className="text-gray-500 leading-relaxed">{step.desc}</p>
+                    <div className="text-gray-500 leading-relaxed" dangerouslySetInnerHTML={{ __html: step.desc }} />
                   </div>
                 </div>
               ))}
@@ -307,8 +341,8 @@ function SuccessTimeline({ title, steps, imageUrl }: { title?: string; steps?: a
               <div className="flex items-center gap-3">
                 <CheckBadgeIcon className="w-8 h-8 text-green-500" />
                 <div>
-                  <div className="text-xs font-bold text-gray-400">Başarı Oranı</div>
-                  <div className="text-xl font-extrabold text-[#0B1221]">%85</div>
+                  <div className="text-xs font-bold text-gray-400">{badgeTitle || "Başarı Oranı"}</div>
+                  <div className="text-xl font-extrabold text-[#0B1221]">{badgeValue || "%85"}</div>
                 </div>
               </div>
             </div>
@@ -332,17 +366,24 @@ export default function FormalEducationPage() {
     <main className="min-h-screen bg-white font-sans">
       <MainHeader />
       <CampusHero slides={cms?.heroSlides?.metadata?.items} />
-      <CampusMarquee images={cms?.gallery?.metadata?.items} />
+      <CampusMarquee images={cms?.gallery?.metadata?.items} title={cms?.gallery?.title} />
       <LocationSection
         title={cms?.location?.title}
         desc={cms?.location?.content}
         address={cms?.location?.metadata?.address}
         hours={cms?.location?.metadata?.hours}
+        subTitle={cms?.location?.metadata?.subTitle}
+        hoursLabel={cms?.location?.metadata?.hoursLabel}
+        mapUrl={cms?.location?.metadata?.mapUrl}
       />
-      <ProgramDetails
-        title={cms?.programs?.title}
-        items={cms?.programs?.metadata?.items}
+      <ProgramDetails title={cms?.programs?.title} items={cms?.programs?.metadata?.items} subTitle={cms?.programs?.metadata?.subTitle} />
+
+      <RichContentSection 
+        isActive={cms?.richContent?.metadata?.isActive ?? true} 
+        title={cms?.richContent?.title} 
+        content={cms?.richContent?.content} 
       />
+
       <FacultyShowcase
         title={cms?.faculty?.title}
         desc={cms?.faculty?.content}
@@ -352,6 +393,8 @@ export default function FormalEducationPage() {
         title={cms?.timeline?.title}
         steps={cms?.timeline?.metadata?.items}
         imageUrl={cms?.timeline?.metadata?.imageUrl}
+        badgeTitle={cms?.timeline?.metadata?.badgeTitle}
+        badgeValue={cms?.timeline?.metadata?.badgeValue}
       />
       <Footer />
     </main>

@@ -2,10 +2,16 @@
 "use client";
 
 import React, { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function WhatsAppButton() {
+  const pathname = usePathname();
   const [showTooltip, setShowTooltip] = useState(false);
   const [phone, setPhone] = useState("905531724044");
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   React.useEffect(() => {
     fetch("/api/settings/global")

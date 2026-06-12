@@ -74,6 +74,8 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
     const castPhotoInputRef = useRef<HTMLInputElement>(null);
     const [uploadingCastPhoto, setUploadingCastPhoto] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [hasChanges, setHasChanges] = useState(false);
+    const [toast, setToast] = useState<{message: string, type: "success"|"error"} | null>(null);
 
     // Temel
     const [title, setTitle] = useState(pkg?.title || "");
@@ -202,8 +204,23 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
             if (instructorList) fd.append("instructorList", instructorList);
             fd.append("variants", JSON.stringify(variants.filter(v => v.title.trim())));
             await onSave(fd);
-            router.push("/admin/flix"); router.refresh();
-        } catch (err: any) { setError(err.message || "Hata oluştu"); }
+            if (mode === "create") {
+                setToast({ message: "Paket başarıyla oluşturuldu! Yönlendiriliyorsunuz...", type: "success" });
+                setTimeout(() => {
+                    router.push("/admin/flix");
+                    router.refresh();
+                }, 1500);
+            } else {
+                setHasChanges(false);
+                setToast({ message: "Paket başarıyla güncellendi!", type: "success" });
+                setTimeout(() => setToast(null), 3000);
+                router.refresh();
+            }
+        } catch (err: any) {
+            setError(err.message || "Hata oluştu");
+            setToast({ message: err.message || "Bir hata oluştu, kaydedilemedi.", type: "error" });
+            setTimeout(() => setToast(null), 3000);
+        }
         finally { setSaving(false); }
     }
 
@@ -211,7 +228,7 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
     const labelCls = "block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5";
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-5xl">
+        <form onSubmit={handleSubmit} onChangeCapture={() => setHasChanges(true)} className="space-y-6 max-w-5xl relative">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -410,7 +427,7 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
                                                     <><CloudArrowUpIcon className="w-3.5 h-3.5" />Video Yükle</>
                                                 )}
                                             </button>
-                                            <p className="text-[9px] text-gray-500 font-medium">Maks 20MB (MP4)</p>
+                                            <p className="text-[9px] text-gray-500 font-medium">16:9 Oran • Maks 20MB • 1920x1080px (MP4)</p>
                                         </div>
                                     )}
                                     <RichTextEditor 
@@ -550,6 +567,17 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
                     </div>
                 </div>
             </div>
+
+                {/* Toast Popup */}
+                {toast && (
+                    <div className={`fixed bottom-20 right-6 z-[100] px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-up-fade ${toast.type === "success" ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+                        {toast.type === "success" ? <CheckIcon className="w-6 h-6" /> : <XMarkIcon className="w-6 h-6" />}
+                        <div>
+                            <div className="font-bold text-sm">{toast.type === "success" ? "Başarılı!" : "Hata!"}</div>
+                            <div className="text-xs opacity-90">{toast.message}</div>
+                        </div>
+                    </div>
+                )}
         </form>
     );
 }

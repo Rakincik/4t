@@ -273,7 +273,19 @@ function CourseTabs({ course }: { course: any }) {
 }
 
 export default function KursDetailClient({ course }: { course: any }) {
-  
+  let upsell = { text: "", icon: "👑", bgColor: "#4c1d95", textColor: "#ffffff", animation: "animate-pulse" };
+  if (course.flixUpsellText) {
+    try {
+      if (course.flixUpsellText.startsWith("{")) {
+         upsell = { ...upsell, ...JSON.parse(course.flixUpsellText) };
+      } else {
+         upsell.text = course.flixUpsellText;
+      }
+    } catch {
+      upsell.text = course.flixUpsellText;
+    }
+  }
+
   // Müşterinin Akış Kurgusu (Online/Offline Varyasyonları & Addon'lar)
   const [selectedVariantId, setSelectedVariantId] = useState(course.variants[0]?.id);
   const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>([]);
@@ -323,6 +335,21 @@ export default function KursDetailClient({ course }: { course: any }) {
   return (
     <main className="min-h-screen bg-gray-50 font-sans">
       <MainHeader />
+
+      {/* FLIX Upsell Smart Bar */}
+      {upsell.text && (
+        <a 
+          href={course.flixUpsellLink || "#"} 
+          className="block text-center py-3 px-4 shadow-md sticky top-0 z-[60] text-sm md:text-base font-extrabold flex items-center justify-center gap-2 cursor-pointer hover:opacity-90 transition group"
+          style={{ backgroundColor: upsell.bgColor, color: upsell.textColor }}
+        >
+          <div className={`flex items-center gap-2 ${upsell.animation !== "animate-none" ? upsell.animation : ""}`}>
+             <span className="text-xl">{upsell.icon}</span>
+             <span>{upsell.text}</span>
+             <span className="ml-2 group-hover:translate-x-1 transition-transform" style={{ color: upsell.textColor }}>→</span>
+          </div>
+        </a>
+      )}
 
       {/* Breadcrumb Area */}
       <div className="bg-[#0B1221] text-white py-8">

@@ -13,8 +13,19 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type");
+    
+    let whereClause: any = {};
+    if (type === "STANDARD") {
+        whereClause = { type: { not: "FLIX" } };
+    } else if (type) {
+        whereClause = { type: type as any };
+    }
+
     const courses = await prisma.course.findMany({
-        orderBy: { createdAt: "desc" },
+        where: whereClause,
+        orderBy: { sortOrder: "asc" },
         select: {
             id: true,
             title: true,
@@ -23,6 +34,9 @@ export async function GET(req: NextRequest) {
             oldPrice: true,
             category: true,
             isActive: true,
+            sortOrder: true,
+            imageUrl: true,
+            type: true,
         },
     });
 

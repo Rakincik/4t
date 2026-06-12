@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useRef } from "react";
 import { PlusIcon, TrashIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 type User = { id: string; name: string; email: string };
@@ -12,6 +12,88 @@ type Access = {
     user: User;
     course: Course;
 };
+
+function stripHtml(html: string) {
+    if (!html) return "";
+    return html.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').trim();
+}
+
+function SearchableSelect({ 
+    options, 
+    value, 
+    onChange, 
+    placeholder 
+}: { 
+    options: { value: string; label: string }[]; 
+    value: string; 
+    onChange: (val: string) => void; 
+    placeholder: string;
+}) {
+    const [search, setSearch] = useState("");
+    const [isOpen, setIsOpen] = useState(false);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const filteredOptions = options.filter(opt => opt.label.toLowerCase().includes(search.toLowerCase()));
+    const selectedOption = options.find(opt => opt.value === value);
+
+    return (
+        <div ref={wrapperRef} className="relative w-full">
+            <div 
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-primary/30 flex items-center justify-between cursor-pointer bg-white"
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span className={selectedOption ? "text-gray-900 line-clamp-1" : "text-gray-500"}>
+                    {selectedOption ? selectedOption.label : placeholder}
+                </span>
+                <span className="text-gray-400 text-xs ml-2">▼</span>
+            </div>
+
+            {isOpen && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden">
+                    <div className="p-2 border-b border-gray-100">
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="Ara..."
+                            className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+                            autoFocus
+                        />
+                    </div>
+                    <ul className="max-h-48 overflow-y-auto">
+                        {filteredOptions.length === 0 ? (
+                            <li className="px-4 py-3 text-sm text-gray-500 text-center">Sonuç bulunamadı.</li>
+                        ) : (
+                            filteredOptions.map(opt => (
+                                <li 
+                                    key={opt.value}
+                                    className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50 ${opt.value === value ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'}`}
+                                    onClick={() => {
+                                        onChange(opt.value);
+                                        setIsOpen(false);
+                                        setSearch("");
+                                    }}
+                                >
+                                    {opt.label}
+                                </li>
+                            ))
+                        )}
+                    </ul>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function ErisimlerPage() {
     const [accesses, setAccesses] = useState<Access[]>([]);
@@ -50,11 +132,24 @@ export default function ErisimlerPage() {
             }
         }
         fetchData();
+        
+        // Auto-open modal if userId is in URL
+        const params = new URLSearchParams(window.location.search);
+        const urlUserId = params.get("userId");
+        if (urlUserId) {
+            setSelectedUser(urlUserId);
+            setShowModal(true);
+        }
     }, []);
 
     // Grant access
     async function handleGrant(e: React.FormEvent) {
         e.preventDefault();
+
+        if (!selectedUser || !selectedCourse) {
+            alert("Lütfen öğrenci ve kurs seçin.");
+            return;
+        }
 
         startTransition(async () => {
             try {
@@ -174,7 +269,7 @@ export default function ErisimlerPage() {
                                             <p className="font-medium text-gray-900">{a.user.name}</p>
                                             <p className="text-sm text-gray-500">{a.user.email}</p>
                                         </td>
-                                        <td className="px-6 py-4 text-gray-700">{a.course.title}</td>
+                                        <td className="px-6 py-4 text-gray-700">{stripHtml(a.course.title)}</td>
                                         <td className="px-6 py-4">
                                             {isExpired ? (
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
@@ -241,38 +336,24 @@ export default function ErisimlerPage() {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Öğrenci
                                 </label>
-                                <select
+                                <SearchableSelect
+                                    options={users.map(u => ({ value: u.id, label: `${u.name} (${u.email})` }))}
                                     value={selectedUser}
-                                    onChange={(e) => setSelectedUser(e.target.value)}
-                                    required
-                                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30"
-                                >
-                                    <option value="">Öğrenci seçin...</option>
-                                    {users.map((u) => (
-                                        <option key={u.id} value={u.id}>
-                                            {u.name} ({u.email})
-                                        </option>
-                                    ))}
-                                </select>
+                                    onChange={setSelectedUser}
+                                    placeholder="Öğrenci arayın ve seçin..."
+                                />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Kurs
                                 </label>
-                                <select
+                                <SearchableSelect
+                                    options={courses.map(c => ({ value: c.id, label: stripHtml(c.title) }))}
                                     value={selectedCourse}
-                                    onChange={(e) => setSelectedCourse(e.target.value)}
-                                    required
-                                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30"
-                                >
-                                    <option value="">Kurs seçin...</option>
-                                    {courses.map((c) => (
-                                        <option key={c.id} value={c.id}>
-                                            {c.title}
-                                        </option>
-                                    ))}
-                                </select>
+                                    onChange={setSelectedCourse}
+                                    placeholder="Kurs arayın ve seçin..."
+                                />
                             </div>
 
                             <div>

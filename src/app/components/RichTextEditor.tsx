@@ -29,7 +29,7 @@ export default function RichTextEditor({ value, onChange, placeholder, minHeight
             return {
                 toolbar: [
                     ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'color': brandColors }, { 'background': brandColors }],
+                    [{ 'color': [false, ...brandColors] }, { 'background': [false, ...brandColors] }],
                     ['clean']
                 ]
             };
@@ -40,7 +40,7 @@ export default function RichTextEditor({ value, onChange, placeholder, minHeight
                 container: [
                     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                     ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'color': brandColors }, { 'background': brandColors }],
+                    [{ 'color': [false, ...brandColors] }, { 'background': [false, ...brandColors] }],
                     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                     ['link', 'image', 'video'],
                     ['clean']

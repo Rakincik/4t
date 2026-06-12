@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   MagnifyingGlassIcon,
   AdjustmentsHorizontalIcon,
@@ -27,9 +28,11 @@ const defaultSmartCategories = [
 ];
 
 const sortOptions = [
-  { value: "default", label: "Varsayılan Sıralama" },
+  { value: "default", label: "Önerilen Sıralama (Varsayılan)" },
+  { value: "newest", label: "En Yeniler" },
   { value: "priceAsc", label: "Fiyat: Düşükten Yükseğe" },
-  { value: "priceDesc", label: "Fiyat: Yüksekten Düşüğe" }
+  { value: "priceDesc", label: "Fiyat: Yüksekten Düşüğe" },
+  { value: "nameAsc", label: "İsim: A'dan Z'ye" }
 ];
 
 function cn(...classes: (string | false | null | undefined)[]) {
@@ -42,8 +45,23 @@ function normalizeTR(s: string) {
     .replaceAll("ş", "s").replaceAll("ö", "o").replaceAll("ç", "c");
 }
 
-export default function KurslarClient({ initialCourses }: { initialCourses: any[] }) {
-  const [activeCategory, setActiveCategory] = useState<string>("Tümü");
+export default function KurslarClient({ initialCourses, activeCategories = [] }: { initialCourses: any[], activeCategories?: { name: string; slug: string }[] }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get("kategori") || "Tümü";
+
+  const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
+
+  const handleCategoryClick = (cat: string) => {
+    setActiveCategory(cat);
+    const params = new URLSearchParams(searchParams.toString());
+    if (cat === "Tümü") {
+      params.delete("kategori");
+    } else {
+      params.set("kategori", cat);
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [inputValue, setInputValue] = useState<string>("");
   const [sortOption, setSortOption] = useState<string>("default");
@@ -51,6 +69,15 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
 
   const [itemsPerPage, setItemsPerPage] = useState<number>(12);
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const [cms, setCms] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/page-content?page=kurslar")
+      .then(res => res.json())
+      .then(data => setCms(data))
+      .catch(console.error);
+  }, []);
 
   // Gelişmiş Debounce (Geciktirme) Arama Etkisi
   useEffect(() => {
@@ -75,22 +102,25 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
       const cCatNorm = c.category ? normalizeTR(c.category) : "";
 
       if (catNorm === normalizeTR("Tümü")) matchCat = true;
-      else if (catNorm === normalizeTR("FLIX")) matchCat = (c.type === "FLIX" || cCatNorm === "4t-flix" || cCatNorm === "flix");
-      else if (catNorm === normalizeTR("Kamp")) matchCat = (c.type === "KAMP" || cCatNorm === "kamp" || titleNorm.includes("kamp"));
-      else if (catNorm === normalizeTR("Kaymakamlık")) matchCat = titleNorm.includes("kaymakamlik") || cCatNorm === "kaymakamlik";
-      else if (catNorm === normalizeTR("KPSS A")) matchCat = (titleNorm.includes("kpss") && !titleNorm.includes("kurum")) || cCatNorm === "kpss a";
-      else if (catNorm === normalizeTR("Sayıştay")) matchCat = titleNorm.includes("sayistay") || cCatNorm === "sayistay";
-      else if (catNorm === normalizeTR("GUY")) matchCat = (titleNorm.includes("guy") || titleNorm.includes("gelir uzman")) || cCatNorm === "guy";
-      else if (catNorm === normalizeTR("Adli ve İdari Yargı")) matchCat = (titleNorm.includes("adli") || titleNorm.includes("idari") || titleNorm.includes("yargi"));
-      else if (catNorm === normalizeTR("Banka Sınavları")) matchCat = titleNorm.includes("banka");
-      else if (catNorm === normalizeTR("Kurum Sınavları")) matchCat = titleNorm.includes("kurum");
-      else if (catNorm === normalizeTR("VMY")) matchCat = titleNorm.includes("vmy") || cCatNorm === "vmy";
-      else matchCat = cCatNorm === catNorm; // fallback
+      else {
+        // ActiveCategory DB'den gelen bir kategori ismiyse
+        const matchedCategory = activeCategories.find(ac => normalizeTR(ac.name) === catNorm);
+        if (matchedCategory) {
+           // DB'deki slug ile kursun kategorisinin aynı olup olmadığını kontrol edelim. 
+           // Veya isminin tam uyup uymadığına bakalım.
+           matchCat = cCatNorm === normalizeTR(matchedCategory.name) || normalizeTR(c.slug).includes(matchedCategory.slug) || titleNorm.includes(matchedCategory.slug);
+        } else {
+           // Fallback (Kamp, Flix vb.)
+           if (catNorm === normalizeTR("FLIX")) matchCat = (c.type === "FLIX" || cCatNorm === "4t-flix" || cCatNorm === "flix");
+           else if (catNorm === normalizeTR("Kamp")) matchCat = (c.type === "KAMP" || cCatNorm === "kamp" || titleNorm.includes("kamp"));
+           else matchCat = cCatNorm === catNorm; 
+        }
+      }
 
       const matchSearch = titleNorm.includes(normSearch);
       return matchCat && matchSearch;
     });
-  }, [activeCategory, searchTerm, initialCourses]);
+  }, [activeCategory, searchTerm, initialCourses, activeCategories]);
 
   const sortedCourses = useMemo(() => {
     let sorted = [...filteredCourses];
@@ -98,6 +128,14 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
       sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
     } else if (sortOption === "priceDesc") {
       sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+    } else if (sortOption === "newest") {
+      sorted.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+    } else if (sortOption === "nameAsc") {
+      sorted.sort((a, b) => (a.title || "").localeCompare(b.title || "", "tr-TR"));
     }
     return sorted;
   }, [filteredCourses, sortOption]);
@@ -109,22 +147,19 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
   }, [sortedCourses, currentPage, itemsPerPage]);
 
   const activeCategoriesList = useMemo(() => {
-    const list = ["Tümü", ...defaultSmartCategories];
-    const normList = list.map(c => normalizeTR(c));
+    const list = ["Tümü"];
     
-    initialCourses.forEach(c => {
-        if (c.category) {
-            const normCat = normalizeTR(c.category);
-            if (normCat !== "uzaktan-egitim" && normCat !== "4t-flix" && normCat !== "kamp") {
-                if (!normList.includes(normCat)) {
-                    list.push(c.category);
-                    normList.push(normCat);
-                }
-            }
-        }
+    // DB'den gelen kategorileri direkt ekle
+    activeCategories.forEach(cat => {
+       list.push(cat.name);
     });
+    
+    // Kamp vs. manuel ekleyebiliriz DB'de yoksa
+    if (!list.some(l => normalizeTR(l) === "kamp")) list.push("Kamp");
+    if (!list.some(l => normalizeTR(l) === "flix")) list.push("FLIX");
+
     return list;
-  }, [initialCourses]);
+  }, [activeCategories]);
 
   return (
     <main className="min-h-screen bg-white">
@@ -143,20 +178,14 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
                 </span>
-                2026 Erken Kayıt Dönemi
+                {cms?.hero?.metadata?.badge || "2026 Erken Kayıt Dönemi"}
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-extrabold text-[#0B1221] tracking-tight leading-[1.1] mb-6">
-                Geleceğinizi <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">
-                  Şansa Bırakmayın.
-                </span>
+              <h1 className="text-4xl md:text-6xl font-extrabold text-[#0B1221] tracking-tight leading-[1.1] mb-6 whitespace-pre-wrap">
+                {cms?.hero?.metadata?.title || "Geleceğinizi Şansa Bırakmayın."}
               </h1>
 
-              <p className="text-lg text-gray-600 leading-relaxed max-w-xl">
-                Türkiye'nin en seçkin eğitmen kadrosu ve yapay zeka destekli öğrenme sistemiyle,
-                hedefinize en kısa ve sağlam yoldan ulaşın.
-              </p>
+              <div className="text-lg text-gray-600 leading-relaxed max-w-xl" dangerouslySetInnerHTML={{ __html: cms?.hero?.metadata?.desc || "Türkiye'nin en seçkin eğitmen kadrosu ve yapay zeka destekli öğrenme sistemiyle, hedefinize en kısa ve sağlam yoldan ulaşın." }} />
             </FadeIn>
           </div>
         </div>
@@ -168,27 +197,38 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
           <div className="flex flex-wrap items-center justify-start gap-8 md:gap-12 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <UsersIcon className="w-5 h-5 text-gray-400" />
-              <span><strong className="text-gray-900">25K+</strong> Öğrenci</span>
+              <span><strong className="text-gray-900">{cms?.stats?.metadata?.s1Value || "25K+"}</strong> {cms?.stats?.metadata?.s1Label || "Öğrenci"}</span>
             </div>
             <div className="flex items-center gap-2">
               <ClockIcon className="w-5 h-5 text-gray-400" />
-              <span><strong className="text-gray-900">10K+</strong> Video Saati</span>
+              <span><strong className="text-gray-900">{cms?.stats?.metadata?.s2Value || "10K+"}</strong> {cms?.stats?.metadata?.s2Label || "Video Saati"}</span>
             </div>
             <div className="flex items-center gap-2">
               <TagIcon className="w-5 h-5 text-gray-400" />
-              <span><strong className="text-gray-900">%95</strong> Başarı Oranı</span>
+              <span><strong className="text-gray-900">{cms?.stats?.metadata?.s3Value || "%95"}</strong> {cms?.stats?.metadata?.s3Label || "Başarı Oranı"}</span>
             </div>
             <div className="hidden sm:block w-px h-4 bg-gray-300 mx-2"></div>
             <div className="flex items-center gap-2 text-green-700 font-medium">
               <CheckBadgeIcon className="w-5 h-5" />
-              <span>%100 Memnuniyet Garantisi</span>
+              <span>{cms?.stats?.metadata?.s4Text || "%100 Memnuniyet Garantisi"}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* --- FAZ 2: FILTRE BAR (MİNİMALİST) --- */}
+      {/* --- FAZ 2: KATEGORİ ALANI VE FİLTRE BAR --- */}
       <section className="bg-white border-b border-gray-100 transition-all">
+        {/* Kategori Başlığı ve Açıklaması */}
+        {(cms?.categorySection?.metadata?.title || cms?.categorySection?.metadata?.desc) && (
+          <div className="container mx-auto max-w-7xl px-4 pt-8 pb-4">
+            {cms?.categorySection?.metadata?.title && (
+              <h2 className="text-2xl md:text-3xl font-bold text-[#0B1221] mb-2">{cms.categorySection.metadata.title}</h2>
+            )}
+            {cms?.categorySection?.metadata?.desc && (
+              <div className="text-gray-500 text-sm md:text-base max-w-2xl" dangerouslySetInnerHTML={{ __html: cms.categorySection.metadata.desc }} />
+            )}
+          </div>
+        )}
         <div className="container mx-auto max-w-7xl px-4 py-3">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
@@ -197,7 +237,7 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
               {activeCategoriesList.map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => setActiveCategory(cat)}
+                  onClick={() => handleCategoryClick(cat)}
                   className={cn(
                     "px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all border",
                     activeCategory === cat
@@ -223,37 +263,7 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
                 />
               </div>
               
-              {/* Sıralama Dropdown */}
-              <div className="relative">
-                <button 
-                  onClick={() => setIsSortOpen(!isSortOpen)}
-                  className={cn(
-                    "p-2.5 rounded-full border transition-colors",
-                    isSortOpen ? "bg-[#0B1221] text-white border-[#0B1221]" : "border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#0B1221]"
-                  )}
-                  title="Sıralama Seçenekleri"
-                >
-                  <AdjustmentsHorizontalIcon className="w-5 h-5" />
-                </button>
-
-                {isSortOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-50">
-                    <div className="text-xs font-bold text-gray-400 mb-2 px-3 pt-2 uppercase tracking-wider">Sıralama</div>
-                    {sortOptions.map(opt => (
-                      <button
-                        key={opt.value}
-                        onClick={() => { setSortOption(opt.value); setIsSortOpen(false); }}
-                        className={cn(
-                          "w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
-                          sortOption === opt.value ? "bg-gray-100 text-[#0B1221]" : "text-gray-600 hover:bg-gray-50"
-                        )}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Sıralama menüsü buradaydı, Faz 3'e taşındı. */}
             </div>
 
           </div>
@@ -264,7 +274,7 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
       <section className="py-12 bg-gray-50 min-h-[600px]">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
 
-          <div className="mb-6 flex items-end justify-between">
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold text-gray-900">
                 {activeCategory === "Tümü" ? "Tüm Eğitim Programları" : `${activeCategory} Eğitimleri`}
@@ -272,6 +282,25 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
               <p className="text-sm text-gray-500 mt-1">
                 {sortedCourses.length} kurs listeleniyor
               </p>
+            </div>
+
+            {/* Yeni ve Belirgin Sıralama Menüsü */}
+            <div className="relative flex-shrink-0 z-20">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-500 hidden sm:inline">Sıralama:</span>
+                <select
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value)}
+                  className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:ring-2 focus:ring-[#0B1221] focus:border-[#0B1221] cursor-pointer shadow-sm hover:border-gray-300 transition-colors appearance-none pr-8 relative"
+                  style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.7rem top 50%', backgroundSize: '0.65rem auto' }}
+                >
+                  {sortOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -363,7 +392,7 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
                 Arama kriterlerinize uygun bir kurs bulamadık. Lütfen filtreleri temizleyip tekrar deneyin.
               </p>
               <button
-                onClick={() => { setActiveCategory("Tümü"); setInputValue(""); setSearchTerm(""); }}
+                onClick={() => { handleCategoryClick("Tümü"); setInputValue(""); setSearchTerm(""); }}
                 className="mt-6 px-6 py-2 rounded-xl bg-[#0B1221] text-white text-sm font-bold hover:bg-gray-800 transition-colors"
               >
                 Filtreleri Temizle
@@ -372,6 +401,39 @@ export default function KurslarClient({ initialCourses }: { initialCourses: any[
           )}
         </div>
       </section>
+
+      {/* --- FAZ 4: ALT YÖNLENDİRME (CTA) BÖLÜMÜ --- */}
+      {(cms?.ctaSection?.metadata?.title || cms?.ctaSection?.metadata?.desc) && (
+        <section className="bg-[#0B1221] py-16 relative overflow-hidden">
+          {/* Abstract Background Elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl" />
+          
+          <div className="container mx-auto max-w-4xl px-4 text-center relative z-10">
+            {cms?.ctaSection?.metadata?.title && (
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
+                {cms.ctaSection.metadata.title}
+              </h2>
+            )}
+            {cms?.ctaSection?.metadata?.desc && (
+              <div className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto" dangerouslySetInnerHTML={{ __html: cms.ctaSection.metadata.desc }} />
+            )}
+            {cms?.ctaSection?.metadata?.btnText && cms?.ctaSection?.metadata?.btnUrl && (
+              <a
+                href={cms.ctaSection.metadata.btnUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-green-500 text-white px-8 py-4 rounded-xl font-bold hover:bg-green-600 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-green-500/30"
+              >
+                {cms.ctaSection.metadata.btnText}
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+              </a>
+            )}
+          </div>
+        </section>
+      )}
 
       <Footer />
     </main>

@@ -105,6 +105,20 @@ export async function deleteMenu(id: string) {
     return { success: true };
 }
 
+export async function updateMenuTitle(formData: FormData) {
+    const id = formData.get("id") as string;
+    const title = formData.get("title") as string;
+
+    await prisma.menu.update({
+        where: { id },
+        data: { title },
+    });
+
+    revalidatePath("/admin/site/menuler");
+    revalidatePath("/");
+    return { success: true };
+}
+
 // ============================================
 // Menu Item Actions
 // ============================================

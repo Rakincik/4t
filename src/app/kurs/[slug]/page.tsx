@@ -99,7 +99,9 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         features: parseJsonSafe(dbCourse.features, []),
         curriculum: finalCurriculum,
         instructors: instructorsList,
-        instructorList: dbCourse.instructorList || null
+        instructorList: dbCourse.instructorList || null,
+        flixUpsellText: dbCourse.flixUpsellText || null,
+        flixUpsellLink: dbCourse.flixUpsellLink || null
     };
 
     return <KursDetailClient course={course} />;

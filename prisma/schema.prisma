@@ -32,6 +32,22 @@ enum Role {
 }
 
 // ============================================
+// Kurs Kategorileri
+// ============================================
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  parentId  String?
+  parent    Category?  @relation("SubCategories", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Category[] @relation("SubCategories")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============================================
 // Kurslar (KURS + FLIX + KAMP birleşik)
 // ============================================
 enum CourseType {
@@ -84,6 +100,10 @@ model Course {
   episodes         Json?  // [{title, duration, description, locked}, ...]
   cast             Json?  // [{name, role, img}, ...]
   tags             Json?  // ["Hukuk", "Adli Yargı", "2024"]
+
+  // FLIX Yönlendirme (Upsell Smart Bar)
+  flixUpsellText   String? @db.Text
+  flixUpsellLink   String?
 
   // Erişim Yönetimi
   accessEndDate      DateTime?  // Sabit bitiş tarihi (KURS tipi: sınav tarihi vb.)

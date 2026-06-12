@@ -23,6 +23,7 @@ import {
     Squares2X2Icon,
     ChevronDoubleLeftIcon,
     ChevronDoubleRightIcon,
+    TagIcon,
 } from "@heroicons/react/24/outline";
 
 const navItems = [
@@ -30,7 +31,8 @@ const navItems = [
     { href: "/admin/yoneticiler", label: "Yöneticiler", icon: ShieldCheckIcon },
     { href: "/admin/ogrenciler", label: "Öğrenciler", icon: UsersIcon },
     { href: "/admin/kurslar", label: "Kurslar", icon: AcademicCapIcon },
-    { href: "/admin/flix", label: "FLIX Paketleri", icon: FilmIcon },
+    { href: "/admin/kategoriler", label: "Kategoriler", icon: TagIcon },
+    { href: "/admin/flix", label: "4T FLIX Paketleri", icon: FilmIcon },
     { href: "/admin/siparisler", label: "Siparişler", icon: ShoppingCartIcon },
     { href: "/admin/erisimler", label: "Kurs Erişimleri", icon: KeyIcon },
     { href: "/admin/blog", label: "Blog Yazıları", icon: NewspaperIcon },

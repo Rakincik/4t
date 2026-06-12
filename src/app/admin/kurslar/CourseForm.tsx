@@ -32,6 +32,7 @@ import {
     BuildingLibraryIcon
 } from "@heroicons/react/24/outline";
 import { createCourse, updateCourse, deleteCustomCategory } from "./actions";
+import { createCategory } from "../kategoriler/actions";
 import { stripHtml } from "@/lib/htmlUtils";
 
 const BENTO_ICONS = [
@@ -129,16 +130,8 @@ interface CourseFormProps {
     mode: "create" | "edit";
     course?: Course;
     existingCategories?: string[];
+    dbCategories?: { id: string; slug: string; name: string }[];
 }
-
-const CATEGORIES = [
-    { value: "kaymakamlik", label: "Kaymakamlık" },
-    { value: "kpss-a", label: "KPSS A" },
-    { value: "hakimlik", label: "Hakimlik" },
-    { value: "sayistay", label: "Sayıştay" },
-    { value: "osym", label: "ÖSYM" },
-    { value: "guy", label: "GUY" },
-];
 
 const TYPES = [
     { value: "KURS", label: "Uzaktan Eğitim Kursu", icon: AcademicCapIcon, color: "border-blue-400 bg-blue-50 text-blue-700" },
@@ -169,7 +162,7 @@ function parseJsonSafe(val: any, fallback: any) {
     return fallback;
 }
 
-export default function CourseForm({ mode, course, existingCategories = [] }: CourseFormProps) {
+export default function CourseForm({ mode, course, existingCategories = [], dbCategories = [] }: CourseFormProps) {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -183,6 +176,20 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
     const [uploadingVideoKey, setUploadingVideoKey] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [activeSection, setActiveSection] = useState("temel");
+    const [hasChanges, setHasChanges] = useState(false);
+    const [toast, setToast] = useState<{message: string, type: "success"|"error"} | null>(null);
+    const initialUpsellText = (course as any)?.flixUpsellText || "";
+    let parsedUpsell = { text: "", icon: "👑", bgColor: "#4c1d95", textColor: "#ffffff", animation: "animate-pulse" };
+    try {
+        if (initialUpsellText.startsWith("{")) {
+            parsedUpsell = { ...parsedUpsell, ...JSON.parse(initialUpsellText) };
+        } else {
+            parsedUpsell.text = initialUpsellText;
+        }
+    } catch {}
+
+    const [flixUpsellData, setFlixUpsellData] = useState(parsedUpsell);
+    const [flixUpsellLink, setFlixUpsellLink] = useState((course as any)?.flixUpsellLink || "");
 
     // Temel
     const [title, setTitle] = useState(course?.title || "");
@@ -195,7 +202,10 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
     const [videoUrl, setVideoUrl] = useState(course?.videoUrl || "");
     const [gallery, setGallery] = useState<string[]>(parseJsonSafe((course as any)?.gallery, []));
     const [category, setCategory] = useState(course?.category || "");
-    const [isCustomCategory, setIsCustomCategory] = useState(false);
+    const [dbCats, setDbCats] = useState(dbCategories);
+    const [isAddingCategory, setIsAddingCategory] = useState(false);
+    const [newCatName, setNewCatName] = useState("");
+    const [addingCatLoading, setAddingCatLoading] = useState(false);
     const [type, setType] = useState(course?.type || "KURS");
     const [isActive, setIsActive] = useState(course?.isActive ?? true);
     const [isCouponApplicable, setIsCouponApplicable] = useState(course?.isCouponApplicable ?? true);
@@ -374,6 +384,8 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
             fd.append("addons", JSON.stringify(addons.filter(a => a.title.trim()).map(a => ({ ...a, price: parseFloat(a.price) || 0 }))));
             fd.append("accessEndDate", accessEndDate);
             fd.append("accessDurationDays", accessDurationDays);
+            fd.append("flixUpsellText", JSON.stringify(flixUpsellData));
+            fd.append("flixUpsellLink", flixUpsellLink);
             fd.append("coupons", JSON.stringify(coupons.map(c => ({
                 code: c.code.toUpperCase().trim(), type: c.type, amount: parseFloat(c.amount) || 0,
                 maxUses: c.maxUses ? parseInt(c.maxUses) : null,
@@ -381,10 +393,22 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
                 ...(c.isExisting && c.id ? { id: c.id } : {})
             }))));
 
-            if (mode === "create") await createCourse(fd);
-            else if (course) await updateCourse(course.id, fd);
-            router.push("/admin/kurslar"); router.refresh();
-        } catch (err: any) { setError(err.message || "Bir hata oluştu"); }
+            if (mode === "create") {
+                await createCourse(fd);
+                router.push("/admin/kurslar");
+                router.refresh();
+            } else if (course) {
+                await updateCourse(course.id, fd);
+                setHasChanges(false);
+                setToast({ message: "Ürün başarıyla güncellendi!", type: "success" });
+                setTimeout(() => setToast(null), 3000);
+                router.refresh();
+            }
+        } catch (err: any) { 
+            setError(err.message || "Bir hata oluştu"); 
+            setToast({ message: err.message || "Bir hata oluştu, kaydedilemedi.", type: "error" });
+            setTimeout(() => setToast(null), 3000);
+        }
         finally { setSaving(false); }
     }
 
@@ -427,6 +451,7 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
 
     const sections = [
         { id: "temel", label: "Temel Bilgiler", icon: AcademicCapIcon },
+        { id: "pazarlama", label: "Pazarlama ve FLIX Yönlendirme (Upsell)", icon: FireIcon },
         { id: "fiyat", label: "Fiyatlandırma", icon: CurrencyDollarIcon },
         { id: "varyasyon", label: "Varyasyon / Ek", icon: RectangleGroupIcon },
         { id: "ozellikler", label: "Özellikler", icon: SparklesIcon },
@@ -438,10 +463,10 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
     ];
 
     const inputCls = "w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition";
-    const labelCls = "block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5";
+    const labelCls = "block text-xs font-extrabold text-gray-700 uppercase tracking-wider mb-1.5";
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-5xl">
+        <form onSubmit={handleSubmit} onChangeCapture={() => setHasChanges(true)} className="space-y-6 max-w-5xl relative">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -551,50 +576,71 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
                         <div>
                             <div className="flex items-center justify-between">
                                 <label className={labelCls}>Kategori</label>
-                                {!isCustomCategory && category && !CATEGORIES.find(c => c.value === category) && category !== "kamp" && category !== "4t-flix" && (
-                                    <button 
-                                        type="button" 
-                                        onClick={async () => {
-                                            if (confirm(`'${category}' kategorisini silmek istediğinize emin misiniz? Bu kategoriye sahip olan kursların kategorisi boşaltılacaktır.`)) {
-                                                await deleteCustomCategory(category);
-                                                window.location.reload();
-                                            }
-                                        }}
-                                        className="text-[10px] font-bold text-red-500 hover:text-red-700 flex items-center gap-1 mb-1.5 bg-red-50 px-2 py-1 rounded"
-                                    >
-                                        <TrashIcon className="w-3 h-3" /> Seçili Kategoriyi Sil
-                                    </button>
-                                )}
                             </div>
-                            <select 
-                                value={isCustomCategory ? "custom" : (category || "")} 
-                                onChange={(e) => {
-                                    if (e.target.value === "custom") {
-                                        setIsCustomCategory(true);
-                                        setCategory("");
-                                    } else {
-                                        setIsCustomCategory(false);
-                                        setCategory(e.target.value);
-                                    }
-                                }} 
-                                className={inputCls + " !py-2 bg-white cursor-pointer"} 
-                            >
-                                <option value="">Kategori Seçin (Opsiyonel)</option>
-                                {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                                {existingCategories.filter(ec => !CATEGORIES.find(c => c.value === ec) && ec !== "kamp" && ec !== "4t-flix").map(ec => (
-                                    <option key={ec} value={ec}>{ec}</option>
-                                ))}
-                                <option value="custom" className="font-bold text-blue-600">+ Yeni Kategori Oluştur</option>
-                            </select>
-                            {isCustomCategory && (
-                                <input 
-                                    type="text" 
-                                    value={category} 
+                            <div className="flex gap-2">
+                                <select 
+                                    value={category || ""} 
                                     onChange={(e) => setCategory(e.target.value)} 
-                                    className={inputCls + " mt-2"} 
-                                    placeholder="Yeni kategori adı..." 
-                                    autoFocus
-                                />
+                                    className={inputCls + " !py-2 bg-white cursor-pointer flex-1"} 
+                                >
+                                    <option value="">Kategori Seçin (Opsiyonel)</option>
+                                    {dbCats.filter(c => (c as any).isActive !== false).map((c) => (
+                                        <option key={c.slug} value={c.slug}>
+                                            {(c as any).parentId ? `— ${c.name}` : c.name}
+                                        </option>
+                                    ))}
+                                    {existingCategories.filter(ec => !dbCats.find(c => c.slug === ec)).map(ec => (
+                                        <option key={ec} value={ec}>{ec} (Eski)</option>
+                                    ))}
+                                </select>
+                                <button type="button" onClick={() => setIsAddingCategory(true)} className="px-3 py-2 bg-blue-50 text-blue-600 font-bold rounded-lg border border-blue-200 hover:bg-blue-100 flex items-center gap-1 shrink-0">
+                                    <PlusIcon className="w-4 h-4" /> Yeni
+                                </button>
+                            </div>
+                            
+                            {/* Modal for adding category */}
+                            {isAddingCategory && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                                    <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-5 space-y-4">
+                                        <h3 className="font-bold text-gray-900 text-lg">Yeni Kategori Ekle</h3>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-500 mb-1">Kategori Adı</label>
+                                            <input type="text" value={newCatName} onChange={e => setNewCatName(e.target.value)} className={inputCls} placeholder="Örn: Kaymakamlık" autoFocus />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-500 mb-1">Üst Kategori (Opsiyonel)</label>
+                                            <select id="newCatParentId" className={inputCls}>
+                                                <option value="">Yok (Ana Kategori)</option>
+                                                {dbCats.filter(c => !(c as any).parentId && (c as any).isActive !== false).map((c) => (
+                                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="flex justify-end gap-2 pt-2">
+                                            <button type="button" onClick={() => { setIsAddingCategory(false); setNewCatName(""); }} className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg border border-gray-200">İptal</button>
+                                            <button type="button" disabled={!newCatName || addingCatLoading} onClick={async () => {
+                                                setAddingCatLoading(true);
+                                                try {
+                                                    const fd = new FormData();
+                                                    fd.append("name", newCatName);
+                                                    const pId = (document.getElementById("newCatParentId") as HTMLSelectElement)?.value;
+                                                    if (pId) fd.append("parentId", pId);
+                                                    const newCat = await createCategory(fd);
+                                                    setDbCats([...dbCats, newCat]);
+                                                    setCategory(newCat.slug);
+                                                    setIsAddingCategory(false);
+                                                    setNewCatName("");
+                                                } catch (e: any) {
+                                                    alert(e.message);
+                                                } finally {
+                                                    setAddingCatLoading(false);
+                                                }
+                                            }} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center gap-2">
+                                                {addingCatLoading ? "Ekleniyor..." : "Ekle"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             )}
                         </div>
                         
@@ -626,7 +672,7 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
                 <div className="lg:col-span-3 space-y-6">
 
                     {/* ======================= TEMEL BİLGİLER ======================= */}
-                    <div id="section-temel" className="bg-white rounded-xl border border-gray-200 p-5 space-y-5">
+                    <div id="section-temel" className="bg-white rounded-xl border border-gray-200 p-5 space-y-5 border-t-4 border-t-blue-500 shadow-sm">
                         <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2"><AcademicCapIcon className="w-4 h-4 text-gray-400" /> Temel Bilgiler</h2>
                         <div>
                             <label className={labelCls}>Kurs Adı *</label>
@@ -699,7 +745,50 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
                     </div>
 
                     {/* ======================= FİYATLANDIRMA ======================= */}
-                    <div id="section-fiyat" className="bg-white rounded-xl border border-gray-200 p-5 space-y-5">
+                    
+                    {/* ======================= PAZARLAMA / UPSELL ======================= */}
+                    <div id="section-pazarlama" className="bg-white rounded-xl border border-gray-200 p-5 space-y-5 border-t-4 border-t-red-500 shadow-sm">
+                        <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2"><FireIcon className="w-4 h-4 text-gray-400" /> Pazarlama ve FLIX Yönlendirme (Upsell)</h2>
+                        <p className="text-xs text-gray-500">Bu alan doldurulursa, kurs detay sayfasının en üstünde dikkat çekici bir bildirim çubuğu (Smart Bar) çıkar. Öğrencileri daha üst paketlere (Örn: FLIX) yönlendirmek için harikadır.</p>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className={labelCls}>Smart Bar İkon (Emoji)</label>
+                                <input type="text" value={flixUpsellData.icon} onChange={(e) => setFlixUpsellData({...flixUpsellData, icon: e.target.value})} className={inputCls} maxLength={5} placeholder="Örn: 👑" />
+                            </div>
+                            <div>
+                                <label className={labelCls}>Animasyon</label>
+                                <select value={flixUpsellData.animation} onChange={(e) => setFlixUpsellData({...flixUpsellData, animation: e.target.value})} className={inputCls + " !py-[11px] bg-white"}>
+                                    <option value="animate-pulse">Nefes Alma (Pulse)</option>
+                                    <option value="animate-bounce">Zıplama (Bounce)</option>
+                                    <option value="animate-none">Sabit (Animasyon Yok)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className={labelCls}>Arka Plan Rengi</label>
+                                <div className="flex bg-white rounded-lg border border-gray-200 overflow-hidden w-full h-11">
+                                     <input type="color" value={flixUpsellData.bgColor} onChange={(e) => setFlixUpsellData({...flixUpsellData, bgColor: e.target.value})} className="w-full h-full cursor-pointer p-0 border-0" />
+                                </div>
+                            </div>
+                            <div>
+                                <label className={labelCls}>Yazı Rengi</label>
+                                <div className="flex bg-white rounded-lg border border-gray-200 overflow-hidden w-full h-11">
+                                     <input type="color" value={flixUpsellData.textColor} onChange={(e) => setFlixUpsellData({...flixUpsellData, textColor: e.target.value})} className="w-full h-full cursor-pointer p-0 border-0" />
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label className={labelCls}>Smart Bar Metni</label>
+                            <input type="text" value={flixUpsellData.text} onChange={(e) => setFlixUpsellData({...flixUpsellData, text: e.target.value})} className={inputCls} placeholder="Örn: Bu kurs Kaymakamlık FLIX aboneliğine dahildir." />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Yönlendirilecek Link</label>
+                            <input type="text" value={flixUpsellLink} onChange={(e) => setFlixUpsellLink(e.target.value)} className={inputCls} placeholder="Örn: /flix/kaymakamlik-flix" />
+                        </div>
+                    </div>
+
+                    <div id="section-fiyat" className="bg-white rounded-xl border border-gray-200 p-5 space-y-5 border-t-4 border-t-green-500 shadow-sm">
                         <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2"><CurrencyDollarIcon className="w-4 h-4 text-gray-400" /> Fiyatlandırma</h2>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -964,6 +1053,7 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
                                                                 <><CloudArrowUpIcon className="w-3.5 h-3.5" />Video Yükle</>
                                                             )}
                                                         </button>
+                                                        <p className="text-[9px] text-gray-500 font-medium">16:9 Oran • Maks 20MB • 1920x1080px</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -978,7 +1068,7 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
                     </div>
 
                     {/* ======================= EĞİTMEN(LER) ======================= */}
-                    <div id="section-egitmen" className="bg-white rounded-xl border border-gray-200 p-5 space-y-5">
+                    <div id="section-egitmen" className="bg-white rounded-xl border border-gray-200 p-5 space-y-5 border-t-4 border-t-rose-500 shadow-sm">
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2"><UserIcon className="w-4 h-4 text-gray-400" /> Eğitmen Kadrosu</h2>
                             <button type="button" onClick={addInstructor} className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
@@ -1034,7 +1124,7 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
                     </div>
 
                     {/* ======================= KUPONLAR ======================= */}
-                    <div id="section-kuponlar" className="bg-white rounded-xl border border-gray-200 p-5 space-y-5">
+                    <div id="section-kuponlar" className="bg-white rounded-xl border border-gray-200 p-5 space-y-5 border-t-4 border-t-orange-500 shadow-sm">
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2"><TicketIcon className="w-4 h-4 text-gray-400" /> İndirim Kuponları</h2>
                             <button type="button" onClick={() => setCoupons([...coupons, { code: "", type: "PERCENT", amount: "", maxUses: "", expiresAt: "", isActive: true }])} className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition">
@@ -1061,7 +1151,7 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
                                     <div className="grid grid-cols-4 gap-3">
                                         <div>
                                             <label className={labelCls}>Kupon Kodu *</label>
-                                            <input type="text" value={c.code} onChange={e => { const n = [...coupons]; n[i] = { ...n[i], code: e.target.value }; setCoupons(n); }} className={inputCls + " uppercase font-mono font-bold !py-2"} placeholder="YAZ2025" />
+                                            <input type="text" value={c.code} required onChange={e => { const n = [...coupons]; n[i] = { ...n[i], code: e.target.value }; setCoupons(n); }} className={inputCls + " uppercase font-mono font-bold !py-2"} placeholder="YAZ2025" />
                                         </div>
                                         <div>
                                             <label className={labelCls}>Tip</label>
@@ -1072,11 +1162,11 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
                                         </div>
                                         <div>
                                             <label className={labelCls}>Miktar *</label>
-                                            <input type="number" value={c.amount} onChange={e => { const n = [...coupons]; n[i] = { ...n[i], amount: e.target.value }; setCoupons(n); }} className={inputCls + " !py-2"} placeholder={c.type === 'PERCENT' ? '20' : '500'} />
+                                            <input type="number" value={c.amount} required min="1" step="0.01" onChange={e => { const n = [...coupons]; n[i] = { ...n[i], amount: e.target.value }; setCoupons(n); }} className={inputCls + " !py-2"} placeholder={c.type === 'PERCENT' ? '20' : '500'} />
                                         </div>
                                         <div>
                                             <label className={labelCls}>Max Kullanım</label>
-                                            <input type="number" value={c.maxUses} onChange={e => { const n = [...coupons]; n[i] = { ...n[i], maxUses: e.target.value }; setCoupons(n); }} className={inputCls + " !py-2"} placeholder="∞" />
+                                            <input type="number" value={c.maxUses} min="1" onChange={e => { const n = [...coupons]; n[i] = { ...n[i], maxUses: e.target.value }; setCoupons(n); }} className={inputCls + " !py-2"} placeholder="∞" />
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
@@ -1108,12 +1198,28 @@ export default function CourseForm({ mode, course, existingCategories = [] }: Co
             </div>
 
             {/* Sticky Alt Bar */}
-            <div className="sticky bottom-0 bg-white/90 backdrop-blur-md border-t border-gray-200 -mx-6 px-6 py-3 flex items-center justify-end gap-3">
+            <div className="sticky bottom-0 bg-white/90 backdrop-blur-md border-t border-gray-200 -mx-6 px-6 py-3 flex items-center justify-between gap-3 z-50">
+                <div className="flex items-center gap-2">
+                    {hasChanges && <span className="text-[11px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg animate-pulse">Kaydedilmemiş değişiklikler var</span>}
+                </div>
+                <div className="flex items-center gap-3">
                 <Link href="/admin/kurslar" className="px-5 py-2.5 border border-gray-200 text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition text-sm">İptal</Link>
                 <button type="submit" disabled={saving} className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0B1221] text-white font-bold rounded-xl hover:bg-[#0B1221]/90 transition disabled:opacity-50 shadow-lg shadow-gray-300 text-sm">
                     {saving ? "Kaydediliyor…" : <><CheckIcon className="h-4 w-4" />{mode === "create" ? "Ürünü Oluştur" : "Değişiklikleri Kaydet"}</>}
                 </button>
             </div>
+            </div>
+
+            {/* Toast Popup */}
+            {toast && (
+                <div className={`fixed bottom-20 right-6 z-[100] px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-up-fade ${toast.type === "success" ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+                    {toast.type === "success" ? <CheckIcon className="w-6 h-6" /> : <XMarkIcon className="w-6 h-6" />}
+                    <div>
+                        <div className="font-bold text-sm">{toast.type === "success" ? "Başarılı!" : "Hata!"}</div>
+                        <div className="text-xs opacity-90">{toast.message}</div>
+                    </div>
+                </div>
+            )}
         </form>
     );
 }
