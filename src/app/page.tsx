@@ -141,6 +141,22 @@ export default function Home() {
   const catAllLinkUrl = cms?.categories?.metadata?.allLinkUrl || "/kurslar";
   const catInspectText = cms?.categories?.metadata?.inspectText || "Programı İncele";
   
+  const catItems = cms?.categories?.metadata?.items || [
+    { title: "Kaymakamlık", desc: "Mülki İdare Amirliği sınavına özel, stratejik ve kapsamlı hazırlık seti.", href: "/kurs-kategori/kaymakamlik" },
+    { title: "KPSS A Grubu", desc: "Uzman, Müfettiş ve Denetçi kadroları için eksiksiz konu anlatımları.", href: "/kurs-kategori/kpss-a" },
+    { title: "Sayıştay", desc: "Denetçi Yardımcılığı sınavının zorlu müfredatına tam hakimiyet.", href: "/kurs-kategori/sayistay" },
+    { title: "Adli & İdari Yargı", desc: "Hakimlik ve Savcılık sınavlarına yönelik derinlemesine hukuk eğitimi.", href: "/kurs-kategori/hakimlik" },
+  ];
+
+  const getCategoryIcon = (title: string) => {
+    const t = title.toLowerCase();
+    if (t.includes("kaymakam")) return BuildingLibraryIcon;
+    if (t.includes("kpss") || t.includes("grubu")) return BriefcaseIcon;
+    if (t.includes("sayıştay") || t.includes("sayistay")) return BanknotesIcon;
+    if (t.includes("adli") || t.includes("idari") || t.includes("yargı") || t.includes("hakim")) return ScaleIcon;
+    return AcademicCapIcon;
+  };
+
   const flixTitle = cms?.flix?.title || "4T FLIX ile Özgürce Öğren.";
   const flixDesc = cms?.flix?.content || "Mesaiden sonra, yolda veya evde. 10.000 saati aşkın video ders arşivine 7/24 kesintisiz erişim. Tek üyelik, sınırsız bilgi.";
   
@@ -215,34 +231,16 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <CategoryCard
-              title="Kaymakamlık"
-              desc="Mülki İdare Amirliği sınavına özel, stratejik ve kapsamlı hazırlık seti."
-              icon={BuildingLibraryIcon}
-              href="/kurs-kategori/kaymakamlik"
-              inspectText={catInspectText}
-            />
-            <CategoryCard
-              title="KPSS A Grubu"
-              desc="Uzman, Müfettiş ve Denetçi kadroları için eksiksiz konu anlatımları."
-              icon={BriefcaseIcon}
-              href="/kurs-kategori/kpss-a"
-              inspectText={catInspectText}
-            />
-            <CategoryCard
-              title="Sayıştay"
-              desc="Denetçi Yardımcılığı sınavının zorlu müfredatına tam hakimiyet."
-              icon={BanknotesIcon}
-              href="/kurs-kategori/sayistay"
-              inspectText={catInspectText}
-            />
-            <CategoryCard
-              title="Adli & İdari Yargı"
-              desc="Hakimlik ve Savcılık sınavlarına yönelik derinlemesine hukuk eğitimi."
-              icon={ScaleIcon}
-              href="/kurs-kategori/hakimlik"
-              inspectText={catInspectText}
-            />
+            {catItems.map((item: any, idx: number) => (
+              <CategoryCard
+                key={idx}
+                title={item.title}
+                desc={item.desc}
+                icon={getCategoryIcon(item.title)}
+                href={item.href}
+                inspectText={catInspectText}
+              />
+            ))}
           </div>
         </div>
       </section>
