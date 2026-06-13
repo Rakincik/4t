@@ -9,6 +9,9 @@ import {
     TrophyIcon,
 } from "@heroicons/react/24/outline";
 
+import prisma from "@/lib/prisma";
+import CreateOrgunSubpageButton from "@/app/admin/components/CreateOrgunSubpageButton";
+
 export const dynamic = "force-dynamic";
 
 const PAGES = [
@@ -68,9 +71,18 @@ const PAGES = [
     },
 ];
 
-export default function AdminSayfalarPage() {
+export default async function AdminSayfalarPage() {
+    // Örgün eğitim alt sayfalarını (slug: orgun-egitim-*) getir
+    const dynamicPagesData = await prisma.pageContent.findMany({
+        where: { pageSlug: { startsWith: "orgun-egitim-" } },
+        distinct: ["pageSlug"],
+        select: { pageSlug: true },
+    });
+
+    const dynamicPages = dynamicPagesData.map((p) => p.pageSlug.replace("orgun-egitim-", ""));
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-10">
             <div>
                 <h1 className="text-xl font-bold text-gray-900">Sayfa İçerikleri</h1>
                 <p className="text-sm text-gray-400 mt-0.5">
@@ -103,6 +115,25 @@ export default function AdminSayfalarPage() {
                         </Link>
                     );
                 })}
+
+                {dynamicPages.map((slug) => (
+                    <Link
+                        key={slug}
+                        href={`/admin/sayfalar/orgun-egitim/${slug}`}
+                        className="group bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4 hover:shadow-md hover:border-blue-300 transition"
+                    >
+                        <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                            <AcademicCapIcon className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-gray-900 truncate">Örgün Eğitim ({slug.toUpperCase()})</h3>
+                            <p className="text-xs text-gray-400 mt-0.5">Alt Sayfa (/{slug})</p>
+                        </div>
+                        <ChevronRightIcon className="w-5 h-5 text-gray-300 group-hover:text-blue-500 transition shrink-0" />
+                    </Link>
+                ))}
+
+                <CreateOrgunSubpageButton />
             </div>
         </div>
     );
