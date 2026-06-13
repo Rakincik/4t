@@ -48,6 +48,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Kopyala-yapıştır ile editörden gelen istenmeyen (Times New Roman vb.) fontları ezmek için */
+font, [style*="font-family"] {
+  font-family: inherit !important;
+}
+
 /* =========================
    UTILITIES
    ========================= */

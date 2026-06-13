@@ -68,7 +68,7 @@ export async function getMenus() {
                 orderBy: { order: "asc" },
             },
         },
-        orderBy: { title: "asc" },
+        orderBy: { order: "asc" },
     });
 }
 
@@ -180,6 +180,21 @@ export async function reorderMenuItems(items: { id: string; order: number }[]) {
     await Promise.all(
         items.map((item) =>
             prisma.menuItem.update({
+                where: { id: item.id },
+                data: { order: item.order },
+            })
+        )
+    );
+
+    revalidatePath("/admin/site/menuler");
+    revalidatePath("/");
+    return { success: true };
+}
+
+export async function reorderMenuGroups(items: { id: string; order: number }[]) {
+    await Promise.all(
+        items.map((item) =>
+            prisma.menu.update({
                 where: { id: item.id },
                 data: { order: item.order },
             })

@@ -30,18 +30,8 @@ export default async function MenulerPage() {
     await ensureDefaultMenus();
     const menus = await getMenus();
 
-    // Sort menus so that headers match the site ordering, then footers
-    const orderedSlugs = [
-        "header-uzaktan", "header-orgun", "header-kamplar", "header-flix", "header-blog", "header-hakkimizda",
-        "footer-uzaktan", "footer-urunler", "footer-kurumsal", "footer-yasal"
-    ];
-    menus.sort((a, b) => {
-        let indexA = orderedSlugs.indexOf(a.slug);
-        let indexB = orderedSlugs.indexOf(b.slug);
-        if (indexA === -1) indexA = 999;
-        if (indexB === -1) indexB = 999;
-        return indexA - indexB;
-    });
+    // Menüler artık getMenus() içinde db'deki order alanına göre sıralanmış olarak geliyor.
+
 
     return (
         <div className="space-y-6">

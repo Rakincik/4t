@@ -9,8 +9,10 @@ import {
     XMarkIcon,
     ChevronDownIcon,
     ChevronUpIcon,
+    ArrowUpIcon,
+    ArrowDownIcon
 } from "@heroicons/react/24/outline";
-import { addMenuItem, deleteMenuItem, updateMenuItem, updateMenuTitle } from "../actions";
+import { addMenuItem, deleteMenuItem, updateMenuItem, updateMenuTitle, reorderMenuGroups } from "../actions";
 
 interface MenuItem {
     id: string;
@@ -41,8 +43,28 @@ export default function MenuManager({ menus }: { menus: Menu[] }) {
 
     const headerMenus = menus.filter((m) => m.slug.startsWith("header-"));
     const footerMenus = menus.filter((m) => m.slug.startsWith("footer-"));
+    const [isReordering, setIsReordering] = useState(false);
 
-    const renderMenuGroup = (title: string, groupMenus: Menu[]) => (
+    const handleMoveMenu = async (menuId: string, direction: -1 | 1, isHeader: boolean) => {
+        setIsReordering(true);
+        const group = isHeader ? headerMenus : footerMenus;
+        const index = group.findIndex(m => m.id === menuId);
+        if (index === -1 || (direction === -1 && index === 0) || (direction === 1 && index === group.length - 1)) {
+            setIsReordering(false);
+            return;
+        }
+
+        const newGroup = [...group];
+        const temp = newGroup[index];
+        newGroup[index] = newGroup[index + direction];
+        newGroup[index + direction] = temp;
+
+        const itemsToUpdate = newGroup.map((m, i) => ({ id: m.id, order: i }));
+        await reorderMenuGroups(itemsToUpdate);
+        setIsReordering(false);
+    };
+
+    const renderMenuGroup = (title: string, groupMenus: Menu[], isHeader: boolean) => (
         <div className="mb-10">
             <h3 className="text-lg font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">
                 {title}
@@ -99,6 +121,24 @@ export default function MenuManager({ menus }: { menus: Menu[] }) {
                             )}
                             
                             <div className="flex items-center gap-2 ml-4 shrink-0">
+                                <div className="flex flex-col gap-0 border-r border-gray-200 pr-2 mr-1">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleMoveMenu(menu.id, -1, isHeader); }}
+                                        disabled={isReordering || groupMenus.findIndex(m => m.id === menu.id) === 0}
+                                        className="p-1 text-gray-400 hover:text-gray-800 disabled:opacity-30 disabled:hover:text-gray-400"
+                                        title="Yukarı Taşı"
+                                    >
+                                        <ArrowUpIcon className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleMoveMenu(menu.id, 1, isHeader); }}
+                                        disabled={isReordering || groupMenus.findIndex(m => m.id === menu.id) === groupMenus.length - 1}
+                                        className="p-1 text-gray-400 hover:text-gray-800 disabled:opacity-30 disabled:hover:text-gray-400"
+                                        title="Aşağı Taşı"
+                                    >
+                                        <ArrowDownIcon className="h-3.5 w-3.5" />
+                                    </button>
+                                </div>
                                 {editingMenuTitleId !== menu.id && (
                                     <button
                                         onClick={() => setEditingMenuTitleId(menu.id)}
@@ -199,8 +239,8 @@ export default function MenuManager({ menus }: { menus: Menu[] }) {
 
     return (
         <div className="space-y-2">
-            {renderMenuGroup("Üst Menüler (Header)", headerMenus)}
-            {renderMenuGroup("Alt Menüler (Footer)", footerMenus)}
+            {renderMenuGroup("Üst Menüler (Header)", headerMenus, true)}
+            {renderMenuGroup("Alt Menüler (Footer)", footerMenus, false)}
         </div>
     );
 }

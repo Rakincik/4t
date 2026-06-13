@@ -128,33 +128,9 @@ export default function MainHeader() {
       .then(res => res.json())
       .then(data => {
         if (data && data.menus) {
-          // Görüntülenme sırasını belirliyoruz
-          const orderedSlugs = [
-            "header-uzaktan",
-            "header-orgun",
-            "header-kamplar",
-            "header-flix",
-            "header-kurumsal",
-            "header-blog",
-            "header-hakkimizda"
-          ];
-          const sorted: MenuBlock[] = [];
-          
-          // Önce bilinenleri sıraya göre ekle
-          orderedSlugs.forEach(slug => {
-            const found = data.menus.find((m: MenuBlock) => m.slug === slug);
-            if (found) sorted.push(found);
-          });
-          
-          // Sonra listede olmayan (adminin yeni eklediği) diğer tüm menüleri sona ekle
-          data.menus.forEach((m: MenuBlock) => {
-            if (!orderedSlugs.includes(m.slug)) {
-              sorted.push(m);
-            }
-          });
-          
-          if (sorted.length > 0) {
-            const merged = sorted.map((sm: any) => {
+          // API artık menüleri DB'deki `order` değerine göre sıralı döndürüyor.
+          if (data.menus && data.menus.length > 0) {
+            const merged = data.menus.map((sm: any) => {
                const dm = DEFAULT_MENUS.find(d => d.slug === sm.slug);
                if ((!sm.items || sm.items.length === 0) && dm) {
                    return { ...sm, items: dm.items };

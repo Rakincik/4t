@@ -14,6 +14,7 @@ export async function GET(request: Request) {
     if (prefix) {
       const menus = await prisma.menu.findMany({
         where: { slug: { startsWith: prefix } },
+        orderBy: { order: "asc" },
         include: {
           items: {
             where: { parentId: null, isActive: true },

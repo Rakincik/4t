@@ -12,7 +12,9 @@ import {
     ChatBubbleBottomCenterTextIcon,
     InformationCircleIcon,
     CursorArrowRaysIcon,
-    XMarkIcon
+    XMarkIcon,
+    PhotoIcon,
+    ArrowPathIcon
 } from "@heroicons/react/24/outline";
 
 interface RichTextEditorProps {
@@ -36,6 +38,10 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
 
     // Color Picker State
     const colorInputRef = useRef<HTMLInputElement>(null);
+
+    // Image Upload State
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
 
     useEffect(() => {
         if (editorRef.current && !isInternalChange.current) {
@@ -95,8 +101,37 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
         exec("insertHTML", html);
         
         setIsButtonModalOpen(false);
+        setIsButtonModalOpen(false);
         setBtnText("");
         setBtnUrl("https://");
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploadingImage(true);
+        try {
+            const fd = new FormData();
+            fd.append("file", file);
+            const res = await fetch("/api/upload", { method: "POST", body: fd });
+            const data = await res.json();
+            if (data.url) {
+                editorRef.current?.focus();
+                const html = `&nbsp;<img src="${data.url}" alt="Uploaded Image" style="max-width: 100%; height: auto; border-radius: 8px; margin: 1rem 0;" />&nbsp;<p><br></p>`;
+                exec("insertHTML", html);
+            } else {
+                alert("Görsel yüklenirken bir hata oluştu.");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Görsel yüklenemedi.");
+        } finally {
+            setIsUploadingImage(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
+        }
     };
 
     const isActive = (cmd: string) => {
@@ -161,14 +196,21 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
 
                 <div className="w-px h-4 bg-gray-200 mx-0.5" />
 
-                {/* Links & Buttons */}
+                {/* Links, Images & Buttons */}
                 <button type="button" onMouseDown={e => { e.preventDefault(); addLink(); }} className={btnCls(false)} title="Link Ekle"><LinkIcon className="w-3.5 h-3.5" /></button>
+                
+                <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
+                <button type="button" onMouseDown={e => { e.preventDefault(); fileInputRef.current?.click(); }} disabled={isUploadingImage} className={`${btnCls(false)} ${isUploadingImage ? 'opacity-50 cursor-not-allowed' : ''} ml-1`} title="Görsel Ekle">
+                    {isUploadingImage ? <ArrowPathIcon className="w-3.5 h-3.5 animate-spin" /> : <PhotoIcon className="w-3.5 h-3.5" />}
+                </button>
+
                 <button type="button" onMouseDown={e => { e.preventDefault(); setIsButtonModalOpen(true); }} className="px-2 h-7 rounded flex items-center justify-center text-xs font-bold transition bg-blue-100 text-blue-700 hover:bg-blue-200 ml-1" title="Buton Ekle">
                     <CursorArrowRaysIcon className="w-3.5 h-3.5 mr-1" />
                     Buton
                 </button>
 
-                <div className="ml-auto flex items-center">
+                <div className="ml-auto flex items-center gap-2">
+                    <span className="text-[9px] text-gray-400 font-medium hidden sm:inline-block">Görsel: Maks 2MB, Yatay (16:9)</span>
                     <button type="button" onMouseDown={e => { e.preventDefault(); exec("removeFormat"); }} className="w-7 h-7 rounded flex items-center justify-center text-[10px] text-gray-400 hover:text-red-500 hover:bg-red-50 transition" title="Formatı Temizle">
                         ✕
                     </button>
