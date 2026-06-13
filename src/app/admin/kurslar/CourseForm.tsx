@@ -150,9 +150,15 @@ const BADGES = [
 
 function slugify(text: string): string {
     const cleanText = stripHtml(text);
-    return cleanText.toLowerCase()
-        .replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s")
-        .replace(/ı/g, "i").replace(/ö/g, "o").replace(/ç/g, "c")
+    const trMap: { [key: string]: string } = {
+        'ç': 'c', 'ğ': 'g', 'ş': 's', 'ü': 'u', 'ı': 'i', 'ö': 'o',
+        'Ç': 'C', 'Ğ': 'G', 'Ş': 'S', 'Ü': 'U', 'İ': 'i', 'Ö': 'O', 'I': 'i'
+    };
+    let tempSlug = cleanText;
+    for (let key in trMap) {
+        tempSlug = tempSlug.replace(new RegExp(key, 'g'), trMap[key]);
+    }
+    return tempSlug.toLowerCase()
         .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 

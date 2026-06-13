@@ -27,7 +27,15 @@ export async function createCategory(formData: FormData) {
 
     if (!name) throw new Error("Kategori ismi zorunludur.");
     if (!slug) {
-        slug = name.toLowerCase().replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s").replace(/ı/g, "i").replace(/ö/g, "o").replace(/ç/g, "c").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        const trMap: { [key: string]: string } = {
+            'ç': 'c', 'ğ': 'g', 'ş': 's', 'ü': 'u', 'ı': 'i', 'ö': 'o',
+            'Ç': 'C', 'Ğ': 'G', 'Ş': 'S', 'Ü': 'U', 'İ': 'i', 'Ö': 'O', 'I': 'i'
+        };
+        let tempSlug = name;
+        for (let key in trMap) {
+            tempSlug = tempSlug.replace(new RegExp(key, 'g'), trMap[key]);
+        }
+        slug = tempSlug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     }
 
     const existing = await prisma.category.findUnique({ where: { slug } });
