@@ -44,10 +44,10 @@ async function getCoursesData(
             },
         }),
         prisma.course.count({ where }),
-        prisma.category.findMany({ select: { name: true }, orderBy: { order: 'asc' } })
+        prisma.category.findMany({ select: { name: true, slug: true }, orderBy: { order: 'asc' } })
     ]);
 
-    return { courses, totalCount, categories: dbCategories.map(c => c.name) };
+    return { courses, totalCount, categories: dbCategories.map(c => c.name), dbCategorySlugs: dbCategories.map(c => c.slug) };
 }
 
 function formatTRY(n: number) {
@@ -69,7 +69,7 @@ export default async function KurslarPage({ searchParams }: PageProps) {
     const page = Number(params.page) || 1;
     const limit = Number(params.limit) || 10;
     
-    const { courses, totalCount, categories } = await getCoursesData(q, sort, page, limit, category, status, type);
+    const { courses, totalCount, categories, dbCategorySlugs } = await getCoursesData(q, sort, page, limit, category, status, type);
     const totalPages = Math.ceil(totalCount / limit);
 
     return (
@@ -127,7 +127,12 @@ export default async function KurslarPage({ searchParams }: PageProps) {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900 text-sm line-clamp-1" dangerouslySetInnerHTML={{ __html: stripHtml(c.title) }} />
-                                                    <p className="text-xs text-gray-500">{c.category || "Genel"}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        {c.category || "Genel"}
+                                                        {c.category && !dbCategorySlugs.includes(c.category) && (
+                                                            <span className="ml-1 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">(Hatalı/Eski)</span>
+                                                        )}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </td>
@@ -190,7 +195,12 @@ export default async function KurslarPage({ searchParams }: PageProps) {
                                     <div className="flex items-start justify-between gap-2">
                                         <div>
                                             <h3 className="font-semibold text-gray-900 line-clamp-1" dangerouslySetInnerHTML={{ __html: stripHtml(c.title) }} />
-                                            <p className="text-sm text-gray-500">{c.category || "Genel"}</p>
+                                            <p className="text-sm text-gray-500">
+                                                {c.category || "Genel"}
+                                                {c.category && !dbCategorySlugs.includes(c.category) && (
+                                                    <span className="ml-1 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">(Hatalı/Eski)</span>
+                                                )}
+                                            </p>
                                         </div>
                                         <span
                                             className={`px-2 py-0.5 rounded text-xs font-medium ${c.isActive
