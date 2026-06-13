@@ -28,6 +28,7 @@
     "prisma": "^7.2.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-is": "^19.2.7",
     "react-quill-new": "^3.8.3",
     "recharts": "^3.8.1",
     "sharp": "^0.34.5",
