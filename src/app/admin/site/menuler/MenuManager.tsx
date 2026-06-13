@@ -238,9 +238,28 @@ export default function MenuManager({ menus }: { menus: Menu[] }) {
     );
 
     return (
-        <div className="space-y-2">
-            {renderMenuGroup("Üst Menüler (Header)", headerMenus, true)}
-            {renderMenuGroup("Alt Menüler (Footer)", footerMenus, false)}
+        <div className="space-y-4">
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-6 shadow-sm">
+                <div className="flex">
+                    <div className="flex-shrink-0">
+                        <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                    </div>
+                    <div className="ml-3">
+                        <h3 className="text-sm font-bold text-yellow-800">Önemli Hatırlatma</h3>
+                        <div className="mt-1 text-sm text-yellow-700">
+                            <p>Kategori linklerini eklerken her zaman <b>Kategoriler</b> sayfasındaki <b>Slug (URL)</b> formatını yazmalısınız. Türkçe veya boşluklu karakter kullanmayınız.</p>
+                            <p className="mt-1">✅ <b>Doğru Örnek:</b> <code className="bg-yellow-100 px-1.5 py-0.5 rounded text-yellow-900 font-mono text-xs">/kurslar?kategori=2027-kpss-erken-kayit</code></p>
+                            <p className="mt-1">❌ <b>Yanlış Örnek:</b> <code className="bg-yellow-100 px-1.5 py-0.5 rounded text-yellow-900 font-mono text-xs">/kurslar?kategori=2027 KPSS ERKEN KAYIT</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="space-y-2">
+                {renderMenuGroup("Üst Menüler (Header)", headerMenus, true)}
+                {renderMenuGroup("Alt Menüler (Footer)", footerMenus, false)}
+            </div>
         </div>
     );
 }
