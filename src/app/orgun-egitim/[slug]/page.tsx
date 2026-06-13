@@ -372,18 +372,22 @@ export default function FormalEducationPage() {
   return (
     <main className="min-h-screen bg-white font-sans">
       <MainHeader />
-      <CampusHero slides={cms?.heroSlides?.metadata?.items} />
-      <CampusMarquee images={cms?.gallery?.metadata?.items} title={cms?.gallery?.title} />
-      <LocationSection
-        title={cms?.location?.title}
-        desc={cms?.location?.content}
-        address={cms?.location?.metadata?.address}
-        hours={cms?.location?.metadata?.hours}
-        subTitle={cms?.location?.metadata?.subTitle}
-        hoursLabel={cms?.location?.metadata?.hoursLabel}
-        mapUrl={cms?.location?.metadata?.mapUrl}
-      />
-      <ProgramDetails title={cms?.programs?.title} items={cms?.programs?.metadata?.items} subTitle={cms?.programs?.metadata?.subTitle} />
+      {cms?.heroSlides?.metadata?.isActive !== false && <CampusHero slides={cms?.heroSlides?.metadata?.items} />}
+      {cms?.gallery?.metadata?.isActive !== false && <CampusMarquee images={cms?.gallery?.metadata?.items} title={cms?.gallery?.title} />}
+      {cms?.location?.metadata?.isActive !== false && (
+        <LocationSection
+          title={cms?.location?.title}
+          desc={cms?.location?.content}
+          address={cms?.location?.metadata?.address}
+          hours={cms?.location?.metadata?.hours}
+          subTitle={cms?.location?.metadata?.subTitle}
+          hoursLabel={cms?.location?.metadata?.hoursLabel}
+          mapUrl={cms?.location?.metadata?.mapUrl}
+        />
+      )}
+      {cms?.programs?.metadata?.isActive !== false && (
+        <ProgramDetails title={cms?.programs?.title} items={cms?.programs?.metadata?.items} subTitle={cms?.programs?.metadata?.subTitle} />
+      )}
 
       <RichContentSection 
         isActive={cms?.richContent?.metadata?.isActive ?? true} 
@@ -391,18 +395,22 @@ export default function FormalEducationPage() {
         content={cms?.richContent?.content} 
       />
 
-      <FacultyShowcase
-        title={cms?.faculty?.title}
-        desc={cms?.faculty?.content}
-        items={cms?.faculty?.metadata?.items}
-      />
-      <SuccessTimeline
-        title={cms?.timeline?.title}
-        steps={cms?.timeline?.metadata?.items}
-        imageUrl={cms?.timeline?.metadata?.imageUrl}
-        badgeTitle={cms?.timeline?.metadata?.badgeTitle}
-        badgeValue={cms?.timeline?.metadata?.badgeValue}
-      />
+      {cms?.faculty?.metadata?.isActive !== false && (
+        <FacultyShowcase
+          title={cms?.faculty?.title}
+          desc={cms?.faculty?.content}
+          items={cms?.faculty?.metadata?.items}
+        />
+      )}
+      {cms?.timeline?.metadata?.isActive !== false && (
+        <SuccessTimeline
+          title={cms?.timeline?.title}
+          steps={cms?.timeline?.metadata?.items}
+          imageUrl={cms?.timeline?.metadata?.imageUrl}
+          badgeTitle={cms?.timeline?.metadata?.badgeTitle}
+          badgeValue={cms?.timeline?.metadata?.badgeValue}
+        />
+      )}
       <Footer />
     </main>
   );

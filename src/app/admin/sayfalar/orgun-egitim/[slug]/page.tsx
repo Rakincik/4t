@@ -101,6 +101,14 @@ export default function OrgunEgitimEditorPage() {
         { title: "Zirveye Yolculuk", desc: "Sınav provası niteliğinde Türkiye geneli denemeler ve son taktikler." },
     ]);
 
+    // Visibilities
+    const [heroSlidesActive, setHeroSlidesActive] = useState(true);
+    const [galleryActive, setGalleryActive] = useState(true);
+    const [locationActive, setLocationActive] = useState(true);
+    const [programsActive, setProgramsActive] = useState(true);
+    const [facultyActive, setFacultyActive] = useState(true);
+    const [timelineActive, setTimelineActive] = useState(true);
+
     // Rich Content
     const [richContentActive, setRichContentActive] = useState(true);
     const [richContentTitle, setRichContentTitle] = useState("Detaylı İçerik ve Müfredat");
@@ -111,11 +119,15 @@ export default function OrgunEgitimEditorPage() {
             const res = await fetch(`/api/admin/page-content?page=${dynamicPageSlug}`);
             const data = await res.json();
             if (data.heroSlides?.metadata?.items?.length > 0) { setSlides(data.heroSlides.metadata.items); }
+            if (typeof data.heroSlides?.metadata?.isActive === 'boolean') setHeroSlidesActive(data.heroSlides.metadata.isActive);
+
             if (data.gallery?.metadata) {
+                if (typeof data.gallery.metadata.isActive === 'boolean') setGalleryActive(data.gallery.metadata.isActive);
                 if (data.gallery.title) setGalleryTitle(data.gallery.title);
                 if (data.gallery.metadata.items?.length > 0) { setGalleryImages(data.gallery.metadata.items); }
             }
             if (data.location?.metadata) {
+                if (typeof data.location.metadata.isActive === 'boolean') setLocationActive(data.location.metadata.isActive);
                 if (data.location.title) setLocTitle(data.location.title);
                 if (data.location.content) setLocDesc(data.location.content);
                 if (data.location.metadata.address) setLocAddress(data.location.metadata.address);
@@ -125,16 +137,19 @@ export default function OrgunEgitimEditorPage() {
                 if (data.location.metadata.mapUrl) setLocMapUrl(data.location.metadata.mapUrl);
             }
             if (data.programs?.metadata) {
+                if (typeof data.programs.metadata.isActive === 'boolean') setProgramsActive(data.programs.metadata.isActive);
                 if (data.programs.title) setProgSectionTitle(data.programs.title);
                 if (data.programs.metadata.items) setPrograms(data.programs.metadata.items);
                 if (data.programs.metadata.subTitle) setProgSubTitle(data.programs.metadata.subTitle);
             }
             if (data.faculty?.metadata) {
+                if (typeof data.faculty.metadata.isActive === 'boolean') setFacultyActive(data.faculty.metadata.isActive);
                 if (data.faculty.title) setFacTitle(data.faculty.title);
                 if (data.faculty.content) setFacDesc(data.faculty.content);
                 if (data.faculty.metadata.items) setTeachers(data.faculty.metadata.items);
             }
             if (data.timeline?.metadata) {
+                if (typeof data.timeline.metadata.isActive === 'boolean') setTimelineActive(data.timeline.metadata.isActive);
                 if (data.timeline.title) setTimelineTitle(data.timeline.title);
                 if (data.timeline.metadata.items) setSteps(data.timeline.metadata.items);
                 if (data.timeline.metadata.imageUrl) setTimelineImage(data.timeline.metadata.imageUrl);
@@ -152,7 +167,7 @@ export default function OrgunEgitimEditorPage() {
 
     useEffect(() => { loadData(); }, [loadData, reloadKey]);
 
-    useEffect(() => { if (!loading) setHasChanges(true); }, [slides, galleryImages, galleryTitle, locTitle, locDesc, locAddress, locHours, locSubTitle, locHoursLabel, locMapUrl, progSectionTitle, programs, progSubTitle, facTitle, facDesc, teachers, timelineTitle, steps, timelineImage, badgeTitle, badgeValue, richContentActive, richContentTitle, richContentHtml]);
+    useEffect(() => { if (!loading) setHasChanges(true); }, [slides, galleryImages, galleryTitle, locTitle, locDesc, locAddress, locHours, locSubTitle, locHoursLabel, locMapUrl, progSectionTitle, programs, progSubTitle, facTitle, facDesc, teachers, timelineTitle, steps, timelineImage, badgeTitle, badgeValue, richContentActive, richContentTitle, richContentHtml, heroSlidesActive, galleryActive, locationActive, programsActive, facultyActive, timelineActive]);
 
     const handleSave = useCallback(async () => {
         setSaving(true); setSaveStatus("saving");
@@ -162,12 +177,12 @@ export default function OrgunEgitimEditorPage() {
                 body: JSON.stringify({
                     pageSlug: dynamicPageSlug,
                     sections: {
-                        heroSlides: { title: "Örgün Eğitim Slider", content: null, metadata: { items: slides } },
-                        gallery: { title: galleryTitle || "Kampüs Galerisi", content: null, metadata: { items: galleryImages } },
-                        location: { title: locTitle, content: locDesc, metadata: { address: locAddress, hours: locHours, subTitle: locSubTitle, hoursLabel: locHoursLabel, mapUrl: locMapUrl } },
-                        programs: { title: progSectionTitle, content: null, metadata: { items: programs, subTitle: progSubTitle } },
-                        faculty: { title: facTitle, content: facDesc, metadata: { items: teachers } },
-                        timeline: { title: timelineTitle, content: null, metadata: { items: steps, imageUrl: timelineImage, badgeTitle: badgeTitle, badgeValue: badgeValue } },
+                        heroSlides: { title: "Örgün Eğitim Slider", content: null, metadata: { items: slides, isActive: heroSlidesActive } },
+                        gallery: { title: galleryTitle || "Kampüs Galerisi", content: null, metadata: { items: galleryImages, isActive: galleryActive } },
+                        location: { title: locTitle, content: locDesc, metadata: { address: locAddress, hours: locHours, subTitle: locSubTitle, hoursLabel: locHoursLabel, mapUrl: locMapUrl, isActive: locationActive } },
+                        programs: { title: progSectionTitle, content: null, metadata: { items: programs, subTitle: progSubTitle, isActive: programsActive } },
+                        faculty: { title: facTitle, content: facDesc, metadata: { items: teachers, isActive: facultyActive } },
+                        timeline: { title: timelineTitle, content: null, metadata: { items: steps, imageUrl: timelineImage, badgeTitle: badgeTitle, badgeValue: badgeValue, isActive: timelineActive } },
                         richContent: { title: richContentTitle, content: richContentHtml, metadata: { isActive: richContentActive } }
                     },
                 }),
@@ -178,7 +193,7 @@ export default function OrgunEgitimEditorPage() {
             setTimeout(() => setSaveStatus("idle"), 3000);
         } catch { setSaveStatus("error"); setTimeout(() => setSaveStatus("idle"), 3000); }
         finally { setSaving(false); }
-    }, [slides, galleryTitle, galleryImages, locSubTitle, locTitle, locDesc, locAddress, locHours, locHoursLabel, locMapUrl, progSectionTitle, programs, progSubTitle, facTitle, facDesc, teachers, timelineTitle, timelineImage, badgeTitle, badgeValue, steps, richContentActive, richContentTitle, richContentHtml]);
+    }, [slides, galleryTitle, galleryImages, locSubTitle, locTitle, locDesc, locAddress, locHours, locHoursLabel, locMapUrl, progSectionTitle, programs, progSubTitle, facTitle, facDesc, teachers, timelineTitle, timelineImage, badgeTitle, badgeValue, steps, richContentActive, richContentTitle, richContentHtml, dynamicPageSlug, heroSlidesActive, galleryActive, locationActive, programsActive, facultyActive, timelineActive]);
 
     async function uploadFile(file: File): Promise<string | null> {
         const fd = new FormData(); fd.append("file", file);
@@ -236,6 +251,11 @@ export default function OrgunEgitimEditorPage() {
                         {/* HERO SLIDES */}
                         <SectionAccordion id="heroSlides" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div className="flex items-center gap-3 mb-4 relative pb-4 border-b border-gray-100">
+                                    <input type="checkbox" className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer top-1 left-1 checked:right-1 checked:left-auto checked:border-blue-500 transition-all z-10" checked={heroSlidesActive} onChange={e => setHeroSlidesActive(e.target.checked)} />
+                                    <div className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer w-10 ${heroSlidesActive ? "bg-blue-500" : "bg-gray-300"}`}></div>
+                                    <span className="text-sm font-bold text-gray-700">{heroSlidesActive ? "Açık (Sitede Görünür)" : "Kapalı (Gizli)"}</span>
+                                </div>
                                 <label className={labelCls}>Slaytlar</label>
                                 <SortableList
                                     items={slides}
@@ -300,6 +320,11 @@ export default function OrgunEgitimEditorPage() {
                         {/* GALLERY */}
                         <SectionAccordion id="gallery" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div className="flex items-center gap-3 mb-4 relative pb-4 border-b border-gray-100">
+                                    <input type="checkbox" className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer top-1 left-1 checked:right-1 checked:left-auto checked:border-blue-500 transition-all z-10" checked={galleryActive} onChange={e => setGalleryActive(e.target.checked)} />
+                                    <div className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer w-10 ${galleryActive ? "bg-blue-500" : "bg-gray-300"}`}></div>
+                                    <span className="text-sm font-bold text-gray-700">{galleryActive ? "Açık (Sitede Görünür)" : "Kapalı (Gizli)"}</span>
+                                </div>
                                 <div><label className={labelCls}>Galeri Üst Başlığı (örn: Kampüs Yaşamı)</label><input className={inputCls} value={galleryTitle} onChange={e => setGalleryTitle(e.target.value)} /></div>
                                 <label className={labelCls}>Kampüs Yaşamı Görselleri</label>
                                 <SortableList
@@ -332,6 +357,11 @@ export default function OrgunEgitimEditorPage() {
                         {/* LOCATION */}
                         <SectionAccordion id="location" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div className="flex items-center gap-3 mb-4 relative pb-4 border-b border-gray-100">
+                                    <input type="checkbox" className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer top-1 left-1 checked:right-1 checked:left-auto checked:border-blue-500 transition-all z-10" checked={locationActive} onChange={e => setLocationActive(e.target.checked)} />
+                                    <div className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer w-10 ${locationActive ? "bg-blue-500" : "bg-gray-300"}`}></div>
+                                    <span className="text-sm font-bold text-gray-700">{locationActive ? "Açık (Sitede Görünür)" : "Kapalı (Gizli)"}</span>
+                                </div>
                                 <div><label className={labelCls}>Kırmızı Üst Başlık (örn: Lokasyon)</label><input className={inputCls} value={locSubTitle} onChange={e => setLocSubTitle(e.target.value)} /></div>
                                 <div><label className={labelCls}>Başlık</label><input className={inputCls} value={locTitle} onChange={e => setLocTitle(e.target.value)} /></div>
                                 <div><label className={labelCls}>Açıklama</label><RichTextEditor value={locDesc} onChange={setLocDesc} placeholder="Lokasyon açıklaması..." minRows={3} /></div>
@@ -347,6 +377,11 @@ export default function OrgunEgitimEditorPage() {
                         {/* PROGRAMS */}
                         <SectionAccordion id="programs" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div className="flex items-center gap-3 mb-4 relative pb-4 border-b border-gray-100">
+                                    <input type="checkbox" className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer top-1 left-1 checked:right-1 checked:left-auto checked:border-blue-500 transition-all z-10" checked={programsActive} onChange={e => setProgramsActive(e.target.checked)} />
+                                    <div className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer w-10 ${programsActive ? "bg-blue-500" : "bg-gray-300"}`}></div>
+                                    <span className="text-sm font-bold text-gray-700">{programsActive ? "Açık (Sitede Görünür)" : "Kapalı (Gizli)"}</span>
+                                </div>
                                 <div><label className={labelCls}>Kırmızı Üst Başlık (örn: Eğitim Modeli)</label><input className={inputCls} value={progSubTitle} onChange={e => setProgSubTitle(e.target.value)} /></div>
                                 <div><label className={labelCls}>Bölüm Başlığı</label><input className={inputCls} value={progSectionTitle} onChange={e => setProgSectionTitle(e.target.value)} /></div>
                                 <label className={labelCls}>Program Kartları</label>
@@ -371,6 +406,11 @@ export default function OrgunEgitimEditorPage() {
                         {/* FACULTY */}
                         <SectionAccordion id="faculty" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div className="flex items-center gap-3 mb-4 relative pb-4 border-b border-gray-100">
+                                    <input type="checkbox" className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer top-1 left-1 checked:right-1 checked:left-auto checked:border-blue-500 transition-all z-10" checked={facultyActive} onChange={e => setFacultyActive(e.target.checked)} />
+                                    <div className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer w-10 ${facultyActive ? "bg-blue-500" : "bg-gray-300"}`}></div>
+                                    <span className="text-sm font-bold text-gray-700">{facultyActive ? "Açık (Sitede Görünür)" : "Kapalı (Gizli)"}</span>
+                                </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div><label className={labelCls}>Başlık</label><input className={inputCls} value={facTitle} onChange={e => setFacTitle(e.target.value)} /></div>
                                     <div><label className={labelCls}>Açıklama</label><input className={inputCls} value={facDesc} onChange={e => setFacDesc(e.target.value)} /></div>
@@ -417,6 +457,11 @@ export default function OrgunEgitimEditorPage() {
                         {/* TIMELINE */}
                         <SectionAccordion id="timeline" active={activeSection} expanded={expandedSections} toggle={toggleSection}>
                             <div className="space-y-3">
+                                <div className="flex items-center gap-3 mb-4 relative pb-4 border-b border-gray-100">
+                                    <input type="checkbox" className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer top-1 left-1 checked:right-1 checked:left-auto checked:border-blue-500 transition-all z-10" checked={timelineActive} onChange={e => setTimelineActive(e.target.checked)} />
+                                    <div className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer w-10 ${timelineActive ? "bg-blue-500" : "bg-gray-300"}`}></div>
+                                    <span className="text-sm font-bold text-gray-700">{timelineActive ? "Açık (Sitede Görünür)" : "Kapalı (Gizli)"}</span>
+                                </div>
                                 <div><label className={labelCls}>Bölüm Başlığı</label><input className={inputCls} value={timelineTitle} onChange={e => setTimelineTitle(e.target.value)} /></div>
                                 
                                 <div className="grid grid-cols-2 gap-3 p-3 bg-green-50/50 rounded-lg border border-green-100">
