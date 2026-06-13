@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getToken } from "next-auth/jwt";
+import { revalidatePath } from "next/cache";
 
 async function checkAdmin(req: NextRequest) {
     const token = await getToken({ req });
@@ -92,6 +93,15 @@ export async function POST(req: NextRequest) {
         if (allVersions.length > 50) {
             const toDelete = allVersions.slice(50).map((v) => v.id);
             await prisma.pageContentVersion.deleteMany({ where: { id: { in: toDelete } } });
+        }
+
+        // Ön belleği temizle ki değişiklikler hemen listeye yansısın
+        revalidatePath("/admin/sayfalar");
+        revalidatePath("/admin/sayfalar/orgun-egitim");
+        if (pageSlug.startsWith("orgun-egitim-")) {
+            revalidatePath(`/orgun-egitim/${pageSlug.replace("orgun-egitim-", "")}`);
+        } else {
+            revalidatePath(`/${pageSlug}`);
         }
 
         return NextResponse.json({ success: true, count: results.length });

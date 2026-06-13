@@ -173,6 +173,7 @@ export default function OrgunEgitimEditorPage() {
                 }),
             });
             setSaveStatus("saved"); setHasChanges(false);
+            router.refresh();
             setTimeout(() => { if (iframeRef.current) iframeRef.current.src = iframeRef.current.src; }, 300);
             setTimeout(() => setSaveStatus("idle"), 3000);
         } catch { setSaveStatus("error"); setTimeout(() => setSaveStatus("idle"), 3000); }
