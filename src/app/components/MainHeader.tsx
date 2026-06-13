@@ -370,7 +370,12 @@ export default function MainHeader() {
                         </div>
                         {items.length > 1 && (
                           <div className="mt-3 pt-3 border-t border-gray-100 flex justify-center">
-                            <a href="/kurslar" className="text-[13px] font-bold text-gray-600 hover:text-[#DC2626] flex items-center transition-colors group/viewall">
+                            <a href={
+                              menuBlock.slug === "header-orgun" ? "/orgun-egitim" :
+                              menuBlock.slug === "header-kamplar" ? "/kamplar" :
+                              menuBlock.slug === "header-kurumsal" ? "/hakkimizda" :
+                              "/kurslar"
+                            } className="text-[13px] font-bold text-gray-600 hover:text-[#DC2626] flex items-center transition-colors group/viewall">
                               Tümünü Görüntüle <ChevronRightIcon className="w-3.5 h-3.5 ml-1 transition-transform group-hover/viewall:translate-x-1" />
                             </a>
                           </div>
