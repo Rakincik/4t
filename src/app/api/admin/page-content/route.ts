@@ -110,3 +110,36 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Server error" }, { status: 500 });
     }
 }
+
+// DELETE: Sayfa içeriğini ve versiyonlarını sil
+export async function DELETE(req: NextRequest) {
+    if (!(await checkAdmin(req))) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const pageSlug = searchParams.get("page");
+
+    if (!pageSlug) {
+        return NextResponse.json({ error: "page parametresi gerekli" }, { status: 400 });
+    }
+
+    try {
+        await prisma.pageContent.deleteMany({ where: { pageSlug } });
+        await prisma.pageContentVersion.deleteMany({ where: { pageSlug } });
+
+        revalidatePath("/admin/sayfalar");
+        revalidatePath("/admin/sayfalar/orgun-egitim");
+        if (pageSlug.startsWith("orgun-egitim-")) {
+            revalidatePath(`/orgun-egitim/${pageSlug.replace("orgun-egitim-", "")}`);
+        } else {
+            revalidatePath(`/${pageSlug}`);
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("Error deleting page content:", error);
+        return NextResponse.json({ error: "Server error" }, { status: 500 });
+    }
+}
+

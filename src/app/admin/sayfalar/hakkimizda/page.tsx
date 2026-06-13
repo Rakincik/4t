@@ -584,11 +584,15 @@ export default function HakkimizdaPremiumEditor() {
                                     width: iframeW * scale, 
                                     height: iframeH * scale,
                                     flexShrink: 0,
+                                    position: "relative",
                                 }}>
                                     <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200"
                                         style={{ 
                                             width: iframeW, 
                                             height: iframeH,
+                                            position: "absolute",
+                                            top: 0,
+                                            left: 0,
                                             transform: `scale(${scale})`, 
                                             transformOrigin: "top left",
                                         }}>
@@ -596,7 +600,7 @@ export default function HakkimizdaPremiumEditor() {
                                             ref={iframeRef}
                                             src="/hakkimizda"
                                             className="border-0 bg-white"
-                                            style={{ width: "100%", height: "100%" }}
+                                            style={{ width: iframeW, height: iframeH }}
                                         />
                                     </div>
                                 </div>

@@ -508,9 +508,9 @@ export default function OrgunEgitimEditorPage() {
                     </div>
                     <div className="flex-1 overflow-auto flex items-start justify-center p-4">
                         {(() => { const iframeW = previewDevice === "mobile" ? 375 : 1440; const iframeH = previewDevice === "mobile" ? 812 : 900; const scale = previewZoom / 100; return (
-                            <div style={{ width: iframeW * scale, height: iframeH * scale, flexShrink: 0 }}>
-                                <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200" style={{ width: iframeW, height: iframeH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
-                                    <iframe ref={iframeRef} src="/orgun-egitim" className="border-0 bg-white" style={{ width: "100%", height: "100%" }} />
+                            <div style={{ width: iframeW * scale, height: iframeH * scale, flexShrink: 0, position: "relative" }}>
+                                <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200" style={{ width: iframeW, height: iframeH, position: "absolute", top: 0, left: 0, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+                                    <iframe ref={iframeRef} src="/orgun-egitim" className="border-0 bg-white" style={{ width: iframeW, height: iframeH }} />
                                 </div>
                             </div>
                         ); })()}

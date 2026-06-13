@@ -11,6 +11,7 @@ import {
 
 import prisma from "@/lib/prisma";
 import CreateOrgunSubpageButton from "@/app/admin/components/CreateOrgunSubpageButton";
+import DeleteOrgunSubpageButton from "@/app/admin/components/DeleteOrgunSubpageButton";
 
 export const dynamic = "force-dynamic";
 
@@ -117,20 +118,29 @@ export default async function AdminSayfalarPage() {
                 })}
 
                 {dynamicPages.map((slug) => (
-                    <Link
-                        key={slug}
-                        href={`/admin/sayfalar/orgun-egitim/${slug}`}
-                        className="group bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4 hover:shadow-md hover:border-blue-300 transition"
-                    >
-                        <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
-                            <AcademicCapIcon className="w-6 h-6" />
+                    <div key={slug} className="group bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4 hover:shadow-md hover:border-blue-300 transition">
+                        <Link
+                            href={`/admin/sayfalar/orgun-egitim/${slug}`}
+                            className="flex items-center gap-4 flex-1 min-w-0"
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                                <AcademicCapIcon className="w-6 h-6" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-gray-900 truncate">Örgün Eğitim ({slug.toUpperCase()})</h3>
+                                <p className="text-xs text-gray-400 mt-0.5">Alt Sayfa (/{slug})</p>
+                            </div>
+                        </Link>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <DeleteOrgunSubpageButton slug={slug} />
+                            <Link 
+                                href={`/admin/sayfalar/orgun-egitim/${slug}`}
+                                className="w-10 h-10 flex items-center justify-center text-gray-300 hover:text-blue-500 hover:bg-blue-50 rounded-full transition"
+                            >
+                                <ChevronRightIcon className="w-5 h-5" />
+                            </Link>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-gray-900 truncate">Örgün Eğitim ({slug.toUpperCase()})</h3>
-                            <p className="text-xs text-gray-400 mt-0.5">Alt Sayfa (/{slug})</p>
-                        </div>
-                        <ChevronRightIcon className="w-5 h-5 text-gray-300 group-hover:text-blue-500 transition shrink-0" />
-                    </Link>
+                    </div>
                 ))}
 
                 <CreateOrgunSubpageButton />
