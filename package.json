@@ -8,6 +8,7 @@
     "start": "next start",
     "seed": "node seed_header_new.js",
     "push": "prisma db push",
+    "deploy": "npm install && npx prisma generate && npm run build",
     "lint": "eslint"
   },
   "dependencies": {
