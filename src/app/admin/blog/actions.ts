@@ -38,7 +38,7 @@ export async function createPost(formData: FormData) {
         },
     });
     revalidatePath("/admin/blog");
-    redirect("/admin/blog");
+    return { success: true };
 }
 
 export async function deletePost(formData: FormData) {
@@ -68,6 +68,11 @@ export async function updatePost(formData: FormData) {
     let imageUrl = formData.get("currentImageUrl") as string | null;
     const imageFile = formData.get("imageFile") as File | null;
 
+    const removeImage = formData.get("removeImage") === "true";
+    if (removeImage) {
+        imageUrl = null;
+    }
+
     if (imageFile && imageFile.size > 0) {
         const bytes = await imageFile.arrayBuffer();
         const buffer = Buffer.from(bytes);
@@ -89,5 +94,5 @@ export async function updatePost(formData: FormData) {
     });
 
     revalidatePath("/admin/blog");
-    redirect("/admin/blog");
+    return { success: true };
 }
