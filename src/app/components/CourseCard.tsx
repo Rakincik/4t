@@ -111,16 +111,7 @@ export default function CourseCard({
             priority={true}
           />
         </a>
-        {/* Kategori Etiketi (Sol üst) */}
-        <div className="absolute top-4 left-4">
-          <span 
-            className="backdrop-blur-sm text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm border"
-            style={{ color: color, borderColor: `${color}40`, backgroundColor: `${color}F2` }}
-          >
-            <span style={{ filter: "brightness(0.9)", mixBlendMode: "multiply", backgroundColor: "#fff", position: "absolute", inset: 0, borderRadius: "0.5rem", zIndex: -1 }}></span>
-            <span style={{ position: "relative", zIndex: 1, backgroundColor: "white", padding: "4px 8px", borderRadius: "6px" }}>{category}</span>
-          </span>
-        </div>
+
       </div>
 
       {/* 2. İÇERİK ALANI */}

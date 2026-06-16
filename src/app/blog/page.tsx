@@ -8,6 +8,9 @@ import BlogCard from '@/app/components/BlogCard'; // YENİ OLUŞTURDUK
 
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function BlogPage() {
   const allPosts = await prisma.blogPost.findMany({
     where: { isPublished: true },

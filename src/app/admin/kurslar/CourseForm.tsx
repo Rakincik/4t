@@ -207,7 +207,9 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
     const [imageUrl, setImageUrl] = useState(course?.imageUrl || "");
     const [videoUrl, setVideoUrl] = useState(course?.videoUrl || "");
     const [gallery, setGallery] = useState<string[]>(parseJsonSafe((course as any)?.gallery, []));
-    const [category, setCategory] = useState(course?.category || "");
+    const [categories, setCategories] = useState<string[]>(
+        course?.category ? course.category.split(',').map(s => s.trim()).filter(Boolean) : []
+    );
     const [dbCats, setDbCats] = useState(dbCategories);
     const [isAddingCategory, setIsAddingCategory] = useState(false);
     const [newCatName, setNewCatName] = useState("");
@@ -368,7 +370,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
             fd.append("imageUrl", imageUrl);
             fd.append("gallery", JSON.stringify(gallery));
             fd.append("videoUrl", videoUrl);
-            fd.append("category", category);
+            fd.append("category", categories.join(','));
             fd.append("type", type);
             fd.append("isActive", isActive.toString());
             fd.append("isCouponApplicable", isCouponApplicable.toString());
@@ -580,28 +582,49 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
                             </label>
                         </div>
                         <div>
-                            <div className="flex items-center justify-between">
-                                <label className={labelCls}>Kategori</label>
-                            </div>
-                            <div className="flex gap-2">
-                                <select 
-                                    value={category || ""} 
-                                    onChange={(e) => setCategory(e.target.value)} 
-                                    className={inputCls + " !py-2 bg-white cursor-pointer flex-1"} 
-                                >
-                                    <option value="">Kategori Seçin (Opsiyonel)</option>
-                                    {dbCats.filter(c => (c as any).isActive !== false).map((c) => (
-                                        <option key={c.slug} value={c.slug}>
-                                            {(c as any).parentId ? `— ${c.name}` : c.name}
-                                        </option>
-                                    ))}
-                                    {existingCategories.filter(ec => !dbCats.find(c => c.slug === ec)).map(ec => (
-                                        <option key={ec} value={ec}>{ec} (Eski)</option>
-                                    ))}
-                                </select>
-                                <button type="button" onClick={() => setIsAddingCategory(true)} className="px-3 py-2 bg-blue-50 text-blue-600 font-bold rounded-lg border border-blue-200 hover:bg-blue-100 flex items-center gap-1 shrink-0">
-                                    <PlusIcon className="w-4 h-4" /> Yeni
+                            <div className="flex items-center justify-between mb-2">
+                                <label className={labelCls}>Kategori Seçimi</label>
+                                <button type="button" onClick={() => setIsAddingCategory(true)} className="px-3 py-1 bg-blue-50 text-blue-600 font-bold rounded-lg border border-blue-200 hover:bg-blue-100 flex items-center gap-1 shrink-0 text-xs">
+                                    <PlusIcon className="w-3.5 h-3.5" /> Yeni
                                 </button>
+                            </div>
+                            <div className="border border-gray-200 rounded-lg bg-white p-3 max-h-48 overflow-y-auto space-y-2">
+                                {dbCats.filter(c => (c as any).isActive !== false).map((c) => (
+                                    <label key={c.slug} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                        <input 
+                                            type="checkbox" 
+                                            value={c.slug}
+                                            checked={categories.includes(c.slug)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setCategories([...categories, c.slug]);
+                                                } else {
+                                                    setCategories(categories.filter(cat => cat !== c.slug));
+                                                }
+                                            }}
+                                            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                        />
+                                        <span className="text-sm text-gray-700">{(c as any).parentId ? `— ${c.name}` : c.name}</span>
+                                    </label>
+                                ))}
+                                {existingCategories.filter(ec => !dbCats.find(c => c.slug === ec)).map(ec => (
+                                    <label key={ec} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                        <input 
+                                            type="checkbox" 
+                                            value={ec}
+                                            checked={categories.includes(ec)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setCategories([...categories, ec]);
+                                                } else {
+                                                    setCategories(categories.filter(cat => cat !== ec));
+                                                }
+                                            }}
+                                            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                        />
+                                        <span className="text-sm text-gray-700">{ec} (Eski)</span>
+                                    </label>
+                                ))}
                             </div>
                             
                             {/* Modal for adding category */}
@@ -633,7 +656,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
                                                     if (pId) fd.append("parentId", pId);
                                                     const newCat = await createCategory(fd);
                                                     setDbCats([...dbCats, newCat]);
-                                                    setCategory(newCat.slug);
+                                                    setCategories([...categories, newCat.slug]);
                                                     setIsAddingCategory(false);
                                                     setNewCatName("");
                                                 } catch (e: any) {

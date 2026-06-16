@@ -17,15 +17,8 @@ type PageProps = {
   }>;
 };
 
-export async function generateStaticParams() {
-  try {
-    const posts = await prisma.blogPost.findMany({ select: { slug: true } });
-    return posts.map(post => ({ slug: post.slug }));
-  } catch (error) {
-    console.error("Skipping blog SSG generation due to DB connection error during build.");
-    return [];
-  }
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // "İlgili Yazılar" için demo veri
 const relatedPosts = [

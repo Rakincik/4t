@@ -103,17 +103,18 @@ export default function KurslarClient({ initialCourses, activeCategories = [] }:
 
       if (catNorm === normalizeTR("Tümü")) matchCat = true;
       else {
+        const cCatArr = cCatNorm.split(',').map(s => s.trim());
         // ActiveCategory DB'den gelen bir kategori ismiyse
         const matchedCategory = activeCategories.find(ac => normalizeTR(ac.name) === catNorm);
         if (matchedCategory) {
-           // DB'deki slug ile kursun kategorisinin aynı olup olmadığını kontrol edelim. 
-           // Veya isminin tam uyup uymadığına bakalım.
-           matchCat = cCatNorm === normalizeTR(matchedCategory.name) || normalizeTR(c.slug).includes(matchedCategory.slug) || titleNorm.includes(matchedCategory.slug);
+           const matchSlug = normalizeTR(matchedCategory.slug);
+           const matchName = normalizeTR(matchedCategory.name);
+           matchCat = cCatArr.some(cat => cat === matchName || cat === matchSlug) || normalizeTR(c.slug).includes(matchSlug) || titleNorm.includes(matchSlug);
         } else {
            // Fallback (Kamp, Flix vb.)
-           if (catNorm === normalizeTR("FLIX")) matchCat = (c.type === "FLIX" || cCatNorm === "4t-flix" || cCatNorm === "flix");
-           else if (catNorm === normalizeTR("Kamp")) matchCat = (c.type === "KAMP" || cCatNorm === "kamp" || titleNorm.includes("kamp"));
-           else matchCat = cCatNorm === catNorm; 
+           if (catNorm === normalizeTR("FLIX")) matchCat = (c.type === "FLIX" || cCatArr.includes("4t-flix") || cCatArr.includes("flix"));
+           else if (catNorm === normalizeTR("Kamp")) matchCat = (c.type === "KAMP" || cCatArr.includes("kamp") || titleNorm.includes("kamp"));
+           else matchCat = cCatArr.includes(catNorm); 
         }
       }
 

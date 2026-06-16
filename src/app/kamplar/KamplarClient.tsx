@@ -74,11 +74,14 @@ export default function KamplarClient({ initialCourses, activeCategories = [] }:
 
       if (catNorm === normalizeTR("Tümü")) matchCat = true;
       else {
+        const cCatArr = cCatNorm.split(',').map(s => s.trim());
         const matchedCategory = activeCategories.find(ac => normalizeTR(ac.name) === catNorm);
         if (matchedCategory) {
-           matchCat = cCatNorm === normalizeTR(matchedCategory.name) || normalizeTR(c.slug).includes(matchedCategory.slug) || normalizeTR(c.title).includes(matchedCategory.slug);
+           const matchSlug = normalizeTR(matchedCategory.slug);
+           const matchName = normalizeTR(matchedCategory.name);
+           matchCat = cCatArr.some(cat => cat === matchName || cat === matchSlug) || normalizeTR(c.slug).includes(matchSlug) || normalizeTR(c.title).includes(matchSlug);
         } else {
-           matchCat = cCatNorm === catNorm; 
+           matchCat = cCatArr.includes(catNorm); 
         }
       }
 
@@ -107,7 +110,6 @@ export default function KamplarClient({ initialCourses, activeCategories = [] }:
           <div className="max-w-3xl">
             <FadeIn>
               <div className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-600 mb-6 border border-orange-200">
-                <FireIcon className="h-3.5 w-3.5" />
                 Kamp Programları
               </div>
 

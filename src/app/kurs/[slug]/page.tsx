@@ -71,7 +71,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         slug: dbCourse.slug,
         title: dbCourse.title,
         subtitle: dbCourse.subtitle || "Türkiye'nin en kapsamlı online hazırlık seti.",
-        category: dbCourse.category || "Genel",
+        category: dbCourse.category ? dbCourse.category.split(',')[0].trim() : "Genel",
         rating: 4.8,
         reviewCount: 154,
         lastUpdated: new Date(dbCourse.updatedAt).toLocaleDateString("tr-TR"),
