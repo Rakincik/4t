@@ -14,7 +14,8 @@ import {
     CursorArrowRaysIcon,
     XMarkIcon,
     PhotoIcon,
-    ArrowPathIcon
+    ArrowPathIcon,
+    DocumentIcon
 } from "@heroicons/react/24/outline";
 
 interface RichTextEditorProps {
@@ -42,6 +43,10 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
     // Image Upload State
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+    // Document Upload State
+    const docInputRef = useRef<HTMLInputElement>(null);
+    const [isUploadingDoc, setIsUploadingDoc] = useState(false);
 
     useEffect(() => {
         if (editorRef.current && !isInternalChange.current) {
@@ -134,6 +139,48 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
         }
     };
 
+    const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 20 * 1024 * 1024) {
+            alert("Dosya boyutu 20 MB'dan büyük olamaz.");
+            return;
+        }
+
+        setIsUploadingDoc(true);
+        try {
+            const fd = new FormData();
+            fd.append("file", file);
+            const res = await fetch("/api/upload", { method: "POST", body: fd });
+            const data = await res.json();
+            if (data.url) {
+                editorRef.current?.focus();
+                
+                // Eğer PDF ise iframe ile göm (indirmeyi zorlaştırmak için #toolbar=0 eklendi)
+                // Eğer PPT ise Google Docs Viewer ile göm
+                const isPdf = file.name.toLowerCase().endsWith('.pdf');
+                const embedUrl = isPdf 
+                    ? `${data.url}#toolbar=0` 
+                    : `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`;
+                
+                const html = `&nbsp;<div class="document-embed-wrapper" style="width: 100%; max-width: 100%; margin: 1.5rem 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); background: #f9fafb;"><div style="background: #f3f4f6; padding: 8px 12px; border-bottom: 1px solid #e5e7eb; font-size: 12px; font-weight: bold; color: #4b5563; display: flex; align-items: center;"><svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>${file.name}</div><iframe src="${embedUrl}" width="100%" height="600px" frameborder="0" style="border: none;" allowfullscreen></iframe></div>&nbsp;<p><br></p>`;
+                
+                exec("insertHTML", html);
+            } else {
+                alert("Dosya yüklenirken bir hata oluştu.");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Dosya yüklenemedi.");
+        } finally {
+            setIsUploadingDoc(false);
+            if (docInputRef.current) {
+                docInputRef.current.value = "";
+            }
+        }
+    };
+
     const isActive = (cmd: string) => {
         try { return document.queryCommandState(cmd); } catch { return false; }
     };
@@ -207,6 +254,12 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
                 <button type="button" onMouseDown={e => { e.preventDefault(); setIsButtonModalOpen(true); }} className="px-2 h-7 rounded flex items-center justify-center text-xs font-bold transition bg-blue-100 text-blue-700 hover:bg-blue-200 ml-1" title="Buton Ekle">
                     <CursorArrowRaysIcon className="w-3.5 h-3.5 mr-1" />
                     Buton
+                </button>
+
+                <input type="file" accept=".pdf,.ppt,.pptx" className="hidden" ref={docInputRef} onChange={handleDocUpload} />
+                <button type="button" onMouseDown={e => { e.preventDefault(); docInputRef.current?.click(); }} disabled={isUploadingDoc} className={`px-2 h-7 rounded flex items-center justify-center text-xs font-bold transition bg-purple-100 text-purple-700 hover:bg-purple-200 ml-1 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : ''}`} title="Doküman (PDF/PPT) Ekle">
+                    {isUploadingDoc ? <ArrowPathIcon className="w-3.5 h-3.5 animate-spin mr-1" /> : <DocumentIcon className="w-3.5 h-3.5 mr-1" />}
+                    Dosya Yükle
                 </button>
 
                 <div className="ml-auto flex items-center gap-2">

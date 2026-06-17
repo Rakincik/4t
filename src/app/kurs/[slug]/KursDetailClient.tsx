@@ -148,32 +148,37 @@ function CourseTabs({ course }: { course: any }) {
             </div>
 
             {/* Bento Grid Features */}
-            <div>
-              <h3 className="text-xl font-bold text-[#0B1221] mb-4">Bu Kursta Neler Var?</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {(() => {
-                  const bentoList = (course.bentoFeatures && course.bentoFeatures.length > 0) 
-                    ? course.bentoFeatures 
-                    : [
-                        { icon: "VideoCameraIcon", title: `${course.stats?.hours || "1600+"} Saat Video`, subtitle: "4K kalitesinde çekimler" },
-                        { icon: "DocumentTextIcon", title: `${course.stats?.resources || "0"} İndirilebilir Kaynak`, subtitle: "PDF notlar ve föyler" },
-                        { icon: "DevicePhoneMobileIcon", title: "Mobil Erişim", subtitle: "iOS ve Android uyumlu" },
-                        { icon: "AcademicCapIcon", title: "Bitirme Sertifikası", subtitle: "CV'nize ekleyebilirsiniz" },
-                      ];
+            {(() => {
+              const bentoList = (course.bentoFeatures && Array.isArray(course.bentoFeatures))
+                ? course.bentoFeatures
+                : (course.bentoFeatures === null || course.bentoFeatures === undefined)
+                  ? [
+                      { icon: "VideoCameraIcon", title: `${course.stats?.hours || "1600+"} Saat Video`, subtitle: "4K kalitesinde çekimler" },
+                      { icon: "DocumentTextIcon", title: `${course.stats?.resources || "0"} İndirilebilir Kaynak`, subtitle: "PDF notlar ve föyler" },
+                      { icon: "DevicePhoneMobileIcon", title: "Mobil Erişim", subtitle: "iOS ve Android uyumlu" },
+                    ]
+                  : [];
 
-                  return bentoList.map((item: any, idx: number) => {
-                    const IconComponent = IconMap[item.icon] || VideoCameraIcon;
-                    return (
-                      <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col gap-2 hover:border-[#DC2626]/30 transition-colors">
-                        <IconComponent className="w-8 h-8 text-[#DC2626]" />
-                        <span className="font-bold text-[#0B1221]">{item.title}</span>
-                        {item.subtitle && <span className="text-xs text-gray-500">{item.subtitle}</span>}
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </div>
+              if (!bentoList || bentoList.length === 0) return null;
+
+              return (
+                <div>
+                  <h3 className="text-xl font-bold text-[#0B1221] mb-4">Bu Kursta Neler Var?</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {bentoList.map((item: any, idx: number) => {
+                      const IconComponent = IconMap[item.icon] || VideoCameraIcon;
+                      return (
+                        <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col gap-2 hover:border-[#DC2626]/30 transition-colors">
+                          <IconComponent className="w-8 h-8 text-[#DC2626]" />
+                          <span className="font-bold text-[#0B1221]">{item.title}</span>
+                          {item.subtitle && <span className="text-xs text-gray-500">{item.subtitle}</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Learning Outcomes */}
             <div className="border border-gray-200 rounded-2xl p-6 bg-white">
