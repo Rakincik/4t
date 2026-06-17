@@ -22,10 +22,11 @@ export async function POST(request: NextRequest) {
         // Validate file type
         const allowedTypes = [
             "image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml",
-            "video/mp4", "video/webm", "video/ogg", "video/quicktime"
+            "video/mp4", "video/webm", "video/ogg", "video/quicktime",
+            "application/pdf", "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation"
         ];
         if (!allowedTypes.includes(file.type)) {
-            return NextResponse.json({ error: "Geçersiz dosya formatı. Resim (JPG, PNG vb.) veya Video (MP4, WEBM vb.) yükleyin." }, { status: 400 });
+            return NextResponse.json({ error: "Geçersiz dosya formatı. Resim, Video veya PDF/PPT yükleyin." }, { status: 400 });
         }
 
         // Validate file size (max 2000MB)
