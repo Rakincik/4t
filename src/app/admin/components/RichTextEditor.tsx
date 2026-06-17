@@ -160,9 +160,10 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
                 // Eğer PDF ise iframe ile göm (indirmeyi zorlaştırmak için #toolbar=0 eklendi)
                 // Eğer PPT ise Google Docs Viewer ile göm
                 const isPdf = file.name.toLowerCase().endsWith('.pdf');
+                const absoluteUrl = data.url.startsWith('http') ? data.url : `${window.location.origin}${data.url}`;
                 const embedUrl = isPdf 
                     ? `${data.url}#toolbar=0` 
-                    : `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`;
+                    : `https://docs.google.com/viewer?url=${encodeURIComponent(absoluteUrl)}&embedded=true`;
                 
                 const html = `&nbsp;<div class="document-embed-wrapper" style="width: 100%; max-width: 100%; margin: 1.5rem 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); background: #f9fafb;"><div style="background: #f3f4f6; padding: 8px 12px; border-bottom: 1px solid #e5e7eb; font-size: 12px; font-weight: bold; color: #4b5563; display: flex; align-items: center;"><svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>${file.name}</div><iframe src="${embedUrl}" width="100%" height="600px" frameborder="0" style="border: none;" allowfullscreen></iframe></div>&nbsp;<p><br></p>`;
                 
