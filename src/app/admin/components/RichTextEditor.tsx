@@ -263,7 +263,7 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
                 </button>
 
                 <div className="ml-auto flex items-center gap-2">
-                    <span className="text-[9px] text-gray-400 font-medium hidden sm:inline-block">Görsel: Maks 2MB, Yatay (16:9)</span>
+                    <span className="text-[9px] text-gray-400 font-medium hidden sm:inline-block">Görsel: Maks 2MB | Dosya: Maks 20MB</span>
                     <button type="button" onMouseDown={e => { e.preventDefault(); exec("removeFormat"); }} className="w-7 h-7 rounded flex items-center justify-center text-[10px] text-gray-400 hover:text-red-500 hover:bg-red-50 transition" title="Formatı Temizle">
                         ✕
                     </button>
