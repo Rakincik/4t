@@ -15,7 +15,8 @@ import {
     XMarkIcon,
     PhotoIcon,
     ArrowPathIcon,
-    DocumentIcon
+    DocumentIcon,
+    TrashIcon
 } from "@heroicons/react/24/outline";
 
 interface RichTextEditorProps {
@@ -158,14 +159,14 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
                 editorRef.current?.focus();
                 
                 // Eğer PDF ise iframe ile göm (indirmeyi zorlaştırmak için #toolbar=0 eklendi)
-                // Eğer PPT ise Google Docs Viewer ile göm
+                // Eğer PPT ise Microsoft Office Viewer ile göm (Google Docs Viewer hata verebiliyor)
                 const isPdf = file.name.toLowerCase().endsWith('.pdf');
                 const absoluteUrl = data.url.startsWith('http') ? data.url : `${window.location.origin}${data.url}`;
                 const embedUrl = isPdf 
                     ? `${data.url}#toolbar=0` 
-                    : `https://docs.google.com/viewer?url=${encodeURIComponent(absoluteUrl)}&embedded=true`;
+                    : `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(absoluteUrl)}`;
                 
-                const html = `&nbsp;<div class="document-embed-wrapper" style="width: 100%; max-width: 100%; margin: 1.5rem 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); background: #f9fafb;"><div style="background: #f3f4f6; padding: 8px 12px; border-bottom: 1px solid #e5e7eb; font-size: 12px; font-weight: bold; color: #4b5563; display: flex; align-items: center;"><svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>${file.name}</div><iframe src="${embedUrl}" width="100%" height="600px" frameborder="0" style="border: none;" allowfullscreen></iframe></div>&nbsp;<p><br></p>`;
+                const html = `&nbsp;<div class="document-embed-wrapper" contenteditable="false" style="width: 100%; max-width: 100%; margin: 1.5rem 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); background: #f9fafb;"><div style="background: #f3f4f6; padding: 8px 12px; border-bottom: 1px solid #e5e7eb; font-size: 12px; font-weight: bold; color: #4b5563; display: flex; align-items: center;"><svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>${file.name}</div><iframe src="${embedUrl}" width="100%" height="600px" frameborder="0" style="border: none;" allowfullscreen></iframe></div>&nbsp;<p><br></p>`;
                 
                 exec("insertHTML", html);
             } else {
@@ -179,6 +180,32 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
             if (docInputRef.current) {
                 docInputRef.current.value = "";
             }
+        }
+    };
+
+    const removeLastImage = () => {
+        if (!editorRef.current) return;
+        const imgs = editorRef.current.querySelectorAll('img');
+        if (imgs.length === 0) {
+            alert("Editörde silinecek görsel bulunamadı.");
+            return;
+        }
+        if (confirm("Son eklenen görseli silmek istediğinize emin misiniz?")) {
+            imgs[imgs.length - 1].remove();
+            handleInput();
+        }
+    };
+
+    const removeLastDoc = () => {
+        if (!editorRef.current) return;
+        const docs = editorRef.current.querySelectorAll('.document-embed-wrapper');
+        if (docs.length === 0) {
+            alert("Editörde silinecek dosya (PDF/PPT) bulunamadı.");
+            return;
+        }
+        if (confirm("Son eklenen dosyayı silmek istediğinize emin misiniz?")) {
+            docs[docs.length - 1].remove();
+            handleInput();
         }
     };
 
@@ -251,16 +278,23 @@ export default function RichTextEditor({ value, onChange, placeholder, minRows =
                 <button type="button" onMouseDown={e => { e.preventDefault(); fileInputRef.current?.click(); }} disabled={isUploadingImage} className={`${btnCls(false)} ${isUploadingImage ? 'opacity-50 cursor-not-allowed' : ''} ml-1`} title="Görsel Ekle">
                     {isUploadingImage ? <ArrowPathIcon className="w-3.5 h-3.5 animate-spin" /> : <PhotoIcon className="w-3.5 h-3.5" />}
                 </button>
+                <button type="button" onMouseDown={e => { e.preventDefault(); removeLastImage(); }} className={`${btnCls(false)} ml-0.5 !text-red-500 hover:!bg-red-50`} title="Son Görseli Sil">
+                    <TrashIcon className="w-3.5 h-3.5" />
+                </button>
 
-                <button type="button" onMouseDown={e => { e.preventDefault(); setIsButtonModalOpen(true); }} className="px-2 h-7 rounded flex items-center justify-center text-xs font-bold transition bg-blue-100 text-blue-700 hover:bg-blue-200 ml-1" title="Buton Ekle">
+                <button type="button" onMouseDown={e => { e.preventDefault(); setIsButtonModalOpen(true); }} className="px-2 h-7 rounded flex items-center justify-center text-xs font-bold transition bg-blue-100 text-blue-700 hover:bg-blue-200 ml-2" title="Buton Ekle">
                     <CursorArrowRaysIcon className="w-3.5 h-3.5 mr-1" />
                     Buton
                 </button>
 
                 <input type="file" accept=".pdf,.ppt,.pptx" className="hidden" ref={docInputRef} onChange={handleDocUpload} />
-                <button type="button" onMouseDown={e => { e.preventDefault(); docInputRef.current?.click(); }} disabled={isUploadingDoc} className={`px-2 h-7 rounded flex items-center justify-center text-xs font-bold transition bg-purple-100 text-purple-700 hover:bg-purple-200 ml-1 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : ''}`} title="Doküman (PDF/PPT) Ekle">
+                <button type="button" onMouseDown={e => { e.preventDefault(); docInputRef.current?.click(); }} disabled={isUploadingDoc} className={`px-2 h-7 rounded flex items-center justify-center text-xs font-bold transition bg-purple-100 text-purple-700 hover:bg-purple-200 ml-2 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : ''}`} title="Doküman (PDF/PPT) Ekle">
                     {isUploadingDoc ? <ArrowPathIcon className="w-3.5 h-3.5 animate-spin mr-1" /> : <DocumentIcon className="w-3.5 h-3.5 mr-1" />}
                     Dosya Yükle
+                </button>
+                <button type="button" onMouseDown={e => { e.preventDefault(); removeLastDoc(); }} className={`px-2 h-7 rounded flex items-center justify-center text-xs font-bold transition bg-red-50 text-red-600 hover:bg-red-100 ml-0.5`} title="Son Dosyayı Sil">
+                    <TrashIcon className="w-3.5 h-3.5 mr-1" />
+                    Sil
                 </button>
 
                 <div className="ml-auto flex items-center gap-2">
