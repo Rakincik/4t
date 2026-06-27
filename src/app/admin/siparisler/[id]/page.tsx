@@ -3,6 +3,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { redirect, notFound } from "next/navigation";
 import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { sendMetaCAPI } from "@/lib/meta-capi";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +11,31 @@ async function updateStatus(formData: FormData) {
     "use server";
     const id = formData.get("id") as string;
     const status = formData.get("status") as string;
-    await prisma.order.update({
+    
+    const order = await prisma.order.update({
         where: { id },
         data: { status: status as any },
+        include: {
+            user: { select: { email: true, name: true, phone: true } }
+        }
     });
+
+    if (status === "PAID" && order.user) {
+        const names = order.user.name.trim().split(" ");
+        const firstName = names[0];
+        const lastName = names.slice(1).join(" ") || "";
+
+        sendMetaCAPI({
+            eventName: "Purchase",
+            email: order.user.email,
+            phone: order.user.phone,
+            firstName,
+            lastName,
+            value: order.totalAmount,
+            orderId: order.id
+        }).catch(err => console.error("Failed to fire Meta CAPI on manual order approval:", err));
+    }
+
     revalidatePath(`/admin/siparisler/${id}`);
 }
 
@@ -34,6 +56,11 @@ function formatTRY(n: number) {
 
 function formatDate(date: Date) {
     return new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(date));
+}
+
+function stripHtml(html: string) {
+    if (!html) return "";
+    return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
 }
 
 const statusConfig: Record<string, { label: string; class: string; icon: any }> = {
@@ -115,7 +142,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                 {order.items.map((item) => (
                                     <tr key={item.id}>
                                         <td className="px-5 py-3">
-                                            <p className="font-medium text-gray-900 text-sm">{item.course.title}</p>
+                                            <p className="font-medium text-gray-900 text-sm">{stripHtml(item.course.title)}</p>
                                             <p className="text-xs text-gray-400">/kurs/{item.course.slug}</p>
                                         </td>
                                         <td className="px-5 py-3 text-center text-sm text-gray-600">{item.quantity}</td>
@@ -131,6 +158,28 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                             </tfoot>
                         </table>
                     </div>
+
+                    {/* Dekont (Havale Ödemesi ise) */}
+                    {order.receiptUrl && (
+                        <div className="bg-white rounded-xl border border-gray-200 p-5">
+                            <h2 className="text-sm font-bold text-gray-700 mb-3">Öğrenci Dekontu</h2>
+                            <div className="flex flex-col sm:flex-row items-start gap-4">
+                                <a 
+                                    href={order.receiptUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="px-4 py-2 border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 rounded-lg text-sm font-semibold transition"
+                                >
+                                    Dekontu Yeni Sekmede Görüntüle
+                                </a>
+                                {order.receiptUrl.match(/\.(jpeg|jpg|gif|png|webp)/i) && (
+                                    <div className="border border-gray-100 rounded-lg overflow-hidden max-w-sm bg-gray-50 p-2">
+                                        <img src={order.receiptUrl} alt="Dekont Önizleme" className="max-h-60 w-auto object-contain rounded" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Notlar */}
                     <div className="bg-white rounded-xl border border-gray-200 p-5">

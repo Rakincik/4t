@@ -341,9 +341,10 @@ export default function MainHeader() {
                                 <a
                                   href={child.url}
                                   className="flex flex-col p-3 rounded-xl hover:bg-gray-50 transition-colors group/child border border-transparent hover:border-gray-100"
+                                  title={child.label}
                                 >
                                   <div className="flex-1 min-w-0">
-                                    <div className="font-bold text-[14px] text-gray-800 group-hover/child:text-[#DC2626] transition-colors truncate">
+                                    <div className="font-bold text-[14px] text-gray-800 group-hover/child:text-[#DC2626] transition-colors leading-snug break-words">
                                       {child.label}
                                     </div>
                                     {child.desc && (
@@ -357,9 +358,14 @@ export default function MainHeader() {
                                 {child.children && child.children.length > 0 && (
                                   <div className="pl-4 pr-2 pb-2 flex flex-col gap-1 -mt-1">
                                     {child.children.map(sub => (
-                                      <a key={sub.id} href={sub.url} className="text-[13px] text-gray-600 font-medium hover:text-[#DC2626] hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-colors flex items-center">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mr-2"></span>
-                                        {sub.label}
+                                      <a 
+                                        key={sub.id} 
+                                        href={sub.url} 
+                                        className="text-[13px] text-gray-600 font-medium hover:text-[#DC2626] hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-colors flex items-start"
+                                        title={sub.label}
+                                      >
+                                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mr-2 mt-1.5 shrink-0"></span>
+                                        <span className="leading-snug break-words">{sub.label}</span>
                                       </a>
                                     ))}
                                   </div>

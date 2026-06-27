@@ -9,8 +9,8 @@ import sharp from "sharp";
 export async function POST(request: NextRequest) {
     try {
         const token = await getToken({ req: request });
-        if (!token || token.role !== "ADMIN") {
-            return NextResponse.json({ error: "Yetkisiz erişim. Dosya yüklemek için Admin girişi gereklidir." }, { status: 401 });
+        if (!token) {
+            return NextResponse.json({ error: "Yetkisiz erişim. Dosya yüklemek için giriş yapmalısınız." }, { status: 401 });
         }
         const formData = await request.formData();
         const file = formData.get("file") as File;

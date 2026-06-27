@@ -111,6 +111,11 @@ function formatShortDate(date: Date) {
     }).format(new Date(date));
 }
 
+function stripHtml(html: string) {
+    if (!html) return "";
+    return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
+}
+
 const statusMap: Record<string, { label: string; class: string }> = {
     PAID: { label: "Ödendi", class: "bg-green-100 text-green-700" },
     PENDING: { label: "Bekliyor", class: "bg-amber-100 text-amber-700" },
@@ -374,7 +379,7 @@ export default async function AdminDashboard() {
                                                 {i + 1}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="font-medium text-gray-900 text-sm truncate">{course.title}</p>
+                                                <p className="font-medium text-gray-900 text-sm truncate">{stripHtml(course.title)}</p>
                                                 <p className="text-xs text-gray-400">
                                                     {course._count?.orderItems || 0} sipariş • {course._count?.courseAccess || 0} erişim
                                                 </p>

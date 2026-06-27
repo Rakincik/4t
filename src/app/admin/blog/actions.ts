@@ -96,3 +96,23 @@ export async function updatePost(formData: FormData) {
     revalidatePath("/admin/blog");
     return { success: true };
 }
+
+export async function toggleFeatured(formData: FormData) {
+    const id = formData.get("id") as string;
+    const post = await prisma.blogPost.findUnique({ where: { id } });
+    if (post) {
+        if (!post.isFeatured) {
+            const count = await prisma.blogPost.count({ where: { isFeatured: true } });
+            if (count >= 3) {
+                redirect("/admin/blog?error=limit");
+            }
+        }
+        await prisma.blogPost.update({
+            where: { id },
+            data: {
+                isFeatured: !post.isFeatured
+            }
+        });
+    }
+    revalidatePath("/admin/blog");
+}

@@ -257,7 +257,7 @@ export default async function AdminKuponlarPage({ searchParams }: { searchParams
                                                 {coupon.course ? (
                                                     <a href={`/admin/kurslar/${coupon.course.id}`} className="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1">
                                                         <span className="w-1.5 h-1.5 bg-blue-400 rounded-full inline-block" />
-                                                        {coupon.course.title}
+                                                        {coupon.course.title.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ')}
                                                     </a>
                                                 ) : (
                                                     <span className="text-[10px] text-gray-300 font-medium bg-gray-50 px-2 py-0.5 rounded">Global</span>

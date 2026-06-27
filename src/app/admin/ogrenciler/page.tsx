@@ -5,7 +5,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
     UsersIcon,
-    MagnifyingGlassIcon,
     AcademicCapIcon,
     ShoppingCartIcon,
     UserPlusIcon,
@@ -13,11 +12,12 @@ import {
     ClockIcon,
     EnvelopeIcon,
     PhoneIcon,
-    EyeIcon,
     KeyIcon,
     ChevronRightIcon,
     XCircleIcon,
 } from "@heroicons/react/24/outline";
+import StudentsFilterBar from "./StudentsFilterBar";
+import DeleteStudentButton from "./DeleteStudentButton";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +36,7 @@ export async function addStudent(formData: FormData) {
 
     // Email check
     const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) return; // İleride hata mesajı olarak eklenebilir
+    if (existingUser) return;
 
     const hashedPassword = await hash(password, 10);
 
@@ -60,25 +60,46 @@ export async function addStudent(formData: FormData) {
 /* ===================================================== */
 /* DATA                                                  */
 /* ===================================================== */
-async function getStudents(search?: string) {
+async function getStudents(search?: string, courseId?: string) {
+    const where: any = { role: "STUDENT" };
+    const andConditions: any[] = [];
+
+    if (search) {
+        andConditions.push({
+            OR: [
+                { name: { contains: search, mode: "insensitive" as any } },
+                { email: { contains: search, mode: "insensitive" as any } },
+                { phone: { contains: search, mode: "insensitive" as any } },
+            ]
+        });
+    }
+
+    if (courseId) {
+        andConditions.push({
+            courseAccess: {
+                some: { courseId }
+            }
+        });
+    }
+
+    if (andConditions.length > 0) {
+        where.AND = andConditions;
+    }
+
     return prisma.user.findMany({
-        where: {
-            role: "STUDENT",
-            ...(search && {
-                OR: [
-                    { name: { contains: search, mode: "insensitive" as any } },
-                    { email: { contains: search, mode: "insensitive" as any } },
-                ],
-            }),
-        },
+        where,
         orderBy: { createdAt: "desc" },
         include: {
             _count: { select: { courseAccess: true, orders: true } },
-            orders: {
-                select: { totalAmount: true, status: true },
-                orderBy: { createdAt: "desc" },
-                take: 1,
+            courseAccess: {
+                include: { course: { select: { title: true } } },
+                orderBy: { grantedAt: "desc" },
+                take: 1
             },
+            orders: {
+                select: { totalAmount: true, status: true, notes: true },
+                orderBy: { createdAt: "desc" }
+            }
         },
     });
 }
@@ -89,10 +110,9 @@ async function getStats() {
     const weekStart = new Date(todayStart);
     weekStart.setDate(weekStart.getDate() - 7);
 
-    const [total, today, thisWeek, withAccess] = await Promise.all([
+    const [total, today, withAccess] = await Promise.all([
         prisma.user.count({ where: { role: "STUDENT" } }),
         prisma.user.count({ where: { role: "STUDENT", createdAt: { gte: todayStart } } }),
-        prisma.user.count({ where: { role: "STUDENT", createdAt: { gte: weekStart } } }),
         prisma.user.count({
             where: {
                 role: "STUDENT",
@@ -101,7 +121,14 @@ async function getStats() {
         }),
     ]);
 
-    return { total, today, thisWeek, withAccess };
+    // Toplam sipariş veren öğrenci sayısı (LTV > 0 olan)
+    const paidOrders = await prisma.order.findMany({
+        where: { status: "PAID" },
+        select: { userId: true }
+    });
+    const uniqueBuyers = new Set(paidOrders.map(o => o.userId)).size;
+
+    return { total, today, withAccess, uniqueBuyers };
 }
 
 /* ===================================================== */
@@ -115,13 +142,17 @@ function formatDate(date: Date) {
     }).format(new Date(date));
 }
 
-function formatDateTime(date: Date) {
-    return new Intl.DateTimeFormat("tr-TR", {
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-    }).format(new Date(date));
+function formatTRY(n: number) {
+    return new Intl.NumberFormat("tr-TR", {
+        style: "currency",
+        currency: "TRY",
+        maximumFractionDigits: 0,
+    }).format(n);
+}
+
+function stripHtml(html: string) {
+    if (!html) return "";
+    return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
 }
 
 function getInitialColor(name: string) {
@@ -147,20 +178,49 @@ function timeAgo(date: Date) {
     return formatDate(date);
 }
 
-/* ===================================================== */
-/* PAGE                                                  */
-/* ===================================================== */
-export default async function OgrencilerPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ search?: string; add?: string }>;
-}) {
+interface PageProps {
+    searchParams: Promise<{
+        search?: string;
+        add?: string;
+        courseId?: string;
+        sort?: string;
+    }>;
+}
+
+export default async function OgrencilerPage({ searchParams }: PageProps) {
     const params = await searchParams;
     const isAdding = params.add === "true";
-    const [students, stats] = await Promise.all([
-        getStudents(params.search),
+    
+    const [students, stats, courses] = await Promise.all([
+        getStudents(params.search, params.courseId),
         getStats(),
+        prisma.course.findMany({
+            select: { id: true, title: true },
+            orderBy: { title: "asc" }
+        })
     ]);
+
+    // JavaScript-based Sorting for calculated fields & LTV metrics
+    let sortedStudents = [...students];
+    if (params.sort === "spent_desc") {
+        sortedStudents.sort((a, b) => {
+            const aSpent = a.orders.filter((o: any) => o.status === "PAID").reduce((sum: number, o: any) => sum + o.totalAmount, 0);
+            const bSpent = b.orders.filter((o: any) => o.status === "PAID").reduce((sum: number, o: any) => sum + o.totalAmount, 0);
+            return bSpent - aSpent;
+        });
+    } else if (params.sort === "spent_asc") {
+        sortedStudents.sort((a, b) => {
+            const aSpent = a.orders.filter((o: any) => o.status === "PAID").reduce((sum: number, o: any) => sum + o.totalAmount, 0);
+            const bSpent = b.orders.filter((o: any) => o.status === "PAID").reduce((sum: number, o: any) => sum + o.totalAmount, 0);
+            return aSpent - bSpent;
+        });
+    } else if (params.sort === "courses_desc") {
+        sortedStudents.sort((a, b) => b._count.courseAccess - a._count.courseAccess);
+    } else if (params.sort === "courses_asc") {
+        sortedStudents.sort((a, b) => a._count.courseAccess - b._count.courseAccess);
+    } else if (params.sort === "date_asc") {
+        sortedStudents.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    }
 
     const statCards = [
         {
@@ -180,20 +240,20 @@ export default async function OgrencilerPage({
             change: stats.today > 0 ? `+${stats.today}` : null,
         },
         {
-            label: "Bu Hafta",
-            value: stats.thisWeek,
-            icon: ArrowTrendingUpIcon,
+            label: "Aktif Öğrenci (Erişimi Olan)",
+            value: stats.withAccess,
+            icon: AcademicCapIcon,
             color: "text-violet-600",
             bg: "bg-violet-50",
             change: null,
         },
         {
-            label: "Aktif Öğrenci",
-            value: stats.withAccess,
-            icon: AcademicCapIcon,
+            label: "Alışveriş Yapan Müşteriler",
+            value: stats.uniqueBuyers,
+            icon: ShoppingCartIcon,
             color: "text-amber-600",
             bg: "bg-amber-50",
-            change: stats.total > 0 ? `%${Math.round((stats.withAccess / stats.total) * 100)}` : null,
+            change: stats.total > 0 ? `%${Math.round((stats.uniqueBuyers / stats.total) * 100)}` : null,
         },
     ];
 
@@ -249,120 +309,145 @@ export default async function OgrencilerPage({
             </div>
 
             {/* ============ SEARCH & FILTERS ============ */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
-                <form className="flex flex-col sm:flex-row gap-3">
-                    <div className="relative flex-1">
-                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <input
-                            type="text"
-                            name="search"
-                            defaultValue={params.search || ""}
-                            placeholder="İsim, e-posta veya telefon ile arayın..."
-                            className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-                        />
-                    </div>
-                    <button type="submit" className="px-5 py-2.5 bg-[#0B1221] text-white font-semibold rounded-lg hover:bg-[#1a2744] transition text-sm shrink-0">
-                        Ara
-                    </button>
-                </form>
-                {params.search && (
-                    <div className="mt-3 flex items-center gap-2">
-                        <span className="text-xs text-gray-500">
-                            &quot;<strong>{params.search}</strong>&quot; için <strong>{students.length}</strong> sonuç bulundu
-                        </span>
-                        <Link href="/admin/ogrenciler" className="text-xs text-red-500 hover:underline">Temizle ✕</Link>
-                    </div>
-                )}
-            </div>
+            <StudentsFilterBar courses={courses} />
 
             {/* ============ STUDENT LIST ============ */}
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                 <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h2 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                         <UsersIcon className="w-4 h-4 text-gray-400" />
                         Kayıtlı Öğrenciler
-                        <span className="text-xs font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{students.length}</span>
+                        <span className="text-xs font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{sortedStudents.length}</span>
                     </h2>
                 </div>
 
-                {students.length === 0 ? (
+                {sortedStudents.length === 0 ? (
                     <div className="px-6 py-16 text-center">
                         <UsersIcon className="w-12 h-12 text-gray-200 mx-auto mb-3" />
                         <p className="text-gray-500 font-medium">
-                            {params.search ? "Aramanızla eşleşen öğrenci bulunamadı." : "Henüz kayıtlı öğrenci yok."}
+                            {params.search || params.courseId ? "Aramanızla veya filtrenizle eşleşen öğrenci bulunamadı." : "Henüz kayıtlı öğrenci yok."}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
                             Sitedeki &quot;Kayıt Ol&quot; formu aracılığıyla kaydolan öğrenciler otomatik olarak burada görünecektir.
                         </p>
                     </div>
                 ) : (
-                    <div className="divide-y divide-gray-50">
-                        {students.map((s) => {
+                    <div className="divide-y divide-gray-100">
+                        {sortedStudents.map((s) => {
                             const avatarColor = getInitialColor(s.name);
-                            const hasAccess = s._count.courseAccess > 0;
-                            const hasOrders = s._count.orders > 0;
+                            const lastCourse = s.courseAccess[0]?.course;
+                            
+                            // LTV spent
+                            const totalSpent = s.orders
+                                .filter((o: any) => o.status === "PAID")
+                                .reduce((sum: number, o: any) => sum + o.totalAmount, 0);
+
+                            // Last order
+                            const latestOrder = s.orders[0];
 
                             return (
-                                <div key={s.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50/80 transition-colors group">
-                                    {/* Avatar */}
-                                    <div className={`w-11 h-11 ${avatarColor} rounded-full flex items-center justify-center shrink-0 shadow-sm`}>
-                                        <span className="text-white font-bold text-sm">
-                                            {s.name.split(" ").map(n => n.charAt(0)).join("").slice(0, 2).toUpperCase()}
-                                        </span>
-                                    </div>
-
-                                    {/* Info */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2">
-                                            <p className="font-semibold text-gray-900 text-sm truncate">{s.name}</p>
-                                            {hasAccess && (
-                                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700">
-                                                    <AcademicCapIcon className="w-2.5 h-2.5" /> {s._count.courseAccess} Kurs
-                                                </span>
-                                            )}
-                                            {hasOrders && (
-                                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-700">
-                                                    <ShoppingCartIcon className="w-2.5 h-2.5" /> {s._count.orders} Sipariş
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-3 mt-0.5">
-                                            <span className="text-xs text-gray-400 flex items-center gap-1 truncate">
-                                                <EnvelopeIcon className="w-3 h-3 shrink-0" /> {s.email}
+                                <div key={s.id} className="flex flex-col lg:flex-row lg:items-center gap-4 px-5 py-4 hover:bg-gray-50/80 transition-colors group">
+                                    {/* Left Side: Avatar + Main Info */}
+                                    <Link href={`/admin/ogrenciler/${s.id}`} className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+                                        <div className={`w-11 h-11 ${avatarColor} rounded-full flex items-center justify-center shrink-0 shadow-sm`}>
+                                            <span className="text-white font-bold text-sm">
+                                                {s.name.split(" ").map(n => n.charAt(0)).join("").slice(0, 2).toUpperCase()}
                                             </span>
-                                            {s.phone && (
-                                                <span className="text-xs text-gray-400 flex items-center gap-1">
-                                                    <PhoneIcon className="w-3 h-3 shrink-0" /> {s.phone}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="flex flex-wrap items-center gap-1.5">
+                                                <p className="font-bold text-gray-900 text-sm truncate">{s.name}</p>
+                                                {s.city && (
+                                                    <span className="inline-flex items-center text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                                                        {s.city}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
+                                                <span className="text-xs text-gray-400 flex items-center gap-1 truncate">
+                                                    <EnvelopeIcon className="w-3 h-3 text-gray-400 shrink-0" /> {s.email}
                                                 </span>
+                                                {s.phone && (
+                                                    <span className="text-xs text-gray-400 flex items-center gap-1">
+                                                        <PhoneIcon className="w-3 h-3 text-gray-400 shrink-0" /> {s.phone}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </Link>
+
+                                    {/* Middle: Last Enrolled Course */}
+                                    <div className="flex-1 min-w-0 lg:max-w-xs xl:max-w-sm text-left">
+                                        <span className="text-[9px] uppercase font-bold text-gray-400 tracking-wider block">Son Satın Alınan Kurs</span>
+                                        <p className="text-xs font-semibold text-gray-700 truncate mt-0.5" title={lastCourse ? stripHtml(lastCourse.title) : undefined}>
+                                            {lastCourse ? stripHtml(lastCourse.title) : <span className="text-gray-300">Kurs bulunamadı</span>}
+                                        </p>
+                                    </div>
+
+                                    {/* Right Side: Financial Stats & Status */}
+                                    <div className="flex flex-wrap lg:flex-nowrap items-center gap-4 lg:gap-6 justify-between lg:justify-end shrink-0">
+                                        {/* Financial stats */}
+                                        <div className="text-left lg:text-right min-w-[70px]">
+                                            <span className="text-[9px] uppercase font-bold text-gray-400 tracking-wider block">Toplam Harcama</span>
+                                            <p className={`text-xs font-extrabold mt-0.5 ${totalSpent > 0 ? "text-emerald-600" : "text-gray-400"}`}>
+                                                {formatTRY(totalSpent)}
+                                            </p>
+                                        </div>
+
+                                        {/* Status / Last Order */}
+                                        <div className="text-left lg:text-right min-w-[110px]">
+                                            <span className="text-[9px] uppercase font-bold text-gray-400 tracking-wider block">Son Sipariş</span>
+                                            {latestOrder ? (
+                                                <div className="mt-0.5">
+                                                    {latestOrder.status === "PENDING" ? (
+                                                        <span className="inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                                                            {latestOrder.notes?.toLowerCase().includes("eft") || latestOrder.notes?.toLowerCase().includes("havale") 
+                                                                ? "Havale Bekliyor" 
+                                                                : "Bekliyor"}
+                                                        </span>
+                                                    ) : latestOrder.status === "PAID" ? (
+                                                        <span className="inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                                            Ödendi
+                                                        </span>
+                                                    ) : latestOrder.status === "FAILED" ? (
+                                                        <span className="inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-100">
+                                                            Başarısız
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold bg-gray-50 text-gray-600 border border-gray-100">
+                                                            {latestOrder.status}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-gray-300 mt-0.5 block">—</span>
                                             )}
                                         </div>
-                                    </div>
 
-                                    {/* Kayıt Tarihi */}
-                                    <div className="hidden md:block text-right shrink-0">
-                                        <p className="text-xs text-gray-400 flex items-center gap-1 justify-end">
-                                            <ClockIcon className="w-3 h-3" />
-                                            {timeAgo(s.createdAt)}
-                                        </p>
-                                        <p className="text-[10px] text-gray-300 mt-0.5">{formatDate(s.createdAt)}</p>
-                                    </div>
+                                        {/* Registration Date */}
+                                        <div className="text-left lg:text-right min-w-[70px]">
+                                            <span className="text-[9px] uppercase font-bold text-gray-400 tracking-wider block">Kayıt Tarihi</span>
+                                            <p className="text-xs font-semibold text-gray-700 mt-0.5">{timeAgo(s.createdAt)}</p>
+                                        </div>
 
-                                    {/* Actions */}
-                                    <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Link
-                                            href={`/admin/erisimler?userId=${s.id}`}
-                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                                            title="Erişim Ver"
-                                        >
-                                            <KeyIcon className="w-4 h-4" />
-                                        </Link>
-                                        <Link
-                                            href={`/admin/ogrenciler/${s.id}`}
-                                            className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
-                                            title="Detay"
-                                        >
-                                            <ChevronRightIcon className="w-4 h-4" />
-                                        </Link>
+                                        {/* Actions */}
+                                        <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Link
+                                                href={`/admin/erisimler?userId=${s.id}`}
+                                                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                                title="Erişim Ver"
+                                            >
+                                                <KeyIcon className="w-4 h-4" />
+                                            </Link>
+                                            <DeleteStudentButton studentId={s.id} studentName={s.name} />
+                                            <Link
+                                                href={`/admin/ogrenciler/${s.id}`}
+                                                className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                                                title="Detay"
+                                            >
+                                                <ChevronRightIcon className="w-4 h-4" />
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
                             );

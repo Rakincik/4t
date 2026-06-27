@@ -92,7 +92,9 @@ export default function SepetPage() {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="text-lg font-extrabold text-dark truncate">{it.title}</div>
+                      <div className="text-lg font-extrabold text-dark truncate">
+                        {it.title?.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ")}
+                      </div>
                       <div className="text-sm text-dark/50">{it.category || "Eğitim Paketi"}</div>
 
                       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">

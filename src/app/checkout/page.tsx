@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { contractTextParagraphs } from "./contractText";
 import MainHeader from "@/app/components/MainHeader";
 import Footer from "@/app/components/Footer";
 import { useCart } from "@/app/components/cart/cartStore";
@@ -79,6 +80,14 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("");
   const [district, setDistrict] = useState("");
 
+  // credit card details
+  const [cardHolderName, setCardHolderName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expMonth, setExpMonth] = useState("");
+  const [expYear, setExpYear] = useState("");
+  const [cvc, setCvc] = useState("");
+
+
   // cities data
   const [citiesData, setCitiesData] = useState<{name: string, districts: string[]}[]>([]);
 
@@ -104,6 +113,28 @@ export default function CheckoutPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  React.useEffect(() => {
+    async function loadSavedProfile() {
+      if (status !== "authenticated") return;
+      try {
+        const res = await fetch("/api/user/profile");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.name) setFullName(data.name);
+          if (data.phone) setPhone(data.phone);
+          if (data.email) setEmail(data.email);
+          if (data.tcNo) setTcNo(data.tcNo);
+          if (data.city) setCity(data.city);
+          if (data.district) setDistrict(data.district);
+          if (data.address) setAddress(data.address);
+        }
+      } catch (err) {
+        console.error("Failed to load saved checkout profile details:", err);
+      }
+    }
+    loadSavedProfile();
+  }, [status]);
+
   const disabled = items.length === 0;
 
   const stepTitle = useMemo(() => {
@@ -118,6 +149,18 @@ export default function CheckoutPage() {
     const tcOk = tcNo.trim().length === 11;
     return fullName.trim().length >= 3 && pOk && eOk && tcOk && city && district && address.trim().length >= 10;
   }, [fullName, phone, email, tcNo, city, district, address]);
+
+  const cardValid = useMemo(() => {
+    if (paymentMethod === "EFT") return true;
+    const nameOk = cardHolderName.trim().length >= 3;
+    const numOk = cardNumber.replace(/\D/g, "").length === 16;
+    const monthOk = expMonth.trim().length === 2 && Number(expMonth) >= 1 && Number(expMonth) <= 12;
+    const yearLength = expYear.trim().length;
+    const yearOk = (yearLength === 2 || yearLength === 4) && Number(expYear) >= (yearLength === 2 ? Number(new Date().getFullYear().toString().slice(-2)) : new Date().getFullYear());
+    const cvcOk = cvc.trim().length >= 3 && cvc.trim().length <= 4;
+    return nameOk && numOk && monthOk && yearOk && cvcOk;
+  }, [paymentMethod, cardHolderName, cardNumber, expMonth, expYear, cvc]);
+
 
   async function onPayStart() {
     setStep(3);
@@ -142,7 +185,12 @@ export default function CheckoutPage() {
           customerDistrict: district,
           customerAddress: address,
           paymentMethod: paymentMethod === "EFT" ? "EFT / Havale" : "Kredi Kartı",
-          couponCode: (state as any).coupon?.code
+          couponCode: (state as any).coupon?.code,
+          cardHolderName: paymentMethod === "CC" ? cardHolderName : undefined,
+          cardNumber: paymentMethod === "CC" ? cardNumber.replace(/\D/g, "") : undefined,
+          expMonth: paymentMethod === "CC" ? expMonth : undefined,
+          expYear: paymentMethod === "CC" ? expYear : undefined,
+          cvc: paymentMethod === "CC" ? cvc : undefined
         }),
       });
 
@@ -151,18 +199,27 @@ export default function CheckoutPage() {
         throw new Error(result.error || "Sipariş oluşturulamadı.");
       }
 
-      // Başarılı! Sepeti temizle
-      if (typeof (cart as any).clear === "function") {
-        (cart as any).clear();
+      if (paymentMethod === "EFT") {
+        // Başarılı! Sepeti temizle
+        if (typeof (cart as any).clear === "function") {
+          (cart as any).clear();
+        }
+        // Başarı sayfasına git
+        window.location.href = `/checkout/success?orderId=${result.orderId}`;
+      } else {
+        // Kredi Kartı ise Moka 3D Secure yönlendirmesi yap
+        if (result.redirectUrl) {
+          window.location.href = result.redirectUrl;
+        } else {
+          throw new Error("Ödeme yönlendirme adresi alınamadı.");
+        }
       }
-
-      // Başarı sayfasına git
-      window.location.href = `/checkout/success?orderId=${result.orderId}`;
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message);
       setPaying(false);
     }
+
   }
 
   // Not Logged In View
@@ -320,9 +377,14 @@ export default function CheckoutPage() {
                         <div className="text-xs font-bold text-dark/60 mb-2">Telefon</div>
                         <input
                           value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
+                          onChange={(e) => {
+                            const v = e.target.value.replace(/\D/g, '').slice(0, 11);
+                            setPhone(v);
+                          }}
                           className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
                           placeholder="05xx xxx xx xx"
+                          maxLength={11}
+                          inputMode="tel"
                         />
                       </div>
 
@@ -456,20 +518,97 @@ export default function CheckoutPage() {
 
                       <label 
                          className={cn(
-                           "flex items-start gap-3 rounded-2xl border-2 p-4 outline-none relative opacity-60 cursor-not-allowed",
-                           paymentMethod === "CC" ? "border-primary bg-primary/5" : "border-black/10 bg-white"
+                           "flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-4 transition",
+                           paymentMethod === "CC" ? "border-primary bg-primary/5" : "border-black/10 bg-white hover:border-black/20"
                          )}
                       >
-                         <input type="radio" className="mt-1" disabled name="paymethod" checked={paymentMethod === "CC"} onChange={() => {}} />
+                         <input type="radio" className="mt-1" name="paymethod" checked={paymentMethod === "CC"} onChange={() => setPaymentMethod("CC")} />
                          <div>
                             <div className="font-extrabold text-dark flex items-center justify-between">
                               <span>Kredi Kartı ile Öde</span>
-                              <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full uppercase tracking-wider">Yakında</span>
+                              <span className="text-[10px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full uppercase tracking-wider">Aktif</span>
                             </div>
-                            <div className="text-xs text-dark/60 mt-1">Sanal Pos (Param) entegrasyonu tamamlandığında 12 aya varan taksit avantajı eklenecektir.</div>
+                            <div className="text-xs text-dark/60 mt-1">Moka POS altyapısı ile 3D Secure güvenli ödeme. Kredi kartı veya banka kartıyla peşin ödeyin.</div>
                          </div>
                       </label>
                     </div>
+
+                    {/* Credit Card Form */}
+                    {paymentMethod === "CC" && (
+                      <div className="mt-6 border-t border-black/10 pt-6 space-y-4">
+                        <div className="text-sm font-extrabold text-dark mb-2">Kart Bilgileri</div>
+                        
+                        <div>
+                          <div className="text-xs font-bold text-dark/60 mb-2">Kart Sahibi Ad Soyad</div>
+                          <input
+                            value={cardHolderName}
+                            onChange={(e) => setCardHolderName(e.target.value)}
+                            className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                            placeholder="Kartın üzerindeki isim"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="text-xs font-bold text-dark/60 mb-2">Kart Numarası</div>
+                          <input
+                            value={cardNumber}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              const formatted = raw
+                                .replace(/\D/g, "")
+                                .replace(/(.{4})/g, "$1 ")
+                                .trim()
+                                .substring(0, 19);
+                              setCardNumber(formatted);
+                            }}
+                            className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                            placeholder="0000 0000 0000 0000"
+                            maxLength={19}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="col-span-2">
+                            <div className="text-xs font-bold text-dark/60 mb-2">Son Kullanma Tarihi</div>
+                            <div className="flex gap-2">
+                              <select
+                                value={expMonth}
+                                onChange={(e) => setExpMonth(e.target.value)}
+                                className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                              >
+                                <option value="">Ay</option>
+                                {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0")).map(m => (
+                                  <option key={m} value={m}>{m}</option>
+                                ))}
+                              </select>
+
+                              <select
+                                value={expYear}
+                                onChange={(e) => setExpYear(e.target.value)}
+                                className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                              >
+                                <option value="">Yıl</option>
+                                {Array.from({ length: 11 }, (_, i) => String(new Date().getFullYear() + i)).map(y => (
+                                  <option key={y} value={y}>{y}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+
+                          <div>
+                            <div className="text-xs font-bold text-dark/60 mb-2">CVC</div>
+                            <input
+                              value={cvc}
+                              onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                              className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30 font-mono text-center"
+                              placeholder="123"
+                              maxLength={4}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
 
 
 
@@ -482,16 +621,17 @@ export default function CheckoutPage() {
                       </button>
                       <button
                         onClick={onPayStart}
-                        disabled={paying}
+                        disabled={paying || !cardValid}
                         className={cn(
                           "rounded-2xl px-5 py-3 font-extrabold text-white transition",
-                          paymentMethod === "CC" ? "bg-gray-400 cursor-not-allowed" : "btn-4t",
+                          (paying || !cardValid) ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "btn-4t",
                           paying && "opacity-70 cursor-wait"
                         )}
                       >
-                        {paying ? "Başlatılıyor..." : paymentMethod === "EFT" ? "Devam Et" : "Ödemeyi Başlat"}
+                        {paying ? "Başlatılıyor..." : "Devam Et"}
                       </button>
                     </div>
+
                   </div>
                 )}
 
@@ -499,8 +639,14 @@ export default function CheckoutPage() {
                 {step === 3 && (
                   <div className="rounded-3xl border border-black/10 bg-white p-6">
                     <div className="text-lg font-extrabold text-dark">Onay</div>
-                    <div className="mt-2 text-sm text-dark/60">
-                      Bu adımda sözleşmeler + son kontrol olacak. (Şimdilik demo)
+
+                    <div className="mt-4 border border-black/10 rounded-2xl bg-light p-4">
+                      <div className="text-xs font-bold text-dark/70 mb-2">Öğrenim ve Eğitim Hizmetleri Sözleşmesi</div>
+                      <div className="h-44 overflow-y-auto text-[11px] text-dark/60 space-y-2 pr-1 font-medium leading-relaxed bg-white border border-black/5 rounded-xl p-3">
+                        {contractTextParagraphs.map((p, idx) => (
+                          <p key={idx}>{p}</p>
+                        ))}
+                      </div>
                     </div>
 
                     <div className="mt-6 rounded-3xl border border-black/10 bg-light p-5">
@@ -555,13 +701,6 @@ export default function CheckoutPage() {
                          {errorMsg}
                        </div>
                     )}
-
-                    <a
-                      href="/iletisim"
-                      className="mt-4 w-full inline-flex items-center justify-center rounded-2xl px-5 py-3 font-extrabold border border-black/10 bg-white hover:bg-light-muted transition"
-                    >
-                      Kararsızım • Danışmana bağlan
-                    </a>
                   </div>
                 )}
               </>
@@ -596,7 +735,7 @@ export default function CheckoutPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="text-sm font-extrabold text-dark truncate">
-                          {it.title}
+                          {it.title?.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ")}
                         </div>
                         <div className="mt-1 text-xs text-dark/50">
                           {formatTRY(it.price)} / adet
@@ -703,10 +842,10 @@ export default function CheckoutPage() {
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     } else if (step === 2) onPayStart();
                   }}
-                  disabled={disabled || (step === 1 && !infoValid) || paying}
+                  disabled={disabled || (step === 1 && !infoValid) || (step === 2 && !cardValid) || paying}
                   className={cn(
                     "mt-5 w-full rounded-2xl px-5 py-3 font-extrabold text-white btn-4t",
-                    (disabled || (step === 1 && !infoValid) || paying) &&
+                    (disabled || (step === 1 && !infoValid) || (step === 2 && !cardValid) || paying) &&
                       "opacity-60 cursor-not-allowed"
                   )}
                 >
@@ -715,11 +854,12 @@ export default function CheckoutPage() {
                       ? "Ödemeye geç"
                       : "Bilgileri doldur"
                     : step === 2
-                    ? paying
-                      ? "Başlatılıyor..."
-                      : "Ödemeyi başlat"
+                    ? cardValid
+                      ? "Onay adımına geç"
+                      : "Kart bilgilerini doldur"
                     : "Onay"}
                 </button>
+
 
                 <div className="mt-3 text-xs text-dark/50">
                   Satın alma sonrası erişim otomatik tanımlanır.
@@ -735,7 +875,6 @@ export default function CheckoutPage() {
                   "SSL ile şifreli ödeme",
                   "KVKK uyumlu veri işleme",
                   "Ödeme sonrası hızlı aktivasyon",
-                  "Güncel müfredat + sürekli revize",
                 ].map((t) => (
                   <div key={t} className="flex items-start gap-2">
                     <CheckBadgeIcon className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />

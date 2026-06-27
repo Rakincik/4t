@@ -143,6 +143,19 @@ font, [style*="font-family"] {
     @apply px-8 py-4 rounded-2xl font-bold shadow-sm transition-all duration-300 hover:bg-gray-50 hover:-translate-y-0.5 active:translate-y-0;
   }
 
+  .btn-4t {
+    background-color: var(--c-primary);
+    color: white;
+    @apply shadow-lg shadow-blue-500/20 transition-all duration-300 hover:shadow-blue-500/30 hover:opacity-95 active:translate-y-0;
+  }
+
+  .btn-4t-secondary {
+    background-color: var(--c-secondary);
+    color: white;
+    @apply shadow-lg shadow-red-500/20 transition-all duration-300 hover:shadow-red-500/30 hover:opacity-95 active:translate-y-0;
+  }
+
+
   /* NO SCROLLBAR FOR MOBILE HORIZONTAL SCROLLS */
   .no-scrollbar::-webkit-scrollbar {
     display: none;

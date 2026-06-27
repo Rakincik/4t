@@ -1,17 +1,43 @@
+"use client";
+
 import { ReactNode } from "react";
 import Link from "next/link";
-import { UserCircleIcon, BookOpenIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/solid";
-import { getServerSession } from "next-auth/next";
-import { redirect } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { 
+    UserCircleIcon, 
+    BookOpenIcon, 
+    ArrowLeftOnRectangleIcon,
+    MapPinIcon,
+    ShoppingBagIcon 
+} from "@heroicons/react/24/solid";
 import MainHeader from "@/app/components/MainHeader";
-// import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export default async function ProfilLayout({ children }: { children: ReactNode }) {
-    // const session = await getServerSession(authOptions);
+export default function ProfilLayout({ children }: { children: ReactNode }) {
+    const pathname = usePathname();
 
-    // if (!session) {
-    //   redirect("/giris");
-    // }
+    const menuItems = [
+        {
+            name: "Profil Bilgileri",
+            href: "/profil",
+            icon: UserCircleIcon
+        },
+        {
+            name: "Adres & Fatura",
+            href: "/profil/adres",
+            icon: MapPinIcon
+        },
+        {
+            name: "Siparişlerim",
+            href: "/profil/siparislerim",
+            icon: ShoppingBagIcon
+        },
+        {
+            name: "Kurslarım",
+            href: "/profil/kurslarim",
+            icon: BookOpenIcon
+        }
+    ];
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
@@ -23,7 +49,7 @@ export default async function ProfilLayout({ children }: { children: ReactNode }
                     <aside className="md:col-span-1">
                         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sticky top-24">
                             <div className="flex flex-col items-center mb-6 pb-6 border-b border-gray-100">
-                                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-[#DC2626] mb-3">
+                                <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center text-[#DC2626] mb-3">
                                     <UserCircleIcon className="w-12 h-12" />
                                 </div>
                                 <h2 className="text-lg font-bold text-gray-800">Hesabım</h2>
@@ -31,21 +57,29 @@ export default async function ProfilLayout({ children }: { children: ReactNode }
                             </div>
 
                             <nav className="space-y-2">
-                                <Link
-                                    href="/profil"
-                                    className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-gray-600 hover:bg-red-50 hover:text-[#DC2626] transition-colors"
+                                {menuItems.map((item) => {
+                                    const isActive = pathname === item.href;
+                                    const Icon = item.icon;
+                                    return (
+                                        <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all duration-200 ${
+                                                isActive 
+                                                    ? "bg-red-50 text-[#DC2626]" 
+                                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                            }`}
+                                        >
+                                            <Icon className="w-5 h-5" />
+                                            {item.name}
+                                        </Link>
+                                    );
+                                })}
+
+                                <button 
+                                    onClick={() => signOut({ callbackUrl: "/" })}
+                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-red-600 hover:bg-red-50 transition-all duration-200 text-left cursor-pointer"
                                 >
-                                    <UserCircleIcon className="w-5 h-5" />
-                                    Profil Bilgileri
-                                </Link>
-                                <Link
-                                    href="/profil/kurslarim"
-                                    className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-gray-600 hover:bg-red-50 hover:text-[#DC2626] transition-colors"
-                                >
-                                    <BookOpenIcon className="w-5 h-5" />
-                                    Kurslarım
-                                </Link>
-                                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-red-600 hover:bg-red-50 transition-colors text-left">
                                     <ArrowLeftOnRectangleIcon className="w-5 h-5" />
                                     Çıkış Yap
                                 </button>

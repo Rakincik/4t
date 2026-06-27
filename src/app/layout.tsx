@@ -6,6 +6,7 @@ import "@/app/globals.css";
 import { CartProvider } from "@/app/components/cart/cartStore";
 import MiniCartDrawer from "@/app/components/cart/MiniCartDrawer";
 import WhatsAppButton from "@/app/components/WhatsAppButton";
+import FloatingCartButton from "@/app/components/cart/FloatingCartButton";
 import Providers from "@/app/providers";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
@@ -56,6 +57,7 @@ export default function RootLayout({
             {children}
             <MiniCartDrawer />
             <WhatsAppButton />
+            <FloatingCartButton />
           </CartProvider>
         </Providers>
       </body>

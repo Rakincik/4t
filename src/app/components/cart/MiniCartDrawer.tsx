@@ -86,7 +86,9 @@ export default function MiniCartDrawer() {
                       ) : null}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-extrabold text-dark truncate">{it.title}</div>
+                      <div className="text-sm font-extrabold text-dark truncate">
+                        {it.title?.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ")}
+                      </div>
                       <div className="text-xs text-dark/50">{it.category || "Eğitim Paketi"}</div>
 
                       <div className="mt-3 flex items-center justify-between gap-2">

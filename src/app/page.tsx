@@ -41,23 +41,22 @@ function FlixRibbon({ data }: { data: any }) {
   const bgClass = (customColor1 && customColor2) 
     ? "" 
     : `bg-gradient-to-r ${gradientClass}`;
-
   return (
     <div className="container mx-auto max-w-7xl px-4 lg:px-8 mb-4">
       <div 
-        className={`${bgClass} rounded-[2rem] p-6 md:p-8 flex flex-col lg:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden group`}
+        className={`${bgClass} rounded-[2rem] p-6 md:p-8 flex flex-col lg:flex-row-reverse items-center justify-between gap-6 shadow-2xl relative overflow-hidden group`}
         style={customStyle}
       >
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
-        <div className="relative z-10 flex-1 text-center lg:text-left">
-          <div className="flex items-center justify-center lg:justify-start gap-2 text-red-200 text-xs font-bold uppercase tracking-widest mb-2">
+        <div className="relative z-10 flex-1 text-center lg:text-right">
+          <div className="flex items-center justify-center lg:justify-end gap-2 text-red-200 text-xs font-bold uppercase tracking-widest mb-2">
             <SparklesIcon className="w-4 h-4" /> {data?.title || "SINIRSIZ ÖĞRENME"}
           </div>
           <h3 className="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-2" dangerouslySetInnerHTML={{ __html: data?.content || "Tüm Eğitimlere Tek Pakette Sınırsız Erişin: 4T FLIX" }} />
           <div className="text-purple-100 text-sm md:text-base" dangerouslySetInnerHTML={{ __html: data?.metadata?.desc || "4T FLIX ile 10.000+ saatlik dev arşive 7/24 kesintisiz ulaşın." }} />
         </div>
         <div className="relative z-10 shrink-0">
-          <Link href={data?.metadata?.url || "/flix"} className="inline-flex items-center gap-2 bg-white text-red-700 font-extrabold px-6 py-3 md:px-8 md:py-4 rounded-xl hover:scale-105 transition-transform shadow-lg shadow-black/20">
+          <Link href={data?.metadata?.url || "/flix"} className="inline-flex items-center gap-2.5 bg-white text-red-700 font-extrabold px-8 py-4 md:px-10 md:py-5 text-base md:text-lg rounded-2xl hover:scale-105 transition-transform shadow-lg shadow-black/20">
             {data?.metadata?.btn || "FLIX'i Keşfet"} <ArrowRightIcon className="w-5 h-5" />
           </Link>
         </div>
@@ -121,12 +120,58 @@ function CategoryCard({ title, icon: Icon, href, desc, inspectText }: { title: s
 export default function Home() {
   const [cms, setCms] = useState<any>(null);
   const [latestBlogs, setLatestBlogs] = useState<any[]>([]);
+  const [personalization, setPersonalization] = useState<{
+    campaign?: string;
+    overrideTitle?: string;
+    overrideDesc?: string;
+  }>({});
 
   useEffect(() => {
     fetch("/api/admin/page-content?page=home").then(r => r.json()).then(d => setCms(d)).catch(() => {});
     fetch("/api/blog/latest").then(r => r.json()).then(d => {
       if (Array.isArray(d)) setLatestBlogs(d);
     }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const search = window.location.search;
+      const params = new URLSearchParams(search);
+      const campaign = params.get("utm_campaign")?.toLowerCase() || "";
+      const source = params.get("utm_source")?.toLowerCase() || "";
+      const content = params.get("utm_content")?.toLowerCase() || "";
+      const term = params.get("utm_term")?.toLowerCase() || "";
+      
+      const checkKeyword = (kw: string) => {
+        return campaign.includes(kw) || source.includes(kw) || content.includes(kw) || term.includes(kw);
+      };
+
+      if (checkKeyword("kaymakamlik") || checkKeyword("kaymakam")) {
+        setPersonalization({
+          campaign: "kaymakamlik",
+          overrideTitle: "Kaymakamlık Sınavına 4T Akademi Farkıyla Hazırlanın.",
+          overrideDesc: "Türkiye'nin en köklü Mülki İdare Amirliği hazırlık kadrosu ve zengin yayın arşiviyle başarınızı kesinleştirin.",
+        });
+      } else if (checkKeyword("kpss")) {
+        setPersonalization({
+          campaign: "kpss",
+          overrideTitle: "KPSS A Grubunda Şampiyonların Tercihi.",
+          overrideDesc: "Uzman, müfettiş ve denetçi kadroları için sınav formatıyla %100 uyumlu konu anlatımları ve soru çözüm kampları.",
+        });
+      } else if (checkKeyword("sayistay")) {
+        setPersonalization({
+          campaign: "sayistay",
+          overrideTitle: "Sayıştay Denetçi Yardımcılığı Hazırlık Seti.",
+          overrideDesc: "Sayıştay sınavının zorlu mevzuatına ve alan sınavlarına uzman kadromuzla tam hakimiyet sağlayın.",
+        });
+      } else if (checkKeyword("hakimlik") || checkKeyword("yargi") || checkKeyword("savcilik")) {
+        setPersonalization({
+          campaign: "hakimlik",
+          overrideTitle: "Adli & İdari Yargı Hakimliği Eğitimleri.",
+          overrideDesc: "Hakimlik ve Savcılık sınavlarına yönelik derinlemesine hukuk dersleri ve güncel konu anlatımları.",
+        });
+      }
+    }
   }, []);
 
   const stats = cms?.stats?.metadata?.items || [
@@ -141,12 +186,25 @@ export default function Home() {
   const catAllLinkUrl = cms?.categories?.metadata?.allLinkUrl || "/kurslar";
   const catInspectText = cms?.categories?.metadata?.inspectText || "Programı İncele";
   
-  const catItems = cms?.categories?.metadata?.items || [
+  const rawCatItems = cms?.categories?.metadata?.items || [
     { title: "Kaymakamlık", desc: "Mülki İdare Amirliği sınavına özel, stratejik ve kapsamlı hazırlık seti.", href: "/kurs-kategori/kaymakamlik" },
     { title: "KPSS A Grubu", desc: "Uzman, Müfettiş ve Denetçi kadroları için eksiksiz konu anlatımları.", href: "/kurs-kategori/kpss-a" },
     { title: "Sayıştay", desc: "Denetçi Yardımcılığı sınavının zorlu müfredatına tam hakimiyet.", href: "/kurs-kategori/sayistay" },
     { title: "Adli & İdari Yargı", desc: "Hakimlik ve Savcılık sınavlarına yönelik derinlemesine hukuk eğitimi.", href: "/kurs-kategori/hakimlik" },
   ];
+
+  // Reorder categories to show the personalized one first
+  let catItems = [...rawCatItems];
+  if (personalization.campaign) {
+    const catMatchIdx = catItems.findIndex(c => 
+      c.title?.toLowerCase().includes(personalization.campaign!) ||
+      c.href?.toLowerCase().includes(personalization.campaign!)
+    );
+    if (catMatchIdx > 0) {
+      const matchedCat = catItems.splice(catMatchIdx, 1)[0];
+      catItems.unshift(matchedCat);
+    }
+  }
 
   const getCategoryIcon = (title: string) => {
     const t = title.toLowerCase();
@@ -179,37 +237,61 @@ export default function Home() {
       <MainHeader />
 
       {/* 1. HERO SLIDER */}
-      <HeroSlider
-        slides={cms?.heroSlides?.metadata?.items?.length > 0 ? cms.heroSlides.metadata.items : [
-          {
-            id: 1,
-            image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2670&auto=format&fit=crop",
-            subtitle: "2026 ERKEN KAYIT DÖNEMİ",
-            title: "Geleceğin Bürokratları Burada Yetişiyor.",
-            description: "Kaymakamlık, Sayıştay ve KPSS A grubu sınavlarına, Türkiye'nin en köklü kurumuyla hazırlanın.",
-            cta: "Eğitimleri İncele",
-            href: "#kurslar"
-          },
-          {
-            id: 2,
-            image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2670&auto=format&fit=crop",
-            subtitle: "DİSİPLİN VE BAŞARI",
-            title: "Yüz Yüze Eğitimde Şampiyonlar Ligi.",
-            description: "Ankara Kızılay kampüsümüzde, alanında uzman kadromuzla birebir ilgi ve sınırsız etüt imkanı.",
-            cta: "Kampüsü Keşfet",
-            href: "/orgun-egitim"
-          },
-          {
-            id: 3,
-            image: "https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=2670&auto=format&fit=crop",
-            subtitle: "4T YAYINEVİ",
-            title: "Sınav Kazandıran Kaynaklar.",
-            description: "Özgün sorular, konu anlatımlı kitaplar ve denemelerle kütüphanenizi tamamlayın.",
-            cta: "Kitapları İncele",
-            href: "https://4tyayinevi.com"
+      {(() => {
+        let slides = cms?.heroSlides?.metadata?.items?.length > 0 
+          ? JSON.parse(JSON.stringify(cms.heroSlides.metadata.items))
+          : [
+            {
+              id: 1,
+              image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2670&auto=format&fit=crop",
+              subtitle: "2026 ERKEN KAYIT DÖNEMİ",
+              title: "Geleceğin Bürokratları Burada Yetişiyor.",
+              description: "Kaymakamlık, Sayıştay ve KPSS A grubu sınavlarına, Türkiye'nin en köklü kurumuyla hazırlanın.",
+              cta: "Eğitimleri İncele",
+              href: "#kurslar"
+            },
+            {
+              id: 2,
+              image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2670&auto=format&fit=crop",
+              subtitle: "DİSİPLİN VE BAŞARI",
+              title: "Yüz Yüze Eğitimde Şampiyonlar Ligi.",
+              description: "Ankara Kızılay kampüsümüzde, alanında uzman kadromuzla birebir ilgi ve sınırsız etüt imkanı.",
+              cta: "Kampüsü Keşfet",
+              href: "/orgun-egitim"
+            },
+            {
+              id: 3,
+              image: "https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=2670&auto=format&fit=crop",
+              subtitle: "4T YAYINEVİ",
+              title: "Sınav Kazandıran Kaynaklar.",
+              description: "Özgün sorular, konu anlatımlı kitaplar ve denemelerle kütüphanenizi tamamlayın.",
+              cta: "Kitapları İncele",
+              href: "https://4tyayinevi.com"
+            }
+          ];
+
+        if (personalization.campaign) {
+          const matchIdx = slides.findIndex((s: any) => 
+            s.title?.toLowerCase().includes(personalization.campaign) || 
+            s.subtitle?.toLowerCase().includes(personalization.campaign) ||
+            s.description?.toLowerCase().includes(personalization.campaign)
+          );
+
+          if (matchIdx > 0) {
+            const matchedSlide = slides.splice(matchIdx, 1)[0];
+            slides.unshift(matchedSlide);
+          } else if (matchIdx === -1 && slides.length > 0) {
+            slides[0] = {
+              ...slides[0],
+              title: personalization.overrideTitle,
+              description: personalization.overrideDesc,
+              subtitle: `${personalization.campaign.toUpperCase()} REKLAMLARINA ÖZEL`
+            };
           }
-        ]}
-      />
+        }
+
+        return <HeroSlider slides={slides} />;
+      })()}
 
       {/* 2. TRUST STRIP */}
       <TrustStrip stats={stats} />

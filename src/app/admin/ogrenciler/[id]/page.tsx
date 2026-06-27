@@ -89,6 +89,11 @@ function maskTC(tc: string) {
     return tc.slice(0, 3) + "****" + tc.slice(-2);
 }
 
+function stripHtml(html: string) {
+    if (!html) return "";
+    return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
+}
+
 const statusMap: Record<string, { label: string; cls: string; Icon: any }> = {
     PAID: { label: "Ödendi", cls: "bg-emerald-100 text-emerald-700", Icon: CheckCircleIcon },
     PENDING: { label: "Bekliyor", cls: "bg-amber-100 text-amber-700", Icon: ClockIcon },
@@ -259,7 +264,7 @@ export default async function StudentDetailPage({
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-semibold text-gray-900 truncate">{ca.course.title}</p>
+                                            <p className="text-sm font-semibold text-gray-900 truncate">{stripHtml(ca.course.title)}</p>
                                             <div className="flex items-center gap-2 mt-0.5">
                                                 <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${t.cls}`}>{t.label}</span>
                                                 <span className="text-[10px] text-gray-400">{formatTRY(ca.course.price)}</span>
@@ -317,7 +322,7 @@ export default async function StudentDetailPage({
                                                 return (
                                                     <div key={item.id} className="flex items-center gap-2 text-xs text-gray-600">
                                                         <span className={`text-[8px] font-bold px-1 py-0.5 rounded ${tp.cls}`}>{tp.label}</span>
-                                                        <span className="truncate">{item.course.title}</span>
+                                                        <span className="truncate">{stripHtml(item.course.title)}</span>
                                                         <span className="ml-auto text-gray-400 shrink-0">{formatTRY(item.price)}</span>
                                                     </div>
                                                 );
