@@ -119,9 +119,9 @@ export default function CourseCard({
         {/* Başlık */}
         <a href={href} className="block group/title mb-3">
           <h3 
-            className="text-lg font-bold text-gray-900 leading-snug transition-colors min-h-[44px] flex items-center"
+            className="text-lg font-bold text-gray-900 leading-snug transition-colors min-h-[44px]"
           >
-            <span className="group-hover/title:text-[var(--hover-color)] transition-colors" style={{ '--hover-color': color } as React.CSSProperties} dangerouslySetInnerHTML={{ __html: title }} />
+            <span className="group-hover/title:text-[var(--hover-color)] transition-colors line-clamp-3" style={{ '--hover-color': color } as React.CSSProperties} dangerouslySetInnerHTML={{ __html: title }} />
           </h3>
         </a>
 

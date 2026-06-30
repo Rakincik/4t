@@ -84,8 +84,8 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
         )}
 
         <a href={`/flix/${p.slug}`} className="block hover:opacity-90 transition-opacity">
-          <div className="text-white font-bold text-base mb-1 group-hover:text-[#DC2626] [&_p]:m-0 transition-colors" dangerouslySetInnerHTML={{ __html: p.title }} />
-          <div className="text-gray-400 text-sm mb-3 leading-relaxed line-clamp-3 [&_p]:m-0" dangerouslySetInnerHTML={{ __html: p.desc }} />
+          <div className="text-white font-bold text-base mb-2 group-hover:text-[#DC2626] [&_*]:inline [&_*]:m-0 whitespace-normal break-words transition-colors line-clamp-2" dangerouslySetInnerHTML={{ __html: p.title }} />
+          <div className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-3 [&_*]:inline [&_*]:m-0 whitespace-normal break-words" dangerouslySetInnerHTML={{ __html: p.desc }} />
         </a>
 
         {/* Yıllık Abonelik Bilgisi */}
