@@ -50,7 +50,7 @@ function FlixRibbon({ data }: { data: any }) {
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
         <div className="relative z-10 flex-1 text-center lg:text-right">
           <div className="flex items-center justify-center lg:justify-end gap-2 text-red-200 text-xs font-bold uppercase tracking-widest mb-2">
-            <SparklesIcon className="w-4 h-4" /> {data?.title || "SINIRSIZ ÖĞRENME"}
+            {data?.title || "SINIRSIZ ÖĞRENME"}
           </div>
           <h3 className="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-2" dangerouslySetInnerHTML={{ __html: data?.content || "Tüm Eğitimlere Tek Pakette Sınırsız Erişin: 4T FLIX" }} />
           <div className="text-purple-100 text-sm md:text-base" dangerouslySetInnerHTML={{ __html: data?.metadata?.desc || "4T FLIX ile 10.000+ saatlik dev arşive 7/24 kesintisiz ulaşın." }} />

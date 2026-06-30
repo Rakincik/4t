@@ -300,8 +300,8 @@ export default async function AdminDashboard() {
                                                         </div>
                                                     </td>
                                                     <td className="px-5 py-3">
-                                                        <p className="text-sm text-gray-600 max-w-[200px] truncate">
-                                                            {order.items?.map((i) => i.course?.title).filter(Boolean).join(", ")}
+                                                        <p className="text-sm text-gray-600 max-w-[200px] truncate" title={order.items?.map((i) => i.course?.title?.replace(/<[^>]+>/g, '')?.replace(/&nbsp;/g, ' ')).filter(Boolean).join(", ")}>
+                                                            {order.items?.map((i) => i.course?.title?.replace(/<[^>]+>/g, '')?.replace(/&nbsp;/g, ' ')).filter(Boolean).join(", ")}
                                                         </p>
                                                     </td>
                                                     <td className="px-5 py-3">

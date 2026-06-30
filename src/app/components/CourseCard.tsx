@@ -108,7 +108,6 @@ export default function CourseCard({
             alt={title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority={true}
           />
         </a>
 
@@ -120,7 +119,7 @@ export default function CourseCard({
         {/* Başlık */}
         <a href={href} className="block group/title mb-3">
           <h3 
-            className="text-lg font-bold text-gray-900 leading-snug transition-colors line-clamp-2 min-h-[44px] flex items-center"
+            className="text-lg font-bold text-gray-900 leading-snug transition-colors min-h-[44px] flex items-center"
           >
             <span className="group-hover/title:text-[var(--hover-color)] transition-colors" style={{ '--hover-color': color } as React.CSSProperties} dangerouslySetInnerHTML={{ __html: title }} />
           </h3>

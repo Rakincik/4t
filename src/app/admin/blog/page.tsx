@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
-import { NewspaperIcon, EyeIcon, PencilIcon, TrashIcon, StarIcon } from "@heroicons/react/24/outline";
-import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
+import { NewspaperIcon, EyeIcon, PencilIcon, TrashIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon as CheckCircleIconSolid } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { deletePost, togglePublish, toggleFeatured } from "./actions";
 import CreateBlogForm from "./CreateBlogForm";
@@ -24,7 +24,7 @@ export default async function AdminBlogPage({ searchParams }: PageProps) {
         <div className="space-y-6">
             {error === "limit" && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center justify-between text-sm shadow-sm">
-                    <span>⚠️ En fazla 3 adet blog yazısını öne çıkarabilirsiniz. Lütfen yenisini eklemeden önce mevcutlardan birinin yıldızını kaldırın.</span>
+                    <span>⚠️ En fazla 3 adet blog yazısını ana sayfada gösterebilirsiniz. Lütfen yenisini eklemeden önce mevcutlardan birinin seçimini kaldırın.</span>
                     <Link href="/admin/blog" className="text-red-900 font-bold hover:underline ml-4 shrink-0">Kapat</Link>
                 </div>
             )}
@@ -32,7 +32,7 @@ export default async function AdminBlogPage({ searchParams }: PageProps) {
             <div>
                 <h1 className="text-2xl font-bold text-gray-900">Blog Yazıları</h1>
                 <p className="text-gray-500 text-sm">
-                    Blog içeriklerinizi yönetin. En fazla 3 adet blog yazısını yıldızlayarak ana sayfada öne çıkarabilirsiniz.
+                    Blog içeriklerinizi yönetin. En fazla 3 adet blog yazısını seçerek ana sayfada gösterebilirsiniz.
                 </p>
             </div>
 
@@ -53,7 +53,7 @@ export default async function AdminBlogPage({ searchParams }: PageProps) {
                                 <th className="text-left px-5 py-3 font-medium">Yazı</th>
                                 <th className="text-left px-5 py-3 font-medium">Kategori</th>
                                 <th className="text-left px-5 py-3 font-medium">Durum</th>
-                                <th className="text-left px-5 py-3 font-medium">Öne Çıkar</th>
+                                <th className="text-left px-5 py-3 font-medium">Ana Sayfada Göster</th>
                                 <th className="text-left px-5 py-3 font-medium">Tarih</th>
                                 <th className="text-right px-5 py-3 font-medium">İşlem</th>
                             </tr>
@@ -77,11 +77,11 @@ export default async function AdminBlogPage({ searchParams }: PageProps) {
                                     <td className="px-5 py-3">
                                         <form action={toggleFeatured} className="inline">
                                             <input type="hidden" name="id" value={post.id} />
-                                            <button type="submit" className="p-1 rounded-lg text-gray-400 hover:text-amber-500 hover:bg-amber-50 transition-colors" title={post.isFeatured ? "Öne Çıkarmayı Kaldır" : "Öne Çıkar"}>
+                                            <button type="submit" className="p-1 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors" title={post.isFeatured ? "Ana Sayfadan Kaldır" : "Ana Sayfada Göster"}>
                                                 {post.isFeatured ? (
-                                                    <StarIconSolid className="w-5 h-5 text-amber-500" />
+                                                    <CheckCircleIconSolid className="w-5 h-5 text-green-500" />
                                                 ) : (
-                                                    <StarIcon className="w-5 h-5 text-gray-300 hover:text-amber-500" />
+                                                    <CheckCircleIcon className="w-5 h-5 text-gray-300 hover:text-green-500" />
                                                 )}
                                             </button>
                                         </form>

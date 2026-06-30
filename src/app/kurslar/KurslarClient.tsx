@@ -308,10 +308,10 @@ export default function KurslarClient({ initialCourses, activeCategories = [] }:
           {sortedCourses.length > 0 ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {paginatedCourses.map((course, idx) => (
-                  <FadeIn key={course.id} delay={idx * 0.05}>
+                {paginatedCourses.map((course) => (
+                  <div key={course.id}>
                     <CourseCard {...course} />
-                  </FadeIn>
+                  </div>
                 ))}
               </div>
 
