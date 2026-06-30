@@ -121,7 +121,7 @@ export default function CourseCard({
           <h3 
             className="text-lg font-bold text-gray-900 leading-snug transition-colors min-h-[44px]"
           >
-            <span className="group-hover/title:text-[var(--hover-color)] transition-colors line-clamp-3 [&_*]:inline [&_*]:m-0 whitespace-normal break-words" style={{ '--hover-color': color } as React.CSSProperties} dangerouslySetInnerHTML={{ __html: title }} />
+            <span className="group-hover/title:text-[var(--hover-color)] transition-colors line-clamp-3 [&_*]:inline [&_*]:m-0 whitespace-pre-wrap" style={{ '--hover-color': color } as React.CSSProperties} dangerouslySetInnerHTML={{ __html: (title || "").replace(/&nbsp;/g, ' ') }} />
           </h3>
         </a>
 
