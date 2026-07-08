@@ -99,7 +99,7 @@ export default async function MyCoursesPage() {
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-bold text-gray-800 truncate">{access.course.title}</h3>
+                                            <h3 className="font-bold text-gray-800 truncate [&_*]:inline" dangerouslySetInnerHTML={{ __html: access.course.title || "" }} />
                                             <div className="flex items-center gap-3 mt-1">
                                                 {access.course.hours && (
                                                     <span className="text-xs text-gray-400 flex items-center gap-1">
@@ -151,7 +151,7 @@ export default async function MyCoursesPage() {
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="font-bold text-gray-500 truncate">{access.course.title}</h3>
+                                        <h3 className="font-bold text-gray-500 truncate [&_*]:inline" dangerouslySetInnerHTML={{ __html: access.course.title || "" }} />
                                         <p className="text-xs text-red-500 font-medium mt-0.5">
                                             Erişim süresi {formatDate(access.expiresAt!)} tarihinde sona erdi.
                                         </p>
