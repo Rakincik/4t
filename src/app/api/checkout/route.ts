@@ -26,7 +26,13 @@ export async function POST(req: NextRequest) {
             customerTc, 
             customerCity, 
             customerDistrict, 
-            customerAddress
+            customerAddress,
+            cardHolderName,
+            cardNumber,
+            expMonth,
+            expYear,
+            cvc,
+            installmentNumber
         } = body;
 
         if (!items || !Array.isArray(items) || items.length === 0) {
@@ -145,9 +151,8 @@ export async function POST(req: NextRequest) {
                 const mokaUsername = process.env.MOKA_USERNAME || "TestMoka2";
                 const mokaPassword = process.env.MOKA_PASSWORD || "HYSYHDS8DU8HU";
                 const isTest = process.env.MOKA_IS_TEST !== "false";
-                // WebPOS için test ortamı: clientwebpos.refmokaunited.com
-                // Canlı ortam: clientwebpos.mokaunited.com
-                const baseUrl = isTest ? "https://clientwebpos.refmokaunited.com/Api" : "https://clientwebpos.mokaunited.com/Api";
+
+                const baseUrl = isTest ? "https://service.refmokaunited.com" : "https://service.mokaunited.com";
                 
                 // CheckKey hesaplama: SHA256(DealerCode + "MK" + Username + "PD" + Password)
                 const checkKeyRaw = mokaDealerCode + "MK" + mokaUsername + "PD" + mokaPassword;
@@ -155,6 +160,12 @@ export async function POST(req: NextRequest) {
 
                 // Temiz IP adresi
                 const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+
+                // ExpYear 4 hane olmalı
+                let formattedExpYear = expYear.trim();
+                if (formattedExpYear.length === 2) {
+                    formattedExpYear = "20" + formattedExpYear;
+                }
 
                 // Redirect URL
                 const redirectUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/checkout/moka-callback`;
@@ -166,17 +177,26 @@ export async function POST(req: NextRequest) {
                         Password: mokaPassword,
                         CheckKey: checkKey
                     },
-                    WebPosRequest: {
+                    PaymentDealerRequest: {
+                        CardHolderFullName: cardHolderName.trim(),
+                        CardNumber: cardNumber.replace(/\D/g, ""),
+                        ExpMonth: expMonth.padStart(2, "0"),
+                        ExpYear: formattedExpYear,
+                        CvcNumber: cvc.trim(),
+                        CardToken: "",
                         Amount: totalAmount,
                         Currency: "TL",
+                        InstallmentNumber: Number(installmentNumber) || 1,
                         ClientIP: clientIp,
-                        ShowCardBinInstallments: 1,
-                        IsIncludedCommissionAmount: 0,
                         OtherTrxCode: orderNumber,
+                        IsPoolPayment: 0,
+                        IsPreAuth: 0,
+                        IsTokenized: 0,
+                        Software: "4T Akademi",
                         Description: `${orderNumber} Nolu Sipariş Ödemesi`,
                         ReturnHash: 1,
                         RedirectUrl: redirectUrl,
-                        IsTokenized: 0,
+                        RedirectType: 0,
                         BuyerInformation: {
                             BuyerFullName: customerName || token.name || "Müşteri",
                             BuyerGsmNumber: customerPhone.replace(/\D/g, "").slice(-10),
@@ -186,7 +206,7 @@ export async function POST(req: NextRequest) {
                     }
                 };
 
-                const response = await axios.post(`${baseUrl}/WebPos/CreateWebPosRequest`, mokaPayload);
+                const response = await axios.post(`${baseUrl}/PaymentDealer/DoDirectPaymentThreeD`, mokaPayload);
 
                 if (response.data && response.data.ResultCode === "Success" && response.data.Data?.Url) {
                     const mokaUrl = response.data.Data.Url;
@@ -197,7 +217,7 @@ export async function POST(req: NextRequest) {
                         where: { id: order.id },
                         data: { 
                             codeForHash,
-                            notes: `Ödeme Yöntemi: Kredi Kartı (WebPOS Başlatıldı). CodeForHash: ${codeForHash}`
+                            notes: `Ödeme Yöntemi: Kredi Kartı (3D Başlatıldı). CodeForHash: ${codeForHash}`
                         }
                     });
 

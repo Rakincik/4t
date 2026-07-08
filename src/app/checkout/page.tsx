@@ -80,8 +80,12 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("");
   const [district, setDistrict] = useState("");
 
-  // credit card details (removed for WebPOS)
-
+  // credit card details
+  const [cardHolderName, setCardHolderName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expMonth, setExpMonth] = useState("");
+  const [expYear, setExpYear] = useState("");
+  const [cvc, setCvc] = useState("");
 
 
   // cities data
@@ -105,6 +109,12 @@ export default function CheckoutPage() {
   const [paying, setPaying] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"EFT" | "CC">("EFT");
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Installment states
+  const [installments, setInstallments] = useState<any[]>([]);
+  const [selectedInstallment, setSelectedInstallment] = useState<number>(1);
+  const [fetchingInstallments, setFetchingInstallments] = useState(false);
+  const [lastFetchedBin, setLastFetchedBin] = useState("");
 
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -147,9 +157,45 @@ export default function CheckoutPage() {
   }, [fullName, phone, email, tcNo, city, district, address]);
 
   const cardValid = useMemo(() => {
-    return true; // We no longer collect CC details on the client
-  }, [paymentMethod]);
+    if (paymentMethod === "EFT") return true;
+    const nameOk = cardHolderName.trim().length >= 3;
+    const numOk = cardNumber.replace(/\D/g, "").length === 16;
+    const monthOk = expMonth.trim().length === 2 && Number(expMonth) >= 1 && Number(expMonth) <= 12;
+    const yearLength = expYear.trim().length;
+    const yearOk = (yearLength === 2 || yearLength === 4) && Number(expYear) >= (yearLength === 2 ? Number(new Date().getFullYear().toString().slice(-2)) : new Date().getFullYear());
+    const cvcOk = cvc.trim().length >= 3 && cvc.trim().length <= 4;
+    return nameOk && numOk && monthOk && yearOk && cvcOk;
+  }, [paymentMethod, cardHolderName, cardNumber, expMonth, expYear, cvc]);
 
+
+  async function fetchInstallments(bin: string) {
+    if (bin === lastFetchedBin) return;
+    setLastFetchedBin(bin);
+    setFetchingInstallments(true);
+    try {
+      const res = await fetch("/api/checkout/installments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ binCode: bin, totalPrice: total ?? subtotal }),
+      });
+      const result = await res.json();
+      if (res.ok && result.success && result.data?.InstallmentHeaderList) {
+        const header = result.data.InstallmentHeaderList[0];
+        if (header && header.InstallmentDetailList) {
+          setInstallments(header.InstallmentDetailList);
+        } else {
+          setInstallments([]);
+        }
+      } else {
+        setInstallments([]);
+      }
+    } catch (err) {
+      console.error("Installment fetch error:", err);
+      setInstallments([]);
+    } finally {
+      setFetchingInstallments(false);
+    }
+  }
 
   async function onPayStart() {
     setStep(3);
@@ -174,8 +220,13 @@ export default function CheckoutPage() {
           customerDistrict: district,
           customerAddress: address,
           paymentMethod: paymentMethod === "EFT" ? "EFT / Havale" : "Kredi Kartı",
-          couponCode: (state as any).coupon?.code
-
+          couponCode: (state as any).coupon?.code,
+          cardHolderName: paymentMethod === "CC" ? cardHolderName : undefined,
+          cardNumber: paymentMethod === "CC" ? cardNumber.replace(/\D/g, "") : undefined,
+          expMonth: paymentMethod === "CC" ? expMonth : undefined,
+          expYear: paymentMethod === "CC" ? expYear : undefined,
+          cvc: paymentMethod === "CC" ? cvc : undefined,
+          installmentNumber: paymentMethod === "CC" ? selectedInstallment : 1
         }),
       });
 
@@ -518,18 +569,135 @@ export default function CheckoutPage() {
                       </label>
                     </div>
 
-                    {/* WebPOS Information */}
+                    {/* Credit Card Form */}
                     {paymentMethod === "CC" && (
-                      <div className="mt-6 border-t border-black/10 pt-6">
-                        <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 flex items-start gap-3">
-                          <ShieldCheckIcon className="h-6 w-6 text-blue-600 flex-shrink-0" />
-                          <div>
-                            <div className="text-sm font-extrabold text-blue-900">Güvenli Ödeme Sayfasına Yönlendirileceksiniz</div>
-                            <div className="mt-1 text-xs text-blue-700/80">
-                              "Devam Et" butonuna tıkladıktan sonra sipariş özeti ekranına geçeceğiz. Siparişi onayladığınızda taksit seçeneklerini görmek ve ödemenizi tamamlamak için <b>Moka Ortak Ödeme Ekranı</b>'na yönlendirileceksiniz. Kredi kartı bilgileriniz sitemizde tutulmaz.
+                      <div className="mt-6 border-t border-black/10 pt-6 space-y-4">
+                        <div className="text-sm font-extrabold text-dark mb-2">Kart Bilgileri</div>
+                        
+                        <div>
+                          <div className="text-xs font-bold text-dark/60 mb-2">Kart Sahibi Ad Soyad</div>
+                          <input
+                            value={cardHolderName}
+                            onChange={(e) => setCardHolderName(e.target.value)}
+                            className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                            placeholder="Kartın üzerindeki isim"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="text-xs font-bold text-dark/60 mb-2">Kart Numarası</div>
+                          <input
+                            value={cardNumber}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              const formatted = raw
+                                .replace(/\D/g, "")
+                                .replace(/(.{4})/g, "$1 ")
+                                .trim()
+                                .substring(0, 19);
+                              setCardNumber(formatted);
+
+                              const clean = formatted.replace(/\D/g, "");
+                              if (clean.length < 6) {
+                                setInstallments([]);
+                                setLastFetchedBin("");
+                                setSelectedInstallment(1);
+                              } else if (clean.length >= 6) {
+                                fetchInstallments(clean.substring(0, 6));
+                              }
+                            }}
+                            className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                            placeholder="0000 0000 0000 0000"
+                            maxLength={19}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="col-span-2">
+                            <div className="text-xs font-bold text-dark/60 mb-2">Son Kullanma Tarihi</div>
+                            <div className="flex gap-2">
+                              <select
+                                value={expMonth}
+                                onChange={(e) => setExpMonth(e.target.value)}
+                                className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                              >
+                                <option value="">Ay</option>
+                                {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0")).map(m => (
+                                  <option key={m} value={m}>{m}</option>
+                                ))}
+                              </select>
+
+                              <select
+                                value={expYear}
+                                onChange={(e) => setExpYear(e.target.value)}
+                                className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                              >
+                                <option value="">Yıl</option>
+                                {Array.from({ length: 11 }, (_, i) => String(new Date().getFullYear() + i)).map(y => (
+                                  <option key={y} value={y}>{y}</option>
+                                ))}
+                              </select>
                             </div>
                           </div>
+
+                          <div>
+                            <div className="text-xs font-bold text-dark/60 mb-2">CVC</div>
+                            <input
+                              value={cvc}
+                              onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                              className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30 font-mono text-center"
+                              placeholder="123"
+                              maxLength={4}
+                            />
+                          </div>
                         </div>
+
+                        {/* Taksit Seçenekleri */}
+                        {(installments.length > 0 || fetchingInstallments) && (
+                          <div className="mt-4 border-t border-black/10 pt-4">
+                            <div className="text-xs font-bold text-dark/60 mb-2 font-extrabold">Taksit Seçenekleri</div>
+                            {fetchingInstallments ? (
+                              <div className="text-xs text-dark/50 animate-pulse py-2">Taksit seçenekleri sorgulanıyor...</div>
+                            ) : (
+                              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                {installments.map((inst: any) => {
+                                  const count = inst.InstallmentNumber;
+                                  const isSelected = selectedInstallment === count;
+                                  const monthlyAmount = inst.Amount;
+                                  const totalPayable = inst.TotalPrice;
+                                  return (
+                                    <label
+                                      key={count}
+                                      className={cn(
+                                        "flex cursor-pointer items-center justify-between rounded-2xl border p-3 transition text-sm select-none",
+                                        isSelected ? "border-primary bg-primary/5 font-extrabold" : "border-black/10 bg-white hover:border-black/20"
+                                      )}
+                                    >
+                                      <div className="flex items-center gap-3">
+                                        <input
+                                          type="radio"
+                                          name="installment"
+                                          checked={isSelected}
+                                          onChange={() => setSelectedInstallment(count)}
+                                          className="h-4 w-4 text-primary focus:ring-primary/30"
+                                        />
+                                        <span className="text-xs font-bold text-dark">
+                                          {count === 1 ? "Tek Çekim" : `${count} Taksit`}
+                                        </span>
+                                      </div>
+                                      <div className="text-right">
+                                        <div className="text-xs font-extrabold text-primary">{formatTRY(monthlyAmount)} / ay</div>
+                                        {count > 1 && (
+                                          <div className="text-[10px] text-dark/50 font-normal">Toplam: {formatTRY(totalPayable)}</div>
+                                        )}
+                                      </div>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -573,21 +741,21 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    {paymentMethod === "EFT" && (
-                      <div className="mt-6 rounded-3xl border border-black/10 bg-light p-5">
-                        <div className="flex items-start gap-3">
-                          <ShieldCheckIcon className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
-                          <div>
-                            <div className="font-extrabold text-dark">
-                              Havale İşlemi
-                            </div>
-                            <div className="mt-1 text-sm text-dark/60">
-                              Sipariş onayından sonra dekont göndermeniz gerekecek. Tüm IBAN detayları bu adımdan sonra gösterilecektir.
-                            </div>
+                    <div className="mt-6 rounded-3xl border border-black/10 bg-light p-5">
+                      <div className="flex items-start gap-3">
+                        <ShieldCheckIcon className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-extrabold text-dark">
+                            {paymentMethod === "EFT" ? "Havale İşlemi" : "Erişim otomatik açılır"}
+                          </div>
+                          <div className="mt-1 text-sm text-dark/60">
+                            {paymentMethod === "EFT" 
+                              ? "Sipariş onayından sonra dekont göndermeniz gerekecek. Tüm IBAN detayları bu adımdan sonra gösterilecektir." 
+                              : "Ödeme onayından sonra panelde kursların aktif olur."}
                           </div>
                         </div>
                       </div>
-                    )}
+                    </div>
 
                     <label className="mt-6 flex items-start gap-3 cursor-pointer select-none">
                       <input
