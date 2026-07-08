@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
         const mokaPassword = process.env.MOKA_PASSWORD || "HYSYHDS8DU8HU";
         const isTest = process.env.MOKA_IS_TEST !== "false";
 
-        const baseUrl = isTest ? "https://service.refmokaunited.com" : "https://service.mokaunited.com";
+        const baseUrl = isTest ? "https://clientwebpos.refmokaunited.com/Api" : "https://clientwebpos.mokaunited.com/Api";
 
         const checkKeyRaw = mokaDealerCode + "MK" + mokaUsername + "PD" + mokaPassword;
         const checkKey = crypto.createHash("sha256").update(checkKeyRaw).digest("hex");
@@ -44,11 +44,12 @@ export async function POST(req: NextRequest) {
             },
             GetInstallmentInformationRequest: {
                 BinCode: binCode.substring(0, 6),
-                TotalPrice: totalAmount
+                TotalPrice: totalAmount,
+                IsIncludedCommissionAmount: 0
             }
         };
 
-        const response = await axios.post(`${baseUrl}/PaymentDealer/GetInstallmentInformation`, payload);
+        const response = await axios.post(`${baseUrl}/WebPos/GetInstallmentInformation`, payload);
 
         if (response.data && response.data.ResultCode === "Success") {
             return NextResponse.json({ 
