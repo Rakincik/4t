@@ -98,7 +98,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </div>
 
                 {/* Navigation - scrollable */}
-                <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-0.5">
+                <nav className="flex-1 overflow-y-auto no-scrollbar px-2 py-4 space-y-0.5">
                     {navItems.map((item) => {
                         const isActive = item.href === "/admin"
                             ? pathname === "/admin"
