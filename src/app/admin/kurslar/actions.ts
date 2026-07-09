@@ -109,91 +109,101 @@ function revalidateAll(slug?: string) {
 }
 
 export async function createCourse(formData: FormData) {
-    const data = parseFormData(formData);
-    const rels = parseRelations(formData);
+    try {
+        const data = parseFormData(formData);
+        const rels = parseRelations(formData);
 
-    const existing = await prisma.course.findUnique({ where: { slug: data.slug } });
-    if (existing) {
-        throw new Error("Bu URL adresi (slug) zaten kullanılıyor. Lütfen kurs adını veya URL'sini değiştirin.");
-    }
-
-    const course = await prisma.course.create({ 
-        data: {
-            ...data,
-            variants: { create: rels.variants.map((v: any) => ({ title: v.title, price: v.price, oldPrice: v.oldPrice, accessDurationDays: v.accessDurationDays, order: v.order })) },
-            addons: { create: rels.addons.map((a: any) => ({ title: a.title, price: a.price, order: a.order })) }
-        } 
-    });
-    // Create coupons linked to this course
-    if (rels.coupons.length > 0) {
-        for (const c of rels.coupons) {
-            await prisma.coupon.create({ data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, courseId: course.id } });
+        const existing = await prisma.course.findUnique({ where: { slug: data.slug } });
+        if (existing) {
+            return { success: false, error: "Bu URL adresi (slug) zaten kullanılıyor. Lütfen kurs adını veya URL'sini değiştirin." };
         }
+
+        const course = await prisma.course.create({ 
+            data: {
+                ...data,
+                variants: { create: rels.variants.map((v: any) => ({ title: v.title, price: v.price, oldPrice: v.oldPrice, accessDurationDays: v.accessDurationDays, order: v.order })) },
+                addons: { create: rels.addons.map((a: any) => ({ title: a.title, price: a.price, order: a.order })) }
+            } 
+        });
+        // Create coupons linked to this course
+        if (rels.coupons.length > 0) {
+            for (const c of rels.coupons) {
+                await prisma.coupon.create({ data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, courseId: course.id } });
+            }
+        }
+        revalidateAll();
+        return { success: true, id: course.id };
+    } catch (e: any) {
+        console.error("Create course error:", e);
+        return { success: false, error: e.message || "Kurs oluşturulurken bir hata oluştu." };
     }
-    revalidateAll();
-    return { success: true, id: course.id };
 }
 
 export async function updateCourse(id: string, formData: FormData) {
-    const data = parseFormData(formData);
-    const rels = parseRelations(formData);
-    
-    const existingSlug = await prisma.course.findUnique({ where: { slug: data.slug } });
-    if (existingSlug && existingSlug.id !== id) {
-        throw new Error("Bu URL adresi (slug) zaten başka bir paket/kurs tarafından kullanılıyor.");
-    }
-
-    // Varyasyonları yönet
-    const existingVariants = await prisma.courseVariant.findMany({ where: { courseId: id } });
-    const incomingVariantIds = rels.variants.map((v: any) => v.id).filter(Boolean);
-    const variantsToDelete = existingVariants.filter(v => !incomingVariantIds.includes(v.id));
-
-    for (const v of variantsToDelete) {
-        try { await prisma.courseVariant.delete({ where: { id: v.id } }); } 
-        catch (e: any) { if (e.code === 'P2003') throw new Error(`"${v.title}" varyasyonu satın alındığı için silinemez.`); throw e; }
-    }
-
-    // Eklentileri yönet
-    const existingAddons = await prisma.courseAddon.findMany({ where: { courseId: id } });
-    const incomingAddonIds = rels.addons.map((a: any) => a.id).filter(Boolean);
-    const addonsToDelete = existingAddons.filter(a => !incomingAddonIds.includes(a.id));
-
-    for (const a of addonsToDelete) {
-        try { await prisma.courseAddon.delete({ where: { id: a.id } }); }
-        catch (e: any) { if (e.code === 'P2003') throw new Error(`"${a.title}" eklentisi satın alındığı için silinemez.`); throw e; }
-    }
-    
-    await prisma.course.update({ 
-        where: { id }, 
-        data: { ...data } 
-    });
-
-    for (const v of rels.variants) {
-        if (v.id) await prisma.courseVariant.update({ where: { id: v.id }, data: { title: v.title, price: v.price, oldPrice: v.oldPrice, accessDurationDays: v.accessDurationDays, order: v.order } });
-        else await prisma.courseVariant.create({ data: { courseId: id, title: v.title, price: v.price, oldPrice: v.oldPrice, accessDurationDays: v.accessDurationDays, order: v.order } });
-    }
-
-    for (const a of rels.addons) {
-        if (a.id) await prisma.courseAddon.update({ where: { id: a.id }, data: { title: a.title, price: a.price, order: a.order } });
-        else await prisma.courseAddon.create({ data: { courseId: id, title: a.title, price: a.price, order: a.order } });
-    }
-
-    // Sync coupons: upsert existing, create new, delete removed
-    const existingCoupons = await prisma.coupon.findMany({ where: { courseId: id } });
-    const submittedIds = rels.coupons.filter((c: any) => c.id).map((c: any) => c.id);
-    // Delete removed coupons
-    const toDelete = existingCoupons.filter(ec => !submittedIds.includes(ec.id));
-    for (const d of toDelete) { await prisma.coupon.delete({ where: { id: d.id } }); }
-    // Upsert coupons
-    for (const c of rels.coupons) {
-        if (c.id) {
-            await prisma.coupon.update({ where: { id: c.id }, data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive } });
-        } else {
-            await prisma.coupon.create({ data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, courseId: id } });
+    try {
+        const data = parseFormData(formData);
+        const rels = parseRelations(formData);
+        
+        const existingSlug = await prisma.course.findUnique({ where: { slug: data.slug } });
+        if (existingSlug && existingSlug.id !== id) {
+            return { success: false, error: "Bu URL adresi (slug) zaten başka bir paket/kurs tarafından kullanılıyor. Lütfen farklı bir ad seçin." };
         }
+
+        // Varyasyonları yönet
+        const existingVariants = await prisma.courseVariant.findMany({ where: { courseId: id } });
+        const incomingVariantIds = rels.variants.map((v: any) => v.id).filter(Boolean);
+        const variantsToDelete = existingVariants.filter(v => !incomingVariantIds.includes(v.id));
+
+        for (const v of variantsToDelete) {
+            try { await prisma.courseVariant.delete({ where: { id: v.id } }); } 
+            catch (e: any) { if (e.code === 'P2003') return { success: false, error: `"${v.title}" varyasyonu satın alındığı için silinemez.` }; throw e; }
+        }
+
+        // Eklentileri yönet
+        const existingAddons = await prisma.courseAddon.findMany({ where: { courseId: id } });
+        const incomingAddonIds = rels.addons.map((a: any) => a.id).filter(Boolean);
+        const addonsToDelete = existingAddons.filter(a => !incomingAddonIds.includes(a.id));
+
+        for (const a of addonsToDelete) {
+            try { await prisma.courseAddon.delete({ where: { id: a.id } }); }
+            catch (e: any) { if (e.code === 'P2003') return { success: false, error: `"${a.title}" eklentisi satın alındığı için silinemez.` }; throw e; }
+        }
+        
+        await prisma.course.update({ 
+            where: { id }, 
+            data: { ...data } 
+        });
+
+        for (const v of rels.variants) {
+            if (v.id) await prisma.courseVariant.update({ where: { id: v.id }, data: { title: v.title, price: v.price, oldPrice: v.oldPrice, accessDurationDays: v.accessDurationDays, order: v.order } });
+            else await prisma.courseVariant.create({ data: { courseId: id, title: v.title, price: v.price, oldPrice: v.oldPrice, accessDurationDays: v.accessDurationDays, order: v.order } });
+        }
+
+        for (const a of rels.addons) {
+            if (a.id) await prisma.courseAddon.update({ where: { id: a.id }, data: { title: a.title, price: a.price, order: a.order } });
+            else await prisma.courseAddon.create({ data: { courseId: id, title: a.title, price: a.price, order: a.order } });
+        }
+
+        // Sync coupons: upsert existing, create new, delete removed
+        const existingCoupons = await prisma.coupon.findMany({ where: { courseId: id } });
+        const submittedIds = rels.coupons.filter((c: any) => c.id).map((c: any) => c.id);
+        // Delete removed coupons
+        const toDelete = existingCoupons.filter(ec => !submittedIds.includes(ec.id));
+        for (const d of toDelete) { await prisma.coupon.delete({ where: { id: d.id } }); }
+        // Upsert coupons
+        for (const c of rels.coupons) {
+            if (c.id) {
+                await prisma.coupon.update({ where: { id: c.id }, data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive } });
+            } else {
+                await prisma.coupon.create({ data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, courseId: id } });
+            }
+        }
+        revalidateAll(data.slug);
+        return { success: true };
+    } catch (e: any) {
+        console.error("Update course error:", e);
+        return { success: false, error: e.message || "Kurs güncellenirken bir hata oluştu." };
     }
-    revalidateAll(data.slug);
-    return { success: true };
 }
 
 export async function deleteCourse(id: string) {

@@ -402,15 +402,27 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
             }))));
 
             if (mode === "create") {
-                await createCourse(fd);
-                router.push("/admin/kurslar");
-                router.refresh();
+                const res = await createCourse(fd);
+                if (res && !res.success) {
+                    setError(res.error || "Kurs oluşturulurken hata oluştu.");
+                    setToast({ message: res.error || "Kurs oluşturulamadı.", type: "error" });
+                    setTimeout(() => setToast(null), 3000);
+                } else {
+                    router.push("/admin/kurslar");
+                    router.refresh();
+                }
             } else if (course) {
-                await updateCourse(course.id, fd);
-                setHasChanges(false);
-                setToast({ message: "Ürün başarıyla güncellendi!", type: "success" });
-                setTimeout(() => setToast(null), 3000);
-                router.refresh();
+                const res = await updateCourse(course.id, fd);
+                if (res && !res.success) {
+                    setError(res.error || "Kurs güncellenirken hata oluştu.");
+                    setToast({ message: res.error || "Kurs güncellenemedi.", type: "error" });
+                    setTimeout(() => setToast(null), 3000);
+                } else {
+                    setHasChanges(false);
+                    setToast({ message: "Ürün başarıyla güncellendi!", type: "success" });
+                    setTimeout(() => setToast(null), 3000);
+                    router.refresh();
+                }
             }
         } catch (err: any) { 
             setError(err.message || "Bir hata oluştu"); 
