@@ -178,12 +178,10 @@ export default async function KurslarPage({ searchParams }: PageProps) {
                                 {/* Image */}
                                 <div className="h-36 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center relative">
                                     {c.imageUrl ? (
-                                        <Image
+                                        <img
                                             src={c.imageUrl}
                                             alt={stripHtml(c.title)}
-                                            fill
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                            className="object-cover"
+                                            className="w-full h-full object-cover"
                                         />
                                     ) : (
                                         <span className="text-4xl font-bold text-primary/30">4T</span>
@@ -235,6 +233,24 @@ export default async function KurslarPage({ searchParams }: PageProps) {
                                         )}
                                     </div>
 
+                                    {/* Pazarlama ve Dönüşüm İstatistikleri */}
+                                    <div className="mt-3 grid grid-cols-3 gap-2 border-t border-gray-100 pt-3 text-center text-xs">
+                                        <div>
+                                            <div className="text-gray-400 font-bold uppercase tracking-wider text-[9px]">Ziyaret</div>
+                                            <div className="font-extrabold text-gray-900 mt-0.5">{(c as any).viewsCount || 0}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-gray-400 font-bold uppercase tracking-wider text-[9px]">Sepete Ekle</div>
+                                            <div className="font-extrabold text-gray-900 mt-0.5">{(c as any).cartAddsCount || 0}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-gray-400 font-bold uppercase tracking-wider text-[9px]">Dönüşüm</div>
+                                            <div className="font-extrabold text-indigo-600 mt-0.5">
+                                                %{(c as any).viewsCount && (c as any).viewsCount > 0 ? ((c._count.orderItems / (c as any).viewsCount) * 100).toFixed(1) : "0.0"}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
                                     <div className="mt-4 flex items-center gap-2">
                                         <Link
                                             href={`/admin/kurslar/${c.id}`}

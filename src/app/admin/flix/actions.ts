@@ -21,6 +21,8 @@ export async function getFlixPackages(page: number = 1, limit: number = 12) {
                 sortOrder: true,
                 createdAt: true,
                 imageUrl: true,
+                viewsCount: true,
+                cartAddsCount: true,
                 _count: { select: { orderItems: true, courseAccess: true } },
                 variants: { orderBy: { order: 'asc' } }
             },

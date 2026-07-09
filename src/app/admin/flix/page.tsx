@@ -54,7 +54,7 @@ export default async function AdminFlixPage({ searchParams }: { searchParams: Pr
                             <div key={pkg.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
                                 <div className="h-36 bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center relative">
                                     {pkg.imageUrl ? (
-                                        <Image src={pkg.imageUrl} alt="" fill sizes="300px" className="object-cover" />
+                                        <img src={pkg.imageUrl} alt="" className="w-full h-full object-cover" />
                                     ) : (
                                         <FilmIcon className="w-12 h-12 text-purple-300" />
                                     )}
@@ -76,7 +76,25 @@ export default async function AdminFlixPage({ searchParams }: { searchParams: Pr
                                             <span className="text-lg font-bold text-gray-900">{formatTRY(pkg.price)}</span>
                                             {pkg.oldPrice && <span className="text-xs text-gray-400 line-through">{formatTRY(pkg.oldPrice)}</span>}
                                         </div>
-                                        <div className="flex items-center justify-between text-xs text-gray-500 mb-4 border-t border-gray-100 pt-3">
+                                        {/* Pazarlama ve Dönüşüm İstatistikleri */}
+                                        <div className="mt-3 grid grid-cols-3 gap-2 border-t border-gray-100 pt-3 text-center text-[10px] text-gray-500 mb-4">
+                                            <div>
+                                                <div className="text-gray-400 font-bold uppercase tracking-wider text-[8px]">Ziyaret</div>
+                                                <div className="font-extrabold text-gray-900 mt-0.5">{pkg.viewsCount || 0}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-gray-400 font-bold uppercase tracking-wider text-[8px]">Sepet Ekle</div>
+                                                <div className="font-extrabold text-gray-900 mt-0.5">{pkg.cartAddsCount || 0}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-gray-400 font-bold uppercase tracking-wider text-[8px]">Dönüşüm</div>
+                                                <div className="font-extrabold text-indigo-600 mt-0.5">
+                                                    %{pkg.viewsCount && pkg.viewsCount > 0 ? ((pkg._count.orderItems / pkg.viewsCount) * 100).toFixed(1) : "0.0"}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                                             <div className="flex items-center gap-3">
                                                 <span>Sıra: <b>{pkg.sortOrder !== undefined && pkg.sortOrder !== null ? pkg.sortOrder : 999}</b></span>
                                                 <span>Sipariş: <b>{pkg._count.orderItems}</b></span>
@@ -116,6 +134,9 @@ export default async function AdminFlixPage({ searchParams }: { searchParams: Pr
                                     <th className="text-left px-5 py-3 font-medium">Kitap</th>
                                     <th className="text-left px-5 py-3 font-medium">Saat</th>
                                     <th className="text-left px-5 py-3 font-medium">Sipariş</th>
+                                    <th className="text-left px-5 py-3 font-medium">Ziyaret</th>
+                                    <th className="text-left px-5 py-3 font-medium">Sepet</th>
+                                    <th className="text-left px-5 py-3 font-medium">Dönüşüm</th>
                                     <th className="text-left px-5 py-3 font-medium">Durum</th>
                                     <th className="text-right px-5 py-3 font-medium">İşlem</th>
                                 </tr>
@@ -127,7 +148,7 @@ export default async function AdminFlixPage({ searchParams }: { searchParams: Pr
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-lg bg-gray-100 flex-shrink-0 relative overflow-hidden">
                                                     {pkg.imageUrl ? (
-                                                        <Image src={pkg.imageUrl} alt="" fill sizes="40px" className="object-cover" />
+                                                        <img src={pkg.imageUrl} alt="" className="w-full h-full object-cover" />
                                                     ) : (
                                                         <FilmIcon className="w-5 h-5 text-gray-400 m-2.5" />
                                                     )}
@@ -150,6 +171,11 @@ export default async function AdminFlixPage({ searchParams }: { searchParams: Pr
                                         </td>
                                         <td className="px-5 py-3 text-sm text-gray-600">{pkg.hours || "—"}</td>
                                         <td className="px-5 py-3 text-sm text-gray-600">{pkg._count.orderItems}</td>
+                                        <td className="px-5 py-3 text-sm text-gray-600">{pkg.viewsCount || 0}</td>
+                                        <td className="px-5 py-3 text-sm text-gray-600">{pkg.cartAddsCount || 0}</td>
+                                        <td className="px-5 py-3 text-sm font-bold text-indigo-600">
+                                            %{pkg.viewsCount && pkg.viewsCount > 0 ? ((pkg._count.orderItems / pkg.viewsCount) * 100).toFixed(1) : "0.0"}
+                                        </td>
                                         <td className="px-5 py-3">
                                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${pkg.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
                                                 {pkg.isActive ? "Aktif" : "Pasif"}
