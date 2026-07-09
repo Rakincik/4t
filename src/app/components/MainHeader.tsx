@@ -555,29 +555,6 @@ export default function MainHeader() {
           </div>
         </div>
       )}
-      {/* GLOBAL FLOATING WHATSAPP BUTTON (Mobile Safe Placement) */}
-      <a
-        href="https://wa.me/903124334044?text=Merhaba,%204T%20Akademi%20e%C4%9Fitimleri%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-24 right-6 lg:bottom-8 lg:right-8 z-[200] flex items-center group cursor-pointer"
-        aria-label="WhatsApp Canlı Destek"
-      >
-        {/* Pulsing ring */}
-        <span className="absolute inset-0 rounded-full bg-emerald-500/30 animate-ping scale-110 pointer-events-none"></span>
-        
-        {/* Tooltip */}
-        <span className="mr-3 bg-white border border-gray-150 px-3.5 py-1.5 rounded-2xl text-[11px] font-extrabold text-gray-700 shadow-md pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap select-none hidden sm:inline-block">
-          Canlı Destek
-        </span>
-        
-        {/* Icon button */}
-        <div className="w-14 h-14 bg-emerald-500 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform duration-300 border-2 border-white">
-          <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
-            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.97C16.579 1.963 14.1 1.94 12.01 1.94c-5.44 0-9.866 4.372-9.87 9.802 0 1.77.463 3.5 1.34 5.032L2.457 20.78l4.19-1.626zm11.082-7.493c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.792.998-.97 1.203-.178.205-.357.23-.664.077-.307-.154-1.3-.48-2.478-1.53-.916-.818-1.534-1.83-1.714-2.137-.18-.307-.02-.472.134-.625.14-.137.307-.357.46-.537.155-.18.205-.307.307-.513.102-.205.051-.385-.026-.538-.077-.154-.69-1.666-.946-2.28-.25-.6-.537-.512-.736-.522-.19-.01-.408-.01-.626-.01-.218 0-.573.082-.872.41-.3.307-1.144 1.12-1.144 2.73 0 1.61 1.173 3.161 1.336 3.38.163.22 2.308 3.53 5.59 4.95 2.72 1.18 3.275.94 3.864.887.589-.05 1.82-.743 2.076-1.46.256-.718.256-1.333.18-1.46-.077-.13-.282-.206-.589-.36z" />
-          </svg>
-        </div>
-      </a>
     </header>
   );
 }

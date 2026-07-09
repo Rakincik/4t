@@ -27,7 +27,7 @@ export default function WhatsAppButton() {
   const message = encodeURIComponent("Merhaba, 4T Akademi hakkında bilgi almak istiyorum.");
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex items-end gap-3">
+    <div className="fixed bottom-24 sm:bottom-6 right-6 z-[9999] flex items-end gap-3">
       {/* Tooltip */}
       {showTooltip && (
         <div className="bg-white shadow-xl rounded-2xl p-4 max-w-[220px] animate-[fadeIn_0.2s_ease-out] border border-gray-100">
