@@ -12,7 +12,8 @@ export default async function FlixPageWrapper() {
   const courses = await prisma.course.findMany({
     where: { 
       type: "FLIX",
-      isActive: true 
+      isActive: true,
+      isDeleted: false
     },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
     select: {

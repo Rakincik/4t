@@ -14,7 +14,7 @@ import { Suspense } from "react";
 export default async function KurslarPage() {
   // Veritabanından AKTİF kursları çek. (Mock data yerine canlı data)
   const courses = await prisma.course.findMany({
-    where: { isActive: true, type: { not: "FLIX" } },
+    where: { isActive: true, isDeleted: false, type: { not: "FLIX" } },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     select: {
       id: true,

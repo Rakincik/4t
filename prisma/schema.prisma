@@ -71,6 +71,7 @@ model Course {
   category    String?
   type        CourseType  @default(KURS)
   isActive    Boolean    @default(true)
+  isDeleted   Boolean    @default(false)
   isCouponApplicable Boolean @default(true)
   sortOrder          Int        @default(999)
   createdAt   DateTime   @default(now())

@@ -198,16 +198,30 @@ export async function updateCourse(id: string, formData: FormData) {
 
 export async function deleteCourse(id: string) {
     try {
-        await prisma.course.delete({ where: { id } });
+        const orderCount = await prisma.orderItem.count({
+            where: { courseId: id }
+        });
+
+        if (orderCount === 0) {
+            await prisma.course.delete({ where: { id } });
+        } else {
+            const course = await prisma.course.findUnique({ where: { id }, select: { slug: true } });
+            const uniqueSlug = course ? `${course.slug}-deleted-${Date.now()}` : `${id}-deleted-${Date.now()}`;
+            
+            await prisma.course.update({
+                where: { id },
+                data: {
+                    isDeleted: true,
+                    isActive: false,
+                    slug: uniqueSlug
+                }
+            });
+        }
+
         revalidateAll();
         return { success: true };
     } catch (e: any) {
-        if (e.code === 'P2003') {
-            return { 
-                success: false, 
-                error: "Bu kurs daha önce satın alındığı (sipariş kaydı olduğu) için silinemez. Dilerseniz kursu düzenleyerek durumunu 'Pasif' yapabilirsiniz." 
-            };
-        }
+        console.error("Delete course error:", e);
         return { success: false, error: "Silme işlemi sırasında beklenmeyen bir hata oluştu." };
     }
 }

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function getFlixPackages(page: number = 1, limit: number = 12) {
-    const where = { type: "FLIX" as any };
+    const where = { type: "FLIX" as any, isDeleted: false };
     const [packages, totalCount] = await Promise.all([
         prisma.course.findMany({
             where,
@@ -146,7 +146,30 @@ export async function updateFlixPackage(id: string, formData: FormData) {
 }
 
 export async function deleteFlixPackage(id: string) {
-    await prisma.course.delete({ where: { id } });
-    revalidateFlixPaths();
-    return { success: true };
+    try {
+        const orderCount = await prisma.orderItem.count({
+            where: { courseId: id }
+        });
+
+        if (orderCount === 0) {
+            await prisma.course.delete({ where: { id } });
+        } else {
+            const course = await prisma.course.findUnique({ where: { id }, select: { slug: true } });
+            const uniqueSlug = course ? `${course.slug}-deleted-${Date.now()}` : `${id}-deleted-${Date.now()}`;
+            
+            await prisma.course.update({
+                where: { id },
+                data: {
+                    isDeleted: true,
+                    isActive: false,
+                    slug: uniqueSlug
+                }
+            });
+        }
+        revalidateFlixPaths();
+        return { success: true };
+    } catch (e: any) {
+        console.error("Delete flix error:", e);
+        return { success: false, error: "Silme işlemi sırasında beklenmeyen bir hata oluştu." };
+    }
 }

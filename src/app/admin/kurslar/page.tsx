@@ -19,7 +19,7 @@ async function getCoursesData(
     q?: string, sort?: string, page: number = 1, limit: number = 10,
     category?: string, status?: string, type?: string
 ) {
-    const where: any = { type: { not: "FLIX" } };
+    const where: any = { type: { not: "FLIX" }, isDeleted: false };
     if (q) where.title = { contains: q, mode: "insensitive" };
     if (category) where.category = category;
     if (status === 'active') where.isActive = true;

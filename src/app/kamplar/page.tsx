@@ -11,7 +11,7 @@ export const revalidate = 60; // 1 dakikada bir cache yeniler
 export default async function KamplarPage() {
   // Veritabanından KAMP tipindeki kursları çek
   const kamplar = await prisma.course.findMany({
-    where: { isActive: true, type: "KAMP" },
+    where: { isActive: true, isDeleted: false, type: "KAMP" },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     select: {
       id: true,
