@@ -20,6 +20,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useCart } from "@/app/components/cart/cartStore";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type CourseCardProps = {
   id?: string;
@@ -79,6 +80,7 @@ export default function CourseCard({
   const origPriceVal = moneyToNumberLike(originalPrice);
   const installmentPrice = priceVal > 0 ? formatTL(priceVal / 12) : "0";
   const { add } = useCart();
+  const router = useRouter();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -91,7 +93,7 @@ export default function CourseCard({
       price: priceVal,
       originalPrice: origPriceVal,
       qty: 1
-    }, { openDrawer: true });
+    }, { openDrawer: false });
 
     // Log cart add event asynchronously
     if (id) {
@@ -101,6 +103,8 @@ export default function CourseCard({
         body: JSON.stringify({ courseId: id, event: "cart_add" })
       }).catch(console.error);
     }
+
+    router.push("/sepet");
   };
 
   // Veritabanından gelen Kazanımlar (learningOutcomes) array'ini kullanıyoruz

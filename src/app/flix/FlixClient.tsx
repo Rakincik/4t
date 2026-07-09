@@ -20,6 +20,7 @@ import {
 import MainHeader from "@/app/components/MainHeader";
 import dynamic from "next/dynamic";
 const Footer = dynamic(() => import("@/app/components/Footer"));
+import { useCart } from "@/app/components/cart/cartStore";
 
 /* ===================================================== */
 /* DATA                                                  */
@@ -69,6 +70,27 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
   const [withBook, setWithBook] = useState(false);
   const p = product;
   const totalPrice = withBook ? p.price + p.bookPrice : p.price;
+  const { add } = useCart();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    add({
+      id: p.slug + (withBook ? "-book" : ""),
+      slug: p.slug,
+      title: p.title + (withBook ? " (Kitap Dahil)" : ""),
+      price: totalPrice,
+      imageUrl: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop",
+      qty: 1,
+      variantId: "",
+      isCouponApplicable: true,
+    }, { openDrawer: true });
+
+    fetch("/api/admin/analytics/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ courseId: p.id, event: "cart_add" })
+    }).catch(console.error);
+  };
 
   return (
     <div className="group bg-white/[0.04] border border-white/10 rounded-2xl overflow-hidden hover:border-[#DC2626]/30 hover:bg-white/[0.07] transition-all duration-300 flex flex-col h-full">
@@ -159,14 +181,23 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
             <div className="text-[10px] text-green-400 font-medium text-right">Peşin fiyatına 12 taksit</div>
           </div>
 
-          {/* Sepete Ekle Butonu */}
-          <a
-            href={`/flix/${p.slug}`}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#DC2626] text-white text-sm font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-900/20"
-          >
-            <ShoppingCartIcon className="w-4 h-4" />
-            Sepete Ekle
-          </a>
+          {/* Sepete Ekle & Detaylar Butonları */}
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <button
+              onClick={handleAddToCart}
+              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#DC2626] text-white text-xs font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-900/20"
+            >
+              <ShoppingCartIcon className="w-4 h-4" />
+              Sepete Ekle
+            </button>
+            <a
+              href={`/flix/${p.slug}`}
+              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/10 transition-colors"
+            >
+              <EyeIcon className="w-4 h-4" />
+              Detaylar
+            </a>
+          </div>
         </div>
       </div>
     </div>
