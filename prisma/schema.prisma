@@ -48,6 +48,9 @@ model Category {
   children  Category[] @relation("SubCategories")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([order])
 }
 
 // ============================================
@@ -122,6 +125,9 @@ model Course {
   variants     CourseVariant[]
   addons       CourseAddon[]
   coupons      Coupon[]
+
+  @@index([isActive, isDeleted, type])
+  @@index([sortOrder])
 }
 
 model CourseVariant {

@@ -45,7 +45,15 @@ function normalizeTR(s: string) {
     .replaceAll("ş", "s").replaceAll("ö", "o").replaceAll("ç", "c");
 }
 
-export default function KurslarClient({ initialCourses, activeCategories = [] }: { initialCourses: any[], activeCategories?: { name: string; slug: string }[] }) {
+export default function KurslarClient({ 
+  initialCourses, 
+  activeCategories = [], 
+  initialCms = null 
+}: { 
+  initialCourses: any[], 
+  activeCategories?: { name: string; slug: string }[],
+  initialCms?: any
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("kategori") || "Tümü";
@@ -70,14 +78,7 @@ export default function KurslarClient({ initialCourses, activeCategories = [] }:
   const [itemsPerPage, setItemsPerPage] = useState<number>(12);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  const [cms, setCms] = useState<any>(null);
-
-  useEffect(() => {
-    fetch("/api/admin/page-content?page=kurslar")
-      .then(res => res.json())
-      .then(data => setCms(data))
-      .catch(console.error);
-  }, []);
+  const [cms, setCms] = useState<any>(initialCms);
 
   // Gelişmiş Debounce (Geciktirme) Arama Etkisi
   useEffect(() => {

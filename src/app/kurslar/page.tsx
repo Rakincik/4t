@@ -12,24 +12,45 @@ export const revalidate = 60; // 1 dakikada bir cache yeniler
 import { Suspense } from "react";
 
 export default async function KurslarPage() {
-  // Veritabanından AKTİF kursları çek. (Mock data yerine canlı data)
-  const courses = await prisma.course.findMany({
-    where: { isActive: true, isDeleted: false, type: { not: "FLIX" } },
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      category: true,
-      price: true,
-      oldPrice: true,
-      imageUrl: true,
-      type: true,
-      color: true,
-      learningOutcomes: true,
-      createdAt: true,
-    }
-  });
+  const [courses, activeCategoriesDB, contents] = await Promise.all([
+    prisma.course.findMany({
+      where: { isActive: true, isDeleted: false, type: { not: "FLIX" } },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        category: true,
+        price: true,
+        oldPrice: true,
+        imageUrl: true,
+        type: true,
+        color: true,
+        learningOutcomes: true,
+        createdAt: true,
+        isInstallmentApplicable: true,
+      }
+    }),
+    prisma.category.findMany({
+      where: { isActive: true },
+      orderBy: { order: 'asc' },
+      select: { name: true, slug: true }
+    }),
+    prisma.pageContent.findMany({
+      where: { pageSlug: "kurslar" },
+      orderBy: { sectionKey: "asc" }
+    })
+  ]);
+
+  const cms: Record<string, any> = {};
+  for (const c of contents) {
+    cms[c.sectionKey] = {
+      id: c.id,
+      title: c.title,
+      content: c.content,
+      metadata: c.metadata,
+    };
+  }
 
   // Props'a uygun hala getirmek için dönüştürme (Adapter)
   const formattedCourses = courses.map(c => {
@@ -54,13 +75,8 @@ export default async function KurslarPage() {
       learningOutcomes: finalLearningOutcomes,
       color: c.color || "#3B82F6",
       createdAt: c.createdAt,
+      isInstallmentApplicable: c.isInstallmentApplicable,
     };
-  });
-
-  const activeCategoriesDB = await prisma.category.findMany({
-    where: { isActive: true },
-    orderBy: { order: 'asc' },
-    select: { name: true, slug: true }
   });
 
   const normalizeTR = (s: string) => s.trim().toLowerCase()
@@ -75,7 +91,7 @@ export default async function KurslarPage() {
 
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>}>
-      <KurslarClient initialCourses={formattedCourses} activeCategories={relevantCategories} />
+      <KurslarClient initialCourses={formattedCourses} activeCategories={relevantCategories} initialCms={cms} />
     </Suspense>
   );
 }
