@@ -52,7 +52,7 @@ export async function GET(request: Request) {
       }
 
       return NextResponse.json({ menus }, {
-        headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" },
+        headers: { "Cache-Control": "public, s-maxage=2, stale-while-revalidate=8" },
       });
     }
 
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({ items: menu.items }, {
-      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" },
+      headers: { "Cache-Control": "public, s-maxage=2, stale-while-revalidate=8" },
     });
   } catch (error) {
     console.error("API Menu Error:", error);

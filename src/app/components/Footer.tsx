@@ -19,7 +19,7 @@ export default function Footer() {
   const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
-    fetch("/api/settings/global?t=" + Date.now())
+    fetch("/api/settings/global")
       .then(res => res.json())
       .then(data => {
         if (data && data.config) {

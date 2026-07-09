@@ -183,6 +183,18 @@ export default function GirisClient() {
             <button type="submit" disabled={registerLoading || !registerContract}>
               {registerLoading ? "Kaydediliyor..." : "Kayıt Ol"}
             </button>
+
+            {/* Mobile Switch Link */}
+            <div className="mt-5 md:hidden text-xs text-gray-500 font-semibold text-center">
+              Zaten üye misiniz?{" "}
+              <button
+                type="button"
+                onClick={() => setAktif(false)}
+                className="text-[#2563EB] hover:underline font-bold cursor-pointer ml-1"
+              >
+                Giriş Yap
+              </button>
+            </div>
           </form>
         </div>
 
@@ -225,6 +237,18 @@ export default function GirisClient() {
             <button type="submit" disabled={loginLoading}>
               {loginLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
             </button>
+
+            {/* Mobile Switch Link */}
+            <div className="mt-5 md:hidden text-xs text-gray-500 font-semibold text-center">
+              Hesabınız yok mu?{" "}
+              <button
+                type="button"
+                onClick={() => setAktif(true)}
+                className="text-[#2563EB] hover:underline font-bold cursor-pointer ml-1"
+              >
+                Kayıt Ol
+              </button>
+            </div>
           </form>
         </div>
 

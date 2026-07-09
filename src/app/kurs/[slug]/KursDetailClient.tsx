@@ -218,9 +218,9 @@ function CourseTabs({ course }: { course: any }) {
                           key={lIndex} 
                           href={isPreview && les.previewUrl ? les.previewUrl : undefined} 
                           target={isPreview ? "_blank" : undefined}
-                          className={`flex items-center justify-between text-sm text-gray-600 group -mx-4 px-4 py-2 transition-colors ${isPreview ? "cursor-pointer hover:bg-gray-50" : "cursor-default opacity-80"}`}
+                          className={`flex items-center justify-between text-sm text-gray-600 group -mx-4 px-4 py-3 md:py-2 transition-colors ${isPreview ? "cursor-pointer hover:bg-gray-50" : "cursor-default opacity-80"}`}
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
                             {isPreview ? <PlayCircleIcon className="w-5 h-5 text-[#DC2626]" /> : <LockClosedIcon className="w-4 h-4 text-gray-300" />}
                             <span className={isPreview ? "text-[#DC2626] font-medium" : ""}>{les.title || `Ders ${lIndex + 1}`}</span>
                           </div>

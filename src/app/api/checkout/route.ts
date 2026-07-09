@@ -122,6 +122,10 @@ export async function POST(req: NextRequest) {
 
         const isCC = paymentMethod === "Kredi Kartı";
 
+        if (isCC && Number(installmentNumber) > 6) {
+            return NextResponse.json({ error: "En fazla 6 taksit seçilebilir." }, { status: 400 });
+        }
+
         // 5. Siparişi Oluştur (PENDING)
         const order = await prisma.order.create({
             data: {

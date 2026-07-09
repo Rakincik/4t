@@ -111,7 +111,7 @@ export default function MainHeader() {
 
   useEffect(() => {
     // Fetch dynamic announcement
-    fetch("/api/settings/announcement?t=" + Date.now())
+    fetch("/api/settings/announcement")
       .then(res => res.json())
       .then(data => {
         if (data && data.announcement) {
@@ -121,7 +121,7 @@ export default function MainHeader() {
       .catch(console.error);
 
     // Fetch dynamic global config for phone
-    fetch("/api/settings/global?t=" + Date.now())
+    fetch("/api/settings/global")
       .then(res => res.json())
       .then(data => {
         if (data && data.config?.phone) {
@@ -131,7 +131,7 @@ export default function MainHeader() {
       .catch(console.error);
 
     // Fetch all header menus
-    fetch("/api/settings/menu?prefix=header-", { cache: "no-store", headers: { "Pragma": "no-cache" } })
+    fetch("/api/settings/menu?prefix=header-")
       .then(res => res.json())
       .then(data => {
         if (data && data.menus) {

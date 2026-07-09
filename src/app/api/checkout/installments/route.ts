@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         const checkKeyRaw = mokaDealerCode + "MK" + mokaUsername + "PD" + mokaPassword;
         const checkKey = crypto.createHash("sha256").update(checkKeyRaw).digest("hex");
 
-        const targetInstallments = [1, 2, 3, 6, 9, 12];
+        const targetInstallments = [1, 2, 3, 4, 5, 6];
         const amount = Number(totalPrice) || 100;
 
         const promises = targetInstallments.map(async (inst) => {

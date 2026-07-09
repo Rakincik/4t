@@ -24,6 +24,11 @@ interface AbandonedCart {
     phone: string;
     courses: CartItem[];
     createdAt: string;
+    userId?: string | null;
+}
+
+function stripHtml(html: string) {
+    return (html || "").replace(/<[^>]*>/g, "").replace(/&nbsp;|&#160;/g, " ").trim();
 }
 
 export default function SepetTakipClient({ initialCarts }: { initialCarts: AbandonedCart[] }) {
@@ -68,7 +73,7 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
             cleanPhone = "90" + cleanPhone;
         }
 
-        const courseNames = courses.map(c => `"${c.title}"`).join(", ");
+        const courseNames = courses.map(c => `"${stripHtml(c.title)}"`).join(", ");
         const message = `Merhaba ${name},\n\n4T Akademi sepetinizde yarım kalan ${courseNames} eğitim paketiniz ile ilgili sipariş adımlarında yardımcı olmamı ister misiniz?\n\nKayıt işlemlerinizi kolaylaştırmak adına size yardımcı olmak için buradayım.`;
         
         return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
@@ -183,8 +188,22 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
                                     <tr key={c.id} className="hover:bg-gray-50/50 transition">
                                         {/* Name */}
                                         <td className="p-4 pl-6">
-                                            <div className="font-bold text-gray-900">{c.name}</div>
-                                            <div className="text-xs text-gray-450 font-semibold mt-0.5">Misafir Ziyaretçi</div>
+                                            {c.userId ? (
+                                                <a 
+                                                    href={`/admin/ogrenciler/${c.userId}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="font-bold text-blue-600 hover:text-blue-855 hover:underline inline-flex items-center gap-1 group"
+                                                >
+                                                    {c.name}
+                                                    <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                                                </a>
+                                            ) : (
+                                                <div className="font-bold text-gray-900">{c.name}</div>
+                                            )}
+                                            <div className={`text-xs font-semibold mt-0.5 ${c.userId ? "text-emerald-600 font-bold" : "text-gray-450"}`}>
+                                                {c.userId ? "Kayıtlı Öğrenci" : "Misafir Ziyaretçi"}
+                                            </div>
                                         </td>
 
                                         {/* Contact details */}
@@ -204,7 +223,7 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
                                                         key={idx}
                                                         className="px-2 py-0.5 rounded-md bg-[#0B1221]/5 text-gray-800 text-xs font-bold border border-black/5"
                                                     >
-                                                        {item.title}
+                                                        {stripHtml(item.title)}
                                                     </span>
                                                 ))}
                                             </div>

@@ -25,6 +25,8 @@ model User {
 
   orders        Order[]
   courseAccess  CourseAccess[]
+
+  @@index([phone])
 }
 
 enum Role {
@@ -184,6 +186,10 @@ model Order {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   items       OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 enum OrderStatus {
