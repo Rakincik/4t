@@ -159,26 +159,8 @@ export default function KamplarClient({ initialCourses, activeCategories = [] }:
         <div className="container mx-auto max-w-7xl px-4 py-3">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
-            {/* Kategori Hapları */}
-            <div className="flex overflow-x-auto whitespace-nowrap gap-2 pb-3 -mx-4 px-4 md:flex-wrap md:overflow-x-visible md:pb-0 md:-mx-0 md:px-0 scrollbar-none">
-              {activeCategoriesList.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={cn(
-                    "px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all border shrink-0",
-                    activeCategory === cat
-                      ? "bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-500 shadow-md transform scale-105"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:bg-orange-50"
-                  )}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {/* Arama */}
-            <div className="flex items-center gap-3 w-full md:w-auto">
+            {/* Arama (Mobilde En Üstte) */}
+            <div className="flex items-center gap-3 w-full md:w-auto order-first md:order-last">
               <div className="relative flex-grow md:flex-grow-0 md:w-64 group">
                 <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 group-focus-within:text-orange-500 transition-colors" />
                 <input
@@ -186,12 +168,34 @@ export default function KamplarClient({ initialCourses, activeCategories = [] }:
                   placeholder="Kamp ara..."
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 bg-gray-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-200 focus:bg-white transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-gray-50 text-sm font-medium focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-100/50 focus:bg-white transition-all duration-300 shadow-sm"
                 />
               </div>
               <button className="p-2 rounded-full border border-gray-200 text-gray-500 hover:bg-orange-50 hover:text-orange-600 transition-colors">
                 <AdjustmentsHorizontalIcon className="w-5 h-5" />
               </button>
+            </div>
+
+            {/* Kategori Hapları */}
+            <div className="relative w-full md:flex-1">
+              <div className="flex overflow-x-auto whitespace-nowrap gap-2 pb-3 -mx-4 px-4 md:flex-wrap md:overflow-x-visible md:pb-0 md:-mx-0 md:px-0 scrollbar-none">
+                {activeCategoriesList.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all border shrink-0",
+                      activeCategory === cat
+                        ? "bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-500 shadow-md transform scale-105"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:bg-orange-50"
+                    )}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              {/* Gradient Fade Overlay on Mobile */}
+              <div className="absolute right-[-16px] top-0 bottom-3 w-16 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none md:hidden" />
             </div>
 
           </div>
