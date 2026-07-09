@@ -144,6 +144,22 @@ export async function POST(req: NextRequest) {
             }
         });
 
+        // 5.2 EFT ise terk edilmiş sepeti kurtarıldı olarak işaretle
+        if (!isCC) {
+            await prisma.abandonedCart.updateMany({
+                where: {
+                    OR: [
+                        customerEmail ? { email: customerEmail } : undefined,
+                        customerPhone ? { phone: customerPhone } : undefined
+                    ].filter(Boolean) as any,
+                    isRecovered: false
+                },
+                data: {
+                    isRecovered: true
+                }
+            }).catch(err => console.error("EFT abandoned cart recovery error:", err));
+        }
+
         // 5.5 Kredi Kartı ise Moka POS ile Ödeme Başlat
         if (isCC) {
             try {

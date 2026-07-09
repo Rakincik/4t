@@ -24,6 +24,7 @@ import {
     ChevronDoubleLeftIcon,
     ChevronDoubleRightIcon,
     TagIcon,
+    ShoppingBagIcon,
 } from "@heroicons/react/24/outline";
 
 const navItems = [
@@ -34,6 +35,7 @@ const navItems = [
     { href: "/admin/kategoriler", label: "Kategoriler", icon: TagIcon },
     { href: "/admin/flix", label: "4T FLIX Paketleri", icon: FilmIcon },
     { href: "/admin/siparisler", label: "Siparişler", icon: ShoppingCartIcon },
+    { href: "/admin/sepet-takip", label: "Sepet Takibi", icon: ShoppingBagIcon },
     { href: "/admin/erisimler", label: "Kurs Erişimleri", icon: KeyIcon },
     { href: "/admin/blog", label: "Blog Yazıları", icon: NewspaperIcon },
     { href: "/admin/kuponlar", label: "Kupon Takibi", icon: TicketIcon },

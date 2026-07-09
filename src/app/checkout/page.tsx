@@ -198,6 +198,24 @@ export default function CheckoutPage() {
     }
   }
 
+  async function handleStep1Submit() {
+    setStep(2);
+    try {
+      await fetch("/api/checkout/abandoned", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: fullName,
+          email: email,
+          phone: phone,
+          courses: items.map(i => ({ id: i.id, title: i.title }))
+        })
+      });
+    } catch (err) {
+      console.error("Failed to log abandoned cart:", err);
+    }
+  }
+
   async function onPayStart() {
     setStep(3);
   }
@@ -503,7 +521,7 @@ export default function CheckoutPage() {
                       </a>
 
                       <button
-                        onClick={() => setStep(2)}
+                        onClick={handleStep1Submit}
                         disabled={!infoValid}
                         className={cn(
                           "w-full rounded-2xl px-5 py-3 font-extrabold text-white btn-4t",

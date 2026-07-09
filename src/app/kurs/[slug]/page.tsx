@@ -25,7 +25,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
     // Gerçek veri çekme işlemi
     const dbCourse = await prisma.course.findUnique({
-        where: { slug },
+        where: { slug, isDeleted: false },
         include: {
             variants: true,
             addons: true,
@@ -35,6 +35,12 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
     if (!dbCourse) {
         notFound();
     }
+
+    // Arka planda görüntüleme sayısını 1 artırıyoruz (sayfa yüklenmesini geciktirmemek için await etmiyoruz)
+    prisma.course.update({
+        where: { id: dbCourse.id },
+        data: { viewsCount: { increment: 1 } }
+    }).catch(err => console.error("Prisma views increment error:", err));
 
     const dbLearningOutcomes = parseJsonSafe(dbCourse.learningOutcomes, null);
     const finalLearningOutcomes = Array.isArray(dbLearningOutcomes) ? dbLearningOutcomes : [];

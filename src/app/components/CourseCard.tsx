@@ -22,6 +22,7 @@ import { useCart } from "@/app/components/cart/cartStore";
 import Image from "next/image";
 
 type CourseCardProps = {
+  id?: string;
   slug: string;
   title: string;
   category: string;
@@ -59,6 +60,7 @@ function formatTL(n: number) {
 }
 
 export default function CourseCard({
+  id,
   slug,
   title,
   category,
@@ -90,6 +92,15 @@ export default function CourseCard({
       originalPrice: origPriceVal,
       qty: 1
     }, { openDrawer: true });
+
+    // Log cart add event asynchronously
+    if (id) {
+      fetch("/api/admin/analytics/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courseId: id, event: "cart_add" })
+      }).catch(console.error);
+    }
   };
 
   // Veritabanından gelen Kazanımlar (learningOutcomes) array'ini kullanıyoruz

@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function FlixDetailPageServer({ params }: PageProps) {
     const { slug } = await params;
     const course = await prisma.course.findUnique({
-        where: { slug: slug },
+        where: { slug: slug, isDeleted: false },
         include: {
             variants: true
         }
@@ -41,6 +41,12 @@ export default async function FlixDetailPageServer({ params }: PageProps) {
     if (!course || course.type !== "FLIX" || !course.isActive) {
         notFound();
     }
+
+    // Arka planda görüntüleme sayısını 1 artırıyoruz
+    prisma.course.update({
+        where: { id: course.id },
+        data: { viewsCount: { increment: 1 } }
+    }).catch(err => console.error("Prisma flix views increment error:", err));
 
     return <FlixDetailClient course={course} />;
 }

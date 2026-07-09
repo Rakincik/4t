@@ -85,6 +85,20 @@ export async function POST(req: NextRequest) {
                 }
             });
 
+            // Terk edilmiş sepeti kurtarıldı olarak işaretle
+            await prisma.abandonedCart.updateMany({
+                where: {
+                    OR: [
+                        order.customerEmail ? { email: order.customerEmail } : undefined,
+                        order.customerPhone ? { phone: order.customerPhone } : undefined
+                    ].filter(Boolean) as any,
+                    isRecovered: false
+                },
+                data: {
+                    isRecovered: true
+                }
+            }).catch(err => console.error("Callback abandoned cart recovery error:", err));
+
             // Fire Meta Conversions API Purchase Event
             if (order.user) {
                 const names = order.user.name.trim().split(" ");

@@ -72,6 +72,8 @@ model Course {
   type        CourseType  @default(KURS)
   isActive    Boolean    @default(true)
   isDeleted   Boolean    @default(false)
+  viewsCount  Int        @default(0)
+  cartAddsCount Int      @default(0)
   isCouponApplicable Boolean @default(true)
   sortOrder          Int        @default(999)
   createdAt   DateTime   @default(now())
@@ -386,3 +388,18 @@ model PageContentVersion {
 
   @@index([pageSlug, createdAt])
 }
+
+// ============================================
+// Terk Edilmiş Sepetler (Recovery)
+// ============================================
+model AbandonedCart {
+  id          String   @id @default(cuid())
+  name        String?  // Guest or logged-in student name
+  email       String?  // Guest or logged-in email
+  phone       String?  // Student phone number for WhatsApp
+  courses     Json     // List of course IDs and names left in cart
+  isRecovered Boolean  @default(false) // Marks true if customer completes payment later
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
