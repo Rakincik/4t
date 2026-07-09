@@ -62,6 +62,13 @@ export default function MainHeader() {
   
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!mobileOpen) {
+      setOpenMobileSubmenu(null);
+    }
+  }, [mobileOpen]);
   const [announcement, setAnnouncement] = useState("Geleceğe Hazırlık");
   const [phone, setPhone] = useState("(0312) 433 40 44");
   
@@ -511,32 +518,43 @@ export default function MainHeader() {
                 <a href="/iletisim" className="block py-3 text-lg font-bold text-[#0B1221]">İletişim</a>
               </div>
 
-              {/* Açılır Menüler / Submenüler */}
+              {/* Açılır Menüler / Submenüler (Accordion Görünümü) */}
               {headerMenus.filter(m => {
                 const displayTitle = m.title.replace(/\s*\(Header\)\s*/i, "").trim();
                 const isForceDropdown = m.slug === "header-uzaktan" || (m.items?.length === 1 && m.items[0].label.toLowerCase() !== displayTitle.toLowerCase());
                 return isForceDropdown || (m.items?.length || 0) > 1 || (m.items?.length === 1 && (m.items[0]?.children?.length || 0) > 0);
               }).map(menuBlock => {
                 const title = menuBlock.title.replace(/\s*\(Header\)\s*/i, "").trim();
+                const isSubmenuOpen = openMobileSubmenu === menuBlock.slug;
                 return (
-                  <div key={menuBlock.id} className="pt-6 border-t border-gray-100">
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{title}</div>
-                    {menuBlock.items.map(l => (
-                      <div key={l.id} className="mb-2">
-                        <a href={l.url} className="block py-1.5 text-gray-800 font-bold">
-                          {l.label}
-                        </a>
-                        {l.children && l.children.length > 0 && (
-                          <div className="pl-4 border-l-2 border-gray-100 ml-2 space-y-1 mt-1">
-                            {l.children.map(sub => (
-                              <a key={sub.id} href={sub.url} className="block py-1.5 text-sm text-gray-500 font-medium">
-                                {sub.label}
-                              </a>
-                            ))}
+                  <div key={menuBlock.id} className="pt-4 border-t border-gray-100">
+                    <button
+                      onClick={() => setOpenMobileSubmenu(isSubmenuOpen ? null : menuBlock.slug)}
+                      className="flex items-center justify-between w-full py-2 text-[#0B1221] font-bold text-base focus:outline-none"
+                    >
+                      <span>{title}</span>
+                      <ChevronDownIcon className={cn("h-5 w-5 text-gray-500 transition-transform duration-200", isSubmenuOpen && "rotate-180")} />
+                    </button>
+                    {isSubmenuOpen && (
+                      <div className="pl-2 mt-2 space-y-1">
+                        {menuBlock.items.map(l => (
+                          <div key={l.id} className="mb-2">
+                            <a href={l.url} className="block py-1.5 text-gray-700 font-bold hover:text-[#DC2626] transition-colors text-sm">
+                              {l.label}
+                            </a>
+                            {l.children && l.children.length > 0 && (
+                              <div className="pl-4 border-l border-gray-200 ml-2 space-y-1 mt-1">
+                                {l.children.map(sub => (
+                                  <a key={sub.id} href={sub.url} className="block py-1.5 text-xs text-gray-500 font-medium hover:text-[#DC2626]">
+                                    {sub.label}
+                                  </a>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        )}
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 );
               })}
