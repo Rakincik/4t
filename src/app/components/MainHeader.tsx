@@ -429,7 +429,7 @@ export default function MainHeader() {
               ) : (
                 <a
                   href="/giris"
-                  className="hidden lg:inline-flex px-6 py-2.5 rounded-xl font-bold text-gray-700 hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200 whitespace-nowrap"
+                  className="hidden lg:inline-flex px-6 py-2.5 rounded-xl font-bold text-gray-700 hover:text-[#0B1221] bg-white hover:bg-gray-50 border border-black/10 hover:border-black/20 transition-all duration-200 whitespace-nowrap shadow-sm"
                 >
                   Giriş Yap
                 </a>
