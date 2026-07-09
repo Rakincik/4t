@@ -178,7 +178,7 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
               <span className="text-white font-bold">Genel toplam</span>
               <span className="text-lg font-black text-white">{formatCurrency(totalPrice)}</span>
             </div>
-            <div className="text-[10px] text-green-400 font-medium text-right">Peşin fiyatına 12 taksit</div>
+            <div className="text-[10px] text-green-400 font-medium text-right">Peşin fiyatına 6 taksit</div>
           </div>
 
           {/* Sepete Ekle & Detaylar Butonları */}

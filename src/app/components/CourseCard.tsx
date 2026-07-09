@@ -78,7 +78,7 @@ export default function CourseCard({
   const href = `/kurs/${slug}`;
   const priceVal = moneyToNumberLike(discountedPrice);
   const origPriceVal = moneyToNumberLike(originalPrice);
-  const installmentPrice = priceVal > 0 ? formatTL(priceVal / 12) : "0";
+  const installmentPrice = priceVal > 0 ? formatTL(priceVal / 6) : "0";
   const { add } = useCart();
   const router = useRouter();
 
@@ -196,7 +196,7 @@ export default function CourseCard({
           {/* Taksit Bandı */}
           <div className="bg-green-50 border border-green-100 rounded-lg p-2 text-center mb-4">
             <span className="text-[11px] sm:text-xs font-bold text-green-800">
-              Peşin Fiyatına 12 Taksit ( Aylık {installmentPrice} TL )
+              Peşin Fiyatına 6 Taksit ( Aylık {installmentPrice} TL )
             </span>
           </div>
 

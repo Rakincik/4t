@@ -172,7 +172,7 @@ export default function FlixDetailClient({ course }: { course: any }) {
                         </div>
                         <div className="text-xs text-green-400 font-medium flex items-center gap-1 justify-end">
                             <CreditCardIcon className="w-3 h-3" />
-                            Peşin fiyatına 12 taksit
+                            Peşin fiyatına 6 taksit
                         </div>
                     </div>
 
