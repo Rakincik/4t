@@ -423,7 +423,7 @@ export default function CheckoutPage() {
                         <input
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300"
                           placeholder="Ad Soyad"
                         />
                       </div>
@@ -436,7 +436,7 @@ export default function CheckoutPage() {
                             const v = e.target.value.replace(/\D/g, '').slice(0, 11);
                             setPhone(v);
                           }}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300"
                           placeholder="05xx xxx xx xx"
                           maxLength={11}
                           inputMode="tel"
@@ -448,7 +448,7 @@ export default function CheckoutPage() {
                         <input
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300"
                           placeholder="ornek@mail.com"
                         />
                       </div>
@@ -461,7 +461,7 @@ export default function CheckoutPage() {
                             const v = e.target.value.replace(/\D/g, '').slice(0, 11);
                             setTcNo(v);
                           }}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300"
                           placeholder="TC Kimlik Nonuz"
                           maxLength={11}
                           inputMode="numeric"
@@ -476,7 +476,7 @@ export default function CheckoutPage() {
                             setCity(e.target.value);
                             setDistrict("");
                           }}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300"
                         >
                           <option value="">İl Seçiniz</option>
                           {citiesData.map(c => (
@@ -491,7 +491,7 @@ export default function CheckoutPage() {
                           value={district}
                           onChange={(e) => setDistrict(e.target.value)}
                           disabled={!city}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300 disabled:opacity-50"
                         >
                           <option value="">İlçe Seçiniz</option>
                           {availableDistricts.map(d => (
@@ -505,7 +505,7 @@ export default function CheckoutPage() {
                         <textarea
                           value={address}
                           onChange={(e) => setAddress(e.target.value)}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300"
                           placeholder="Açık adresinizi, mahalle/sokak/kapı no olarak yazınız"
                           rows={2}
                         />
@@ -598,7 +598,7 @@ export default function CheckoutPage() {
                           <input
                             value={cardHolderName}
                             onChange={(e) => setCardHolderName(e.target.value)}
-                            className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
+                            className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300"
                             placeholder="Kartın üzerindeki isim"
                           />
                         </div>
@@ -625,7 +625,7 @@ export default function CheckoutPage() {
                                 fetchInstallments(clean.substring(0, 6));
                               }
                             }}
-                            className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                            className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300 font-mono"
                             placeholder="0000 0000 0000 0000"
                             maxLength={19}
                           />
@@ -638,7 +638,7 @@ export default function CheckoutPage() {
                               <select
                                 value={expMonth}
                                 onChange={(e) => setExpMonth(e.target.value)}
-                                className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
+                                className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300"
                               >
                                 <option value="">Ay</option>
                                 {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0")).map(m => (
@@ -649,7 +649,7 @@ export default function CheckoutPage() {
                               <select
                                 value={expYear}
                                 onChange={(e) => setExpYear(e.target.value)}
-                                className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
+                                className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300"
                               >
                                 <option value="">Yıl</option>
                                 {Array.from({ length: 11 }, (_, i) => String(new Date().getFullYear() + i)).map(y => (
@@ -664,7 +664,7 @@ export default function CheckoutPage() {
                             <input
                               value={cvc}
                               onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                              className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30 font-mono text-center"
+                              className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300 font-mono text-center"
                               placeholder="123"
                               maxLength={4}
                             />
