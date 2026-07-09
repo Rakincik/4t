@@ -60,9 +60,12 @@ export async function POST(req: NextRequest) {
                         TotalPrice: Math.round(paymentAmount * 100) / 100,
                         CommissionRate: Number(data.DealerCommissionRate) || 0
                     };
+                } else {
+                    console.log(`[MOKA CALC FAILED] Inst ${inst}:`, res.data);
+                    return null;
                 }
-                return null;
-            } catch (err) {
+            } catch (err: any) {
+                console.log(`[MOKA CALC ERROR] Inst ${inst}:`, err.message);
                 return null;
             }
         });
