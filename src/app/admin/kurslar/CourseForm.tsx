@@ -217,6 +217,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
     const [type, setType] = useState(course?.type || "KURS");
     const [isActive, setIsActive] = useState(course?.isActive ?? true);
     const [isCouponApplicable, setIsCouponApplicable] = useState(course?.isCouponApplicable ?? true);
+    const [isInstallmentApplicable, setIsInstallmentApplicable] = useState(course?.isInstallmentApplicable ?? true);
     const [hours, setHours] = useState(course?.hours || "");
     const [questions, setQuestions] = useState(course?.questions || "");
     const [bookPrice, setBookPrice] = useState(course?.bookPrice?.toString() || "");
@@ -374,6 +375,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
             fd.append("type", type);
             fd.append("isActive", isActive.toString());
             fd.append("isCouponApplicable", isCouponApplicable.toString());
+            fd.append("isInstallmentApplicable", isInstallmentApplicable.toString());
             fd.append("sortOrder", sortOrder);
             if (hours) fd.append("hours", hours);
             fd.append("questions", questions);
@@ -590,6 +592,17 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
                             </div>
                             <label className="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" checked={isCouponApplicable} onChange={(e) => setIsCouponApplicable(e.target.checked)} className="sr-only peer" />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                            </label>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <div>
+                                <span className="text-sm font-bold text-gray-700 block">Taksit İmkanı</span>
+                                <span className="text-[10px] text-gray-500">Bu ürün taksitle satın alınabilsin mi?</span>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked={isInstallmentApplicable} onChange={(e) => setIsInstallmentApplicable(e.target.checked)} className="sr-only peer" />
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                             </label>
                         </div>

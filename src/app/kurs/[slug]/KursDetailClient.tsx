@@ -322,6 +322,7 @@ export default function KursDetailClient({ course }: { course: any }) {
       qty: 1,
       variantId: selectedVariant.id,
       isCouponApplicable: course.isCouponApplicable ?? true,
+      isInstallmentApplicable: course.isInstallmentApplicable ?? true,
     }, { openDrawer: true });
   };
 
@@ -335,6 +336,7 @@ export default function KursDetailClient({ course }: { course: any }) {
       qty: 1,
       variantId: selectedVariant.id,
       isCouponApplicable: course.isCouponApplicable ?? true,
+      isInstallmentApplicable: course.isInstallmentApplicable ?? true,
     }, { openDrawer: false });
     router.push("/sepet"); // Check out sayfasına da gidebilir
   };

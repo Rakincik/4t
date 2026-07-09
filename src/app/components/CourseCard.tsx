@@ -39,6 +39,7 @@ type CourseCardProps = {
   questions?: string | null;
   color?: string;
   emoji?: string;
+  isInstallmentApplicable?: boolean;
 };
 
 function cn(...classes: (string | false | null | undefined)[]) {
@@ -74,6 +75,7 @@ export default function CourseCard({
   questions,
   color = "#3B82F6",
   emoji = "",
+  isInstallmentApplicable = true,
 }: CourseCardProps) {
   const href = `/kurs/${slug}`;
   const priceVal = moneyToNumberLike(discountedPrice);
@@ -92,7 +94,8 @@ export default function CourseCard({
       imageUrl,
       price: priceVal,
       originalPrice: origPriceVal,
-      qty: 1
+      qty: 1,
+      isInstallmentApplicable: isInstallmentApplicable !== false,
     }, { openDrawer: false });
 
     // Log cart add event asynchronously
@@ -194,11 +197,13 @@ export default function CourseCard({
           </div>
 
           {/* Taksit Bandı */}
-          <div className="bg-green-50 border border-green-100 rounded-lg p-2 text-center mb-4">
-            <span className="text-[11px] sm:text-xs font-bold text-green-800">
-              Peşin Fiyatına 6 Taksit ( Aylık {installmentPrice} TL )
-            </span>
-          </div>
+          {isInstallmentApplicable !== false && (
+            <div className="bg-green-50 border border-green-100 rounded-lg p-2 text-center mb-4">
+              <span className="text-[11px] sm:text-xs font-bold text-green-800">
+                Peşin Fiyatına 6 Taksit ( Aylık {installmentPrice} TL )
+              </span>
+            </div>
+          )}
 
           {/* --- Butonlar (Dual) --- */}
           <div className="grid grid-cols-2 gap-3">

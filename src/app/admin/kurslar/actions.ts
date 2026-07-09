@@ -49,6 +49,7 @@ function parseFormData(formData: FormData) {
         type: (formData.get("type") as string || "KURS") as any,
         isActive: formData.get("isActive") === "true",
         isCouponApplicable: formData.get("isCouponApplicable") !== "false",
+        isInstallmentApplicable: formData.get("isInstallmentApplicable") !== "false",
         sortOrder: formData.get("sortOrder") ? parseInt(formData.get("sortOrder") as string) : 999,
         hours: formData.get("hours") as string || null,
         questions: formData.get("questions") as string || null,

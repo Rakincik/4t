@@ -57,6 +57,7 @@ export type FlixProduct = {
   price: number;
   bookPrice: number;
   badge: string | null;
+  isInstallmentApplicable?: boolean;
 };
 
 function formatCurrency(n: number) {
@@ -83,6 +84,7 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
       qty: 1,
       variantId: "",
       isCouponApplicable: true,
+      isInstallmentApplicable: p.isInstallmentApplicable !== false,
     }, { openDrawer: true });
 
     fetch("/api/admin/analytics/log", {
@@ -178,7 +180,9 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
               <span className="text-white font-bold">Genel toplam</span>
               <span className="text-lg font-black text-white">{formatCurrency(totalPrice)}</span>
             </div>
-            <div className="text-[10px] text-green-400 font-medium text-right">Peşin fiyatına 6 taksit</div>
+            {p.isInstallmentApplicable !== false && (
+              <div className="text-[10px] text-green-400 font-medium text-right">Peşin fiyatına 6 taksit</div>
+            )}
           </div>
 
           {/* Sepete Ekle & Detaylar Butonları */}

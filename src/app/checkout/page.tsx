@@ -157,6 +157,10 @@ export default function CheckoutPage() {
     return fullName.trim().length >= 3 && pOk && eOk && tcOk && city && district && address.trim().length >= 10;
   }, [fullName, phone, email, tcNo, city, district, address]);
 
+  const hasInstallmentRestricted = useMemo(() => {
+    return items.some(item => (item as any).isInstallmentApplicable === false);
+  }, [items]);
+
   const cardValid = useMemo(() => {
     if (paymentMethod === "EFT") return true;
     const nameOk = cardHolderName.trim().length >= 3;
@@ -170,6 +174,7 @@ export default function CheckoutPage() {
 
 
   async function fetchInstallments(bin: string) {
+    if (hasInstallmentRestricted) return;
     if (bin === lastFetchedBin) return;
     setLastFetchedBin(bin);
     setFetchingInstallments(true);
@@ -622,7 +627,11 @@ export default function CheckoutPage() {
                                 setLastFetchedBin("");
                                 setSelectedInstallment(1);
                               } else if (clean.length >= 6) {
-                                fetchInstallments(clean.substring(0, 6));
+                                if (hasInstallmentRestricted) {
+                                  setSelectedInstallment(1);
+                                } else {
+                                  fetchInstallments(clean.substring(0, 6));
+                                }
                               }
                             }}
                             className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-red-100/50 focus:shadow-md transition-all duration-300 font-mono"
@@ -672,7 +681,31 @@ export default function CheckoutPage() {
                         </div>
 
                         {/* Taksit Seçenekleri */}
-                        {(installments.length > 0 || fetchingInstallments) && (
+                        {hasInstallmentRestricted ? (
+                          <div className="mt-4 border-t border-black/10 pt-4">
+                            <div className="text-xs font-bold text-dark/60 mb-2 font-extrabold">Taksit Seçenekleri</div>
+                            <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-2xl text-xs flex flex-col gap-1 font-semibold leading-relaxed mb-3">
+                              <span>⚠️ Sepetinizdeki bazı ürünler taksitli ödemeye uygun değildir.</span>
+                              <span className="font-normal text-amber-700">Bu sipariş için sadece Tek Çekim seçeneği geçerlidir.</span>
+                            </div>
+                            <div className="space-y-2">
+                              <label className="flex items-center justify-between rounded-2xl border-2 border-primary bg-primary/5 p-3 text-sm font-extrabold select-none cursor-default">
+                                <div className="flex items-center gap-3">
+                                  <input
+                                    type="radio"
+                                    checked={true}
+                                    readOnly
+                                    className="h-4 w-4 text-primary focus:ring-primary/30"
+                                  />
+                                  <span className="text-xs font-bold text-dark">Tek Çekim</span>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-xs font-extrabold text-primary">{formatTRY(total ?? subtotal)} / ay</div>
+                                </div>
+                              </label>
+                            </div>
+                          </div>
+                        ) : (installments.length > 0 || fetchingInstallments) && (
                           <div className="mt-4 border-t border-black/10 pt-4">
                             <div className="text-xs font-bold text-dark/60 mb-2 font-extrabold">Taksit Seçenekleri</div>
                             {fetchingInstallments ? (

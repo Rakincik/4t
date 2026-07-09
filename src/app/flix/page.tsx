@@ -28,6 +28,7 @@ export default async function FlixPageWrapper() {
       price: true,
       bookPrice: true,
       badge: true,
+      isInstallmentApplicable: true,
     }
   });
 
@@ -42,6 +43,7 @@ export default async function FlixPageWrapper() {
     price: c.price,
     bookPrice: c.bookPrice || 0,
     badge: c.badge,
+    isInstallmentApplicable: c.isInstallmentApplicable,
   }));
 
   return <FlixClient flixProducts={flixProducts} />;

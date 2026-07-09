@@ -77,6 +77,7 @@ model Course {
   viewsCount  Int        @default(0)
   cartAddsCount Int      @default(0)
   isCouponApplicable Boolean @default(true)
+  isInstallmentApplicable Boolean @default(true)
   sortOrder          Int        @default(999)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
