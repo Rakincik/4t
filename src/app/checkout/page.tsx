@@ -401,7 +401,7 @@ export default function CheckoutPage() {
               <>
                 {/* STEP 1 */}
                 {step === 1 && (
-                  <div className="rounded-3xl border border-black/10 bg-white p-6">
+                  <div className="rounded-3xl border border-black/10 bg-white p-4 sm:p-6">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="text-lg font-extrabold text-dark">
@@ -423,7 +423,7 @@ export default function CheckoutPage() {
                         <input
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
                           placeholder="Ad Soyad"
                         />
                       </div>
@@ -436,7 +436,7 @@ export default function CheckoutPage() {
                             const v = e.target.value.replace(/\D/g, '').slice(0, 11);
                             setPhone(v);
                           }}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
                           placeholder="05xx xxx xx xx"
                           maxLength={11}
                           inputMode="tel"
@@ -448,7 +448,7 @@ export default function CheckoutPage() {
                         <input
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
                           placeholder="ornek@mail.com"
                         />
                       </div>
@@ -461,7 +461,7 @@ export default function CheckoutPage() {
                             const v = e.target.value.replace(/\D/g, '').slice(0, 11);
                             setTcNo(v);
                           }}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
                           placeholder="TC Kimlik Nonuz"
                           maxLength={11}
                           inputMode="numeric"
@@ -476,7 +476,7 @@ export default function CheckoutPage() {
                             setCity(e.target.value);
                             setDistrict("");
                           }}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
                         >
                           <option value="">İl Seçiniz</option>
                           {citiesData.map(c => (
@@ -491,7 +491,7 @@ export default function CheckoutPage() {
                           value={district}
                           onChange={(e) => setDistrict(e.target.value)}
                           disabled={!city}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
                         >
                           <option value="">İlçe Seçiniz</option>
                           {availableDistricts.map(d => (
@@ -505,17 +505,17 @@ export default function CheckoutPage() {
                         <textarea
                           value={address}
                           onChange={(e) => setAddress(e.target.value)}
-                          className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                          className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
                           placeholder="Açık adresinizi, mahalle/sokak/kapı no olarak yazınız"
                           rows={2}
                         />
                       </div>
                     </div>
 
-                    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3">
                       <a
                         href="/kurslar"
-                        className="rounded-2xl px-5 py-3 font-extrabold border border-black/10 bg-white hover:bg-light-muted transition text-center"
+                        className="w-full sm:w-auto flex-1 rounded-2xl px-5 py-3 font-extrabold border border-black/10 bg-white hover:bg-light-muted transition text-center"
                       >
                         Kurslara dön
                       </a>
@@ -524,7 +524,7 @@ export default function CheckoutPage() {
                         onClick={handleStep1Submit}
                         disabled={!infoValid}
                         className={cn(
-                          "w-full rounded-2xl px-5 py-3 font-extrabold text-white btn-4t",
+                          "w-full sm:w-auto flex-1 rounded-2xl px-5 py-3 font-extrabold text-white btn-4t",
                           !infoValid && "opacity-50 cursor-not-allowed"
                         )}
                       >
@@ -542,7 +542,7 @@ export default function CheckoutPage() {
 
                 {/* STEP 2 */}
                 {step === 2 && (
-                  <div className="rounded-3xl border border-black/10 bg-white p-6">
+                  <div className="rounded-3xl border border-black/10 bg-white p-4 sm:p-6">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="text-lg font-extrabold text-dark">Ödeme Yöntemi</div>
@@ -598,7 +598,7 @@ export default function CheckoutPage() {
                           <input
                             value={cardHolderName}
                             onChange={(e) => setCardHolderName(e.target.value)}
-                            className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                            className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
                             placeholder="Kartın üzerindeki isim"
                           />
                         </div>
@@ -625,7 +625,7 @@ export default function CheckoutPage() {
                                 fetchInstallments(clean.substring(0, 6));
                               }
                             }}
-                            className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                            className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                             placeholder="0000 0000 0000 0000"
                             maxLength={19}
                           />
@@ -638,7 +638,7 @@ export default function CheckoutPage() {
                               <select
                                 value={expMonth}
                                 onChange={(e) => setExpMonth(e.target.value)}
-                                className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                                className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
                               >
                                 <option value="">Ay</option>
                                 {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0")).map(m => (
@@ -649,7 +649,7 @@ export default function CheckoutPage() {
                               <select
                                 value={expYear}
                                 onChange={(e) => setExpYear(e.target.value)}
-                                className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30"
+                                className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30"
                               >
                                 <option value="">Yıl</option>
                                 {Array.from({ length: 11 }, (_, i) => String(new Date().getFullYear() + i)).map(y => (
@@ -664,7 +664,7 @@ export default function CheckoutPage() {
                             <input
                               value={cvc}
                               onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                              className="w-full rounded-2xl border border-black/10 bg-white p-3 outline-none focus:ring-2 focus:ring-primary/30 font-mono text-center"
+                              className="w-full rounded-2xl border border-black/10 bg-white p-3 sm:p-4 outline-none focus:ring-2 focus:ring-primary/30 font-mono text-center"
                               placeholder="123"
                               maxLength={4}
                             />
@@ -723,10 +723,10 @@ export default function CheckoutPage() {
 
 
 
-                    <div className="mt-6 grid grid-cols-2 gap-3">
+                    <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3">
                       <button
                         onClick={() => setStep(1)}
-                        className="rounded-2xl px-5 py-3 font-extrabold border border-black/10 bg-white hover:bg-light-muted transition"
+                        className="w-full sm:w-auto flex-1 rounded-2xl px-5 py-3 font-extrabold border border-black/10 bg-white hover:bg-light-muted transition"
                       >
                         Geri
                       </button>
@@ -734,7 +734,7 @@ export default function CheckoutPage() {
                         onClick={onPayStart}
                         disabled={paying || !cardValid}
                         className={cn(
-                          "rounded-2xl px-5 py-3 font-extrabold text-white transition",
+                          "w-full sm:w-auto flex-1 rounded-2xl px-5 py-3 font-extrabold text-white transition",
                           (paying || !cardValid) ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "btn-4t",
                           paying && "opacity-70 cursor-wait"
                         )}
@@ -748,7 +748,7 @@ export default function CheckoutPage() {
 
                 {/* STEP 3 */}
                 {step === 3 && (
-                  <div className="rounded-3xl border border-black/10 bg-white p-6">
+                  <div className="rounded-3xl border border-black/10 bg-white p-4 sm:p-6">
                     <div className="text-lg font-extrabold text-dark">Onay</div>
 
                     <div className="mt-4 border border-black/10 rounded-2xl bg-light p-4">
@@ -806,10 +806,10 @@ export default function CheckoutPage() {
                       </span>
                     </label>
 
-                    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3">
                       <button
                         onClick={() => setStep(2)}
-                        className="rounded-2xl px-5 py-3 font-extrabold border border-black/10 bg-white hover:bg-light-muted transition"
+                        className="w-full sm:w-auto flex-1 rounded-2xl px-5 py-3 font-extrabold border border-black/10 bg-white hover:bg-light-muted transition"
                       >
                         Geri
                       </button>
@@ -817,7 +817,7 @@ export default function CheckoutPage() {
                         onClick={onComplete}
                         disabled={!agree || paying}
                         className={cn(
-                          "rounded-2xl px-5 py-3 font-extrabold text-white btn-4t-secondary",
+                          "w-full sm:w-auto flex-1 rounded-2xl px-5 py-3 font-extrabold text-white btn-4t-secondary",
                           (!agree || paying) && "opacity-60 cursor-not-allowed"
                         )}
                       >
@@ -838,7 +838,7 @@ export default function CheckoutPage() {
 
           {/* RIGHT */}
           <aside className="lg:sticky lg:top-28 space-y-4">
-            <div className="rounded-3xl border border-black/10 bg-white p-6">
+            <div className="rounded-3xl border border-black/10 bg-white p-4 sm:p-6">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="text-sm font-bold text-dark/60">Sipariş özeti</div>

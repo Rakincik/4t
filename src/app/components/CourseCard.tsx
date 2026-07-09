@@ -191,7 +191,7 @@ export default function CourseCard({
 
           {/* Taksit Bandı */}
           <div className="bg-green-50 border border-green-100 rounded-lg p-2 text-center mb-4">
-            <span className="text-xs font-bold text-green-800">
+            <span className="text-[11px] sm:text-xs font-bold text-green-800">
               Peşin Fiyatına 12 Taksit ( Aylık {installmentPrice} TL )
             </span>
           </div>
@@ -200,7 +200,7 @@ export default function CourseCard({
           <div className="grid grid-cols-2 gap-3">
             <button 
               onClick={handleAddToCart}
-              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border-2 text-sm font-bold transition-all duration-300"
+              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border-2 text-xs sm:text-sm font-bold transition-all duration-300"
               style={{ borderColor: color, color: color, backgroundColor: "transparent" }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${color}1A`}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
@@ -210,7 +210,7 @@ export default function CourseCard({
             </button>
             <a
               href={href}
-              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-white text-sm font-bold transition-all duration-300 shadow-md shadow-gray-200"
+              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-white text-xs sm:text-sm font-bold transition-all duration-300 shadow-md shadow-gray-200"
               style={{ backgroundColor: color }}
               onMouseEnter={(e) => e.currentTarget.style.filter = "brightness(0.9)"}
               onMouseLeave={(e) => e.currentTarget.style.filter = "brightness(1)"}

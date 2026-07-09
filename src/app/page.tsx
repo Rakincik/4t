@@ -300,12 +300,12 @@ export default function Home() {
       <FlixRibbon data={cms?.flixRibbon} />
 
       {/* 3. MAIN CATEGORIES (Refined Grid) */}
-      <section id="kurslar" className="pb-24 pt-12">
+      <section id="kurslar" className="pb-12 pt-6 md:pb-24 md:pt-12">
         <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-16 gap-6">
             <div className="max-w-2xl">
-              <h2 className="text-4xl font-extrabold text-[#0B1221] mb-4">{catTitle}</h2>
-              <div className="text-gray-500 text-lg [&_p]:inline [&_font]:inline [&_span]:inline" dangerouslySetInnerHTML={{ __html: catDesc }} />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#0B1221] mb-4">{catTitle}</h2>
+              <div className="text-gray-500 text-base md:text-lg [&_p]:inline [&_font]:inline [&_span]:inline" dangerouslySetInnerHTML={{ __html: catDesc }} />
             </div>
             <a href={catAllLinkUrl} className="text-[#DC2626] font-bold hover:text-red-800 flex items-center gap-2 group transition-colors">
               {catAllLinkText} <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -328,27 +328,27 @@ export default function Home() {
       </section>
 
       {/* 4. FLIX PROMO (Cinematic) */}
-      <section className="py-12">
+      <section className="py-6 md:py-12">
         <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="relative bg-[#0B1221] rounded-[2.5rem] overflow-hidden shadow-2xl group">
+          <div className="relative bg-[#0B1221] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl group">
             {/* Background Image with Overlay */}
             <div className="absolute inset-0">
               <Image fill sizes="100vw" quality={60} src={flixBg} alt="Flix Promo" className="object-cover opacity-20 grayscale transition-all duration-700 group-hover:scale-105 group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-r from-[#0B1221] via-[#0B1221]/90 to-transparent"></div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 items-center relative z-10 p-6 md:p-10 lg:p-20 gap-8 lg:gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 items-center relative z-10 p-5 md:p-10 lg:p-20 gap-8 lg:gap-12">
               <div className="space-y-6 md:space-y-8">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/20 border border-blue-400/30 rounded-full text-blue-300 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
                   <SparklesIcon className="w-4 h-4" />
                   {flixBadge}
                 </div>
 
-                <h2 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight">
+                <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white leading-tight">
                   {flixTitle.includes(" ") ? <>{flixTitle.split(" ").slice(0,-1).join(" ")} <br /><span className="text-blue-400">{flixTitle.split(" ").pop()}</span></> : flixTitle}
                 </h2>
 
-                <div className="text-gray-400 text-lg leading-relaxed [&_p]:inline [&_font]:inline [&_span]:inline" dangerouslySetInnerHTML={{ __html: flixDesc }} />
+                <div className="text-gray-400 text-base md:text-lg leading-relaxed [&_p]:inline [&_font]:inline [&_span]:inline" dangerouslySetInnerHTML={{ __html: flixDesc }} />
 
                 <div className={`flex flex-col sm:flex-row gap-4 ${flixBtnPosition === "center" ? "justify-center" : flixBtnPosition === "right" ? "justify-end" : "justify-start"}`}>
                   <a href={flixBtn1Url} style={{ backgroundColor: flixBtnBg, color: flixBtnColor }} className="px-6 py-3 md:px-8 md:py-4 text-center font-bold rounded-xl hover:brightness-110 transition-colors shadow-lg shadow-white/10">
@@ -377,9 +377,9 @@ export default function Home() {
       </section>
 
       {/* 5. MINIMAL BLOG (Clean Layout) */}
-      <section className="py-24 bg-white">
+      <section className="py-12 md:py-24 bg-white">
         <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-8 md:mb-16">
             <span className="text-[#DC2626] font-bold uppercase tracking-widest text-sm">{blogSubtitle}</span>
             <h2 className="text-3xl font-extrabold text-[#0B1221] mt-2">{blogTitle}</h2>
           </div>

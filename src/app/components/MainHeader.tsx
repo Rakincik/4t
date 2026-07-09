@@ -455,8 +455,9 @@ export default function MainHeader() {
 
       {/* MOBILE MENU */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-[300] bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="absolute right-0 top-0 h-full w-[85%] max-w-sm bg-white p-6 shadow-2xl animate-slide-in-right overflow-y-auto">
+        <div className="fixed inset-0 z-[300] bg-black/60 backdrop-blur-sm animate-fade-in flex justify-end">
+          <div className="absolute inset-0 z-0" onClick={() => setMobileOpen(false)} />
+          <div className="relative z-10 h-full w-[85%] max-w-sm bg-white p-6 shadow-2xl animate-slide-in-right overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <img src="/Logo.svg" alt="4T Akademi" className="h-8" />
               <button onClick={() => setMobileOpen(false)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
