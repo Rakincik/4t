@@ -88,6 +88,7 @@ export default function CourseFilters({ categories = [] }: { categories?: string
                     className="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none sm:w-48 bg-white cursor-pointer"
                 >
                     <option value="newest">En Yeni Eklenenler</option>
+                    <option value="views-desc">Ziyaret Sayısına Göre (Çok Tıklanan)</option>
                     <option value="oldest">En Eski Eklenenler</option>
                     <option value="title-asc">İsme Göre (A-Z)</option>
                     <option value="title-desc">İsme Göre (Z-A)</option>

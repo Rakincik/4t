@@ -32,6 +32,7 @@ async function getCoursesData(
     else if (sort === "title-desc") orderBy = { title: "desc" };
     else if (sort === "price-asc") orderBy = { price: "asc" };
     else if (sort === "price-desc") orderBy = { price: "desc" };
+    else if (sort === "views-desc") orderBy = { viewsCount: "desc" };
 
     const [courses, totalCount, dbCategories] = await Promise.all([
         prisma.course.findMany({
