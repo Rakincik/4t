@@ -223,20 +223,21 @@ export async function POST(req: NextRequest) {
 
                     return NextResponse.json({ success: true, redirectUrl: mokaUrl, orderId: order.id });
                 } else {
-                    const resultMessage = response.data?.ResultMessage || "Moka API'den geçersiz yanıt alındı.";
+                    const resultMessage = response.data?.ResultMessage || "";
                     const resultCode = response.data?.ResultCode || "MokaError";
+                    const friendlyMessage = mapMokaErrorToTurkish(resultCode, resultMessage);
                     
                     // Siparişi FAILED durumuna getir
                     await prisma.order.update({
                         where: { id: order.id },
                         data: { 
                             status: "FAILED",
-                            notes: `Ödeme Başlatılamadı. Hata Kodu: ${resultCode}, Mesaj: ${resultMessage}`
+                            notes: `Ödeme Başlatılamadı. Hata Kodu: ${resultCode}, Mesaj: ${resultMessage || friendlyMessage}`
                         }
                     });
 
                     return NextResponse.json({ 
-                        error: `Ödeme işlemi başlatılamadı: ${resultMessage} (Kod: ${resultCode})` 
+                        error: `${friendlyMessage} (Kod: ${resultCode})` 
                     }, { status: 400 });
                 }
             } catch (err: any) {
@@ -269,3 +270,47 @@ export async function POST(req: NextRequest) {
     }
 
 }
+
+function mapMokaErrorToTurkish(resultCode: string, resultMessage: string): string {
+    const code = (resultCode || "").trim();
+    
+    if (code.includes("Fraud.BuyerBlocked")) {
+        return "Güvenlik nedeniyle bu kart veya IP adresi ile şu an ödeme yapılamamaktadır. Lütfen başka bir kartla deneyiniz veya bankanızla görüşünüz.";
+    }
+    if (code.includes("InvalidCardInfo") || code.includes("CheckCardInfo.InvalidCardInfo")) {
+        return "Girdiğiniz kart bilgileri (kart numarası, son kullanma tarihi veya CVC) geçersizdir. Lütfen bilgilerinizi kontrol edip tekrar deneyiniz.";
+    }
+    if (code.includes("InsufficientFunds") || code.includes("InsufficientBalance")) {
+        return "Kartınızın limiti yetersizdir. Lütfen limitinizi kontrol edip tekrar deneyiniz.";
+    }
+    if (code.includes("CardExpired") || code.includes("ExpiredCard")) {
+        return "Kartınızın son kullanma tarihi dolmuştur. Lütfen geçerli bir kart kullanınız.";
+    }
+    if (code.includes("IncorrectCvc") || code.includes("IncorrectCvcNumber") || code.includes("CvcError")) {
+        return "Girdiğiniz CVC/güvenlik kodu hatalıdır. Lütfen kontrol edip tekrar deneyiniz.";
+    }
+    if (code.includes("CardNotActive") || code.includes("CardBlocked") || code.includes("BlockedCard")) {
+        return "Kartınız internet alışverişlerine veya kullanıma kapalıdır. Lütfen bankanızla görüşünüz.";
+    }
+    if (code.includes("DoNotHonor")) {
+        return "İşlem bankanız tarafından onaylanmadı. Lütfen internet alışveriş limitinizi ve yetkilerini kontrol edip tekrar deneyiniz.";
+    }
+    if (code.includes("TransactionNotAllowed") || code.includes("TransactionNotAllowedForCardholder")) {
+        return "Kart sahibi bu işlemi gerçekleştiremez. Lütfen bankanızla görüşerek kartınızın e-ticaret iznini kontrol ediniz.";
+    }
+    if (code.includes("RestrictedCard")) {
+        return "Kısıtlı kart. Lütfen başka bir kartla deneyiniz veya bankanızla görüşünüz.";
+    }
+    if (code.includes("InstallmentNotAvailableForForeignCurrency")) {
+        return "Yabancı para işlemlerinde taksit işlemi uygulanamaz.";
+    }
+    if (code.includes("ThisInstallmentNumberNotAvailableForDealer") || code.includes("ThisInstallmentNumberNotAvailableForVirtualPos")) {
+        return "Seçtiğiniz taksit sayısı bayi hesabınızda veya sanal pos altyapısında tanımlı değildir.";
+    }
+    if (code.includes("ChannelPermissionNotAvailable")) {
+        return "Moka ödeme kanalı yetkilendirmesi bulunamadı. Lütfen Moka destek ekibi ile iletişime geçiniz.";
+    }
+
+    return resultMessage || "Ödeme işlemi banka veya Moka tarafından reddedildi.";
+}
+

@@ -115,6 +115,7 @@ export default function CheckoutPage() {
   const [selectedInstallment, setSelectedInstallment] = useState<number>(1);
   const [fetchingInstallments, setFetchingInstallments] = useState(false);
   const [lastFetchedBin, setLastFetchedBin] = useState("");
+  const [hasReadContract, setHasReadContract] = useState(false);
 
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -734,7 +735,16 @@ export default function CheckoutPage() {
 
                     <div className="mt-4 border border-black/10 rounded-2xl bg-light p-4">
                       <div className="text-xs font-bold text-dark/70 mb-2">Öğrenim ve Eğitim Hizmetleri Sözleşmesi</div>
-                      <div className="h-44 overflow-y-auto text-[11px] text-dark/60 space-y-2 pr-1 font-medium leading-relaxed bg-white border border-black/5 rounded-xl p-3">
+                      <div 
+                        onScroll={(e) => {
+                          const target = e.currentTarget;
+                          const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 15;
+                          if (isAtBottom) {
+                            setHasReadContract(true);
+                          }
+                        }}
+                        className="h-44 overflow-y-auto text-[11px] text-dark/60 space-y-2 pr-1 font-medium leading-relaxed bg-white border border-black/5 rounded-xl p-3"
+                      >
                         {contractTextParagraphs.map((p, idx) => (
                           <p key={idx}>{p}</p>
                         ))}
@@ -757,15 +767,24 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    <label className="mt-6 flex items-start gap-3 cursor-pointer select-none">
+                    <label className={cn(
+                      "mt-6 flex items-start gap-3 select-none",
+                      hasReadContract ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+                    )}>
                       <input
                         type="checkbox"
                         checked={agree}
+                        disabled={!hasReadContract}
                         onChange={(e) => setAgree(e.target.checked)}
                         className="mt-1 h-5 w-5 rounded border-black/20"
                       />
                       <span className="text-sm text-dark/70">
                         Mesafeli satış sözleşmesini ve KVKK aydınlatma metnini okudum, kabul ediyorum.
+                        {!hasReadContract && (
+                          <span className="block text-xs text-red-500 font-extrabold mt-1 animate-pulse font-sans">
+                            (Onaylamak için lütfen sözleşmeyi sonuna kadar kaydırın.)
+                          </span>
+                        )}
                       </span>
                     </label>
 
