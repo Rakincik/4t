@@ -138,7 +138,7 @@ export default function CourseCard({
 
         {/* --- Özellikler Listesi --- */}
         {featuresList.length > 0 && (
-          <div className="mb-4">
+          <div className="mb-4 hidden sm:block">
             <h4 className="text-xs font-semibold text-green-600 mb-2">Kazanımlar</h4>
             <ul className="space-y-1.5">
               {featuresList.map((feature, idx) => (
