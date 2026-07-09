@@ -38,7 +38,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
     if (!slides || slides.length === 0) return null;
 
     return (
-        <section className="relative h-[85svh] min-h-[500px] lg:min-h-[600px] w-full overflow-hidden bg-[#0B1221]">
+        <section className="relative h-[60svh] min-h-[400px] md:h-[80svh] md:min-h-[500px] lg:h-[85svh] lg:min-h-[600px] w-full overflow-hidden bg-[#0B1221]">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={current}
@@ -62,7 +62,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                     </div>
 
                     {/* Content */}
-                    <div className="relative h-full container mx-auto max-w-7xl px-4 flex items-center pb-24 md:pb-32">
+                    <div className="relative h-full container mx-auto max-w-7xl px-4 flex items-center pb-16 md:pb-32">
                         <div className="max-w-2xl space-y-4 md:space-y-6 pt-16">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -132,7 +132,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
             </div>
 
             {/* Dots */}
-            <div className="absolute bottom-6 md:bottom-24 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+            <div className="absolute bottom-12 md:bottom-24 left-1/2 -translate-x-1/2 flex gap-3 z-20">
                 {slides.map((_, idx) => (
                     <button
                         key={idx}
