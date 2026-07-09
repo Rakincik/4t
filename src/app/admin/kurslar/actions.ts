@@ -197,9 +197,19 @@ export async function updateCourse(id: string, formData: FormData) {
 }
 
 export async function deleteCourse(id: string) {
-    await prisma.course.delete({ where: { id } });
-    revalidateAll();
-    return { success: true };
+    try {
+        await prisma.course.delete({ where: { id } });
+        revalidateAll();
+        return { success: true };
+    } catch (e: any) {
+        if (e.code === 'P2003') {
+            return { 
+                success: false, 
+                error: "Bu kurs daha önce satın alındığı (sipariş kaydı olduğu) için silinemez. Dilerseniz kursu düzenleyerek durumunu 'Pasif' yapabilirsiniz." 
+            };
+        }
+        return { success: false, error: "Silme işlemi sırasında beklenmeyen bir hata oluştu." };
+    }
 }
 
 export async function deleteCustomCategory(category: string) {
