@@ -19,55 +19,80 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Geçersiz BIN kodu." }, { status: 400 });
         }
 
-        const totalAmount = parseFloat(totalPrice) || 0;
-        if (totalAmount <= 0) {
-            return NextResponse.json({ error: "Geçersiz tutar." }, { status: 400 });
-        }
-
-        // Credentials
         const mokaDealerCode = process.env.MOKA_DEALER_CODE || "1731";
         const mokaUsername = process.env.MOKA_USERNAME || "TestMoka2";
         const mokaPassword = process.env.MOKA_PASSWORD || "HYSYHDS8DU8HU";
         const isTest = process.env.MOKA_IS_TEST !== "false";
 
-        const baseUrl = isTest ? "https://clientwebpos.refmokaunited.com/Api" : "https://clientwebpos.mokaunited.com/Api";
+        const baseUrl = isTest ? "https://service.refmokaunited.com" : "https://service.mokaunited.com";
 
         const checkKeyRaw = mokaDealerCode + "MK" + mokaUsername + "PD" + mokaPassword;
         const checkKey = crypto.createHash("sha256").update(checkKeyRaw).digest("hex");
 
-        const payload = {
-            PaymentDealerAuthentication: {
-                DealerCode: mokaDealerCode,
-                Username: mokaUsername,
-                Password: mokaPassword,
-                CheckKey: checkKey
-            },
-            GetInstallmentInformationRequest: {
-                BinCode: binCode.substring(0, 6),
-                TotalPrice: totalAmount,
-                IsIncludedCommissionAmount: 0
+        const targetInstallments = [1, 2, 3, 6, 9, 12];
+        const amount = Number(totalPrice) || 100;
+
+        const promises = targetInstallments.map(async (inst) => {
+            try {
+                const payload = {
+                    PaymentDealerAuthentication: {
+                        DealerCode: mokaDealerCode,
+                        Username: mokaUsername,
+                        Password: mokaPassword,
+                        CheckKey: checkKey
+                    },
+                    PaymentDealerRequest: {
+                        BinNumber: binCode.substring(0, 6),
+                        Currency: "TL",
+                        OrderAmount: amount,
+                        InstallmentNumber: inst,
+                        IsThreeD: 1
+                    }
+                };
+
+                const res = await axios.post(`${baseUrl}/PaymentDealer/DoCalcPaymentAmount`, payload);
+                if (res.data && res.data.ResultCode === "Success" && res.data.Data) {
+                    const data = res.data.Data;
+                    const paymentAmount = Number(data.PaymentAmount) || amount;
+                    return {
+                        InstallmentNumber: inst,
+                        Amount: Math.round((paymentAmount / inst) * 100) / 100,
+                        TotalPrice: Math.round(paymentAmount * 100) / 100,
+                        CommissionRate: Number(data.DealerCommissionRate) || 0
+                    };
+                }
+                return null;
+            } catch (err) {
+                return null;
             }
-        };
+        });
 
-        const response = await axios.post(`${baseUrl}/WebPos/GetInstallmentInformation`, payload);
+        const results = await Promise.all(promises);
+        const validInstallments = results.filter(r => r !== null);
 
-        if (response.data && response.data.ResultCode === "Success") {
-            return NextResponse.json({ 
-                success: true, 
-                data: response.data.Data 
+        if (validInstallments.length === 0) {
+            validInstallments.push({
+                InstallmentNumber: 1,
+                Amount: amount,
+                TotalPrice: amount,
+                CommissionRate: 0
             });
-        } else {
-            return NextResponse.json({ 
-                success: false, 
-                error: response.data?.ResultMessage || "Moka taksit bilgisi alınamadı." 
-            }, { status: 400 });
         }
 
-    } catch (error: any) {
-        console.error("Moka Installment API Error:", error);
-        return NextResponse.json({ 
-            error: "Taksit sorgulama sırasında sistemsel bir hata oluştu.",
-            details: error?.message || String(error)
-        }, { status: 500 });
+        return NextResponse.json({
+            success: true,
+            data: {
+                InstallmentHeaderList: [
+                    {
+                        CardBrandName: "Moka",
+                        InstallmentDetailList: validInstallments
+                    }
+                ]
+            }
+        });
+
+    } catch (err: any) {
+        console.error("Moka Installment Calculation Loop Error:", err);
+        return NextResponse.json({ error: err.message || "Taksit sorgulanamadı." }, { status: 500 });
     }
 }
