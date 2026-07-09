@@ -234,13 +234,13 @@ export default function KurslarClient({ initialCourses, activeCategories = [] }:
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
             {/* Kategori Hapları */}
-            <div className="flex flex-wrap items-center gap-2 pb-1 md:pb-0">
+            <div className="flex overflow-x-auto whitespace-nowrap gap-2 pb-3 -mx-4 px-4 md:flex-wrap md:overflow-x-visible md:pb-0 md:-mx-0 md:px-0 scrollbar-none">
               {activeCategoriesList.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => handleCategoryClick(cat)}
                   className={cn(
-                    "px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all border",
+                    "px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all border shrink-0",
                     activeCategory === cat
                       ? "bg-[#0B1221] text-white border-[#0B1221] shadow-md transform scale-105"
                       : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"

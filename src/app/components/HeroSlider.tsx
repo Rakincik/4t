@@ -116,7 +116,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
             </AnimatePresence>
 
             {/* Navigation Buttons */}
-            <div className="absolute bottom-16 md:bottom-24 right-4 md:right-12 flex gap-4 z-20">
+            <div className="hidden md:flex absolute bottom-24 right-12 gap-4 z-20">
                 <button
                     onClick={prevSlide}
                     className="w-14 h-14 rounded-full border border-white/20 bg-black/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-colors"
@@ -132,7 +132,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
             </div>
 
             {/* Dots */}
-            <div className="absolute bottom-16 md:bottom-24 left-4 md:left-1/2 md:-translate-x-1/2 flex gap-3 z-20">
+            <div className="absolute bottom-6 md:bottom-24 left-1/2 -translate-x-1/2 flex gap-3 z-20">
                 {slides.map((_, idx) => (
                     <button
                         key={idx}

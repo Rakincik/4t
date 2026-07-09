@@ -273,7 +273,7 @@ export default function FlixPage({ flixProducts }: { flixProducts: FlixProduct[]
         </div>
 
         {/* Slide Nav */}
-        <div className="absolute bottom-8 right-6 md:right-12 flex gap-3 z-20">
+        <div className="hidden md:flex absolute bottom-8 right-12 gap-3 z-20">
           <button onClick={prevSlide} className="w-11 h-11 rounded-full border border-white/20 bg-black/30 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-colors">
             <ChevronLeftIcon className="w-5 h-5" />
           </button>
@@ -281,7 +281,7 @@ export default function FlixPage({ flixProducts }: { flixProducts: FlixProduct[]
             <ChevronRightIcon className="w-5 h-5" />
           </button>
         </div>
-        <div className="absolute bottom-8 left-6 md:left-1/2 md:-translate-x-1/2 flex gap-2.5 z-20">
+        <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
           {HERO_SLIDES.map((_, idx) => (
             <button key={idx} onClick={() => setCurrent(idx)} className={`h-1 rounded-full transition-all duration-300 ${current === idx ? "w-7 bg-[#DC2626]" : "w-2 bg-white/30"}`} />
           ))}
