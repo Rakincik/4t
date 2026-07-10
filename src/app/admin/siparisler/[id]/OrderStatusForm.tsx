@@ -49,31 +49,40 @@ export default function OrderStatusForm({ orderId, initialStatus }: OrderStatusF
 
     return (
         <div className="relative">
-            <form onSubmit={handleUpdate} className="flex items-center gap-3">
-                <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    disabled={loading}
-                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white outline-none disabled:opacity-50"
-                >
-                    <option value="PENDING">Beklemede</option>
-                    <option value="PAID">Ödendi</option>
-                    <option value="FAILED">Başarısız</option>
-                    <option value="REFUNDED">İade Edildi</option>
-                    <option value="CANCELLED">İptal Edildi</option>
-                </select>
+            <form onSubmit={handleUpdate} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div className="relative flex-grow sm:max-w-xs">
+                    <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        disabled={loading}
+                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm bg-white outline-none disabled:opacity-50 font-medium text-gray-700 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer"
+                    >
+                        <option value="PENDING">Beklemede</option>
+                        <option value="PAID">Ödendi</option>
+                        <option value="FAILED">Başarısız</option>
+                        <option value="REFUNDED">İade Edildi</option>
+                        <option value="CANCELLED">İptal Edildi</option>
+                    </select>
+                </div>
                 <button
                     type="submit"
-                    disabled={loading}
-                    className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                    disabled={loading || status === initialStatus}
+                    className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 inline-flex items-center justify-center gap-2 shadow-sm ${
+                        status === initialStatus
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-[#0B1221] hover:bg-[#1a2744] active:scale-95 text-white"
+                    }`}
                 >
                     {loading ? (
                         <>
-                            <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                            Güncelleniyor...
+                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            Kaydediliyor...
                         </>
                     ) : (
-                        "Güncelle"
+                        <>
+                            <CheckIcon className="w-4 h-4" />
+                            Değişiklikleri Kaydet
+                        </>
                     )}
                 </button>
             </form>
