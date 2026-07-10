@@ -44,7 +44,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     const order = await prisma.order.findUnique({
         where: { id },
         include: {
-            user: { select: { name: true, email: true, phone: true } },
+            user: { select: { name: true, email: true, phone: true, tcNo: true, address: true, city: true, district: true } },
             items: {
                 include: {
                     course: { select: { title: true, slug: true, price: true } },
@@ -197,6 +197,26 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                     <p className="text-sm text-gray-700">{order.user.phone}</p>
                                 </div>
                             )}
+                            {order.user.tcNo && (
+                                <div>
+                                    <p className="text-xs text-gray-400">TC Kimlik No</p>
+                                    <p className="text-sm text-gray-700">{order.user.tcNo}</p>
+                                </div>
+                            )}
+                            {order.user.address && (
+                                <div>
+                                    <p className="text-xs text-gray-400">Adres</p>
+                                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{order.user.address}</p>
+                                </div>
+                            )}
+                            {(order.user.city || order.user.district) && (
+                                <div>
+                                    <p className="text-xs text-gray-400">İl / İlçe</p>
+                                    <p className="text-sm text-gray-700">
+                                        {[order.user.district, order.user.city].filter(Boolean).join(" / ")}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -218,6 +238,26 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                     <div>
                                         <p className="text-xs text-gray-400">Telefon</p>
                                         <p className="text-sm text-gray-700">{order.customerPhone}</p>
+                                    </div>
+                                )}
+                                {order.customerTc && (
+                                    <div>
+                                        <p className="text-xs text-gray-400">TC Kimlik / Vergi No</p>
+                                        <p className="text-sm text-gray-700">{order.customerTc}</p>
+                                    </div>
+                                )}
+                                {order.customerAddress && (
+                                    <div>
+                                        <p className="text-xs text-gray-400">Fatura Adresi</p>
+                                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{order.customerAddress}</p>
+                                    </div>
+                                )}
+                                {(order.customerCity || order.customerDistrict) && (
+                                    <div>
+                                        <p className="text-xs text-gray-400">İl / İlçe</p>
+                                        <p className="text-sm text-gray-700">
+                                            {[order.customerDistrict, order.customerCity].filter(Boolean).join(" / ")}
+                                        </p>
                                     </div>
                                 )}
                             </div>
