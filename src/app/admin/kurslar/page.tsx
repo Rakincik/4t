@@ -130,7 +130,7 @@ export default async function KurslarPage({ searchParams }: PageProps) {
                                                     <p className="font-bold text-gray-900 text-sm line-clamp-1" dangerouslySetInnerHTML={{ __html: stripHtml(c.title) }} />
                                                     <p className="text-xs text-gray-500">
                                                         {c.category || "Genel"}
-                                                        {c.category && c.category.split(',').some(cat => !dbCategorySlugs.includes(cat.trim())) && (
+                                                        {c.category && c.category.split(',').map(cat => cat.trim()).filter(Boolean).some(cat => !dbCategorySlugs.includes(cat)) && (
                                                             <span className="ml-1 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">(Hatalı/Eski)</span>
                                                         )}
                                                     </p>
@@ -196,7 +196,7 @@ export default async function KurslarPage({ searchParams }: PageProps) {
                                             <h3 className="font-semibold text-gray-900 line-clamp-1" dangerouslySetInnerHTML={{ __html: stripHtml(c.title) }} />
                                             <p className="text-sm text-gray-500">
                                                 {c.category || "Genel"}
-                                                {c.category && c.category.split(',').some(cat => !dbCategorySlugs.includes(cat.trim())) && (
+                                                {c.category && c.category.split(',').map(cat => cat.trim()).filter(Boolean).some(cat => !dbCategorySlugs.includes(cat)) && (
                                                     <span className="ml-1 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">(Hatalı/Eski)</span>
                                                 )}
                                             </p>
