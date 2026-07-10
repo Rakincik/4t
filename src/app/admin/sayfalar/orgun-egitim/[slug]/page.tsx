@@ -13,7 +13,7 @@ import SortableList from "@/app/admin/components/SortableList";
 import VersionHistory from "@/app/admin/components/VersionHistory";
 import ResizableSplitter from "@/app/components/ResizableSplitter";
 import AdminBackButton from "@/app/admin/components/AdminBackButton";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 type SectionId = "heroSlides" | "gallery" | "location" | "programs" | "faculty" | "timeline" | "richContent";
 const SECTION_META: Record<SectionId, { label: string; icon: any; color: string }> = {
@@ -32,6 +32,7 @@ type StepItem = { title: string; desc: string };
 
 export default function OrgunEgitimEditorPage() {
     const params = useParams();
+    const router = useRouter();
     const slug = params?.slug as string;
     const dynamicPageSlug = `orgun-egitim-${slug}`;
 

@@ -50,7 +50,7 @@ export default async function AdminFlixPage({ searchParams }: { searchParams: Pr
                             Henüz FLIX paketi eklenmemiş.
                         </div>
                     ) : (
-                        packages.map((pkg) => (
+                        packages.map((pkg: any) => (
                             <div key={pkg.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
                                 <div className="h-36 bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center relative">
                                     {pkg.imageUrl ? (
@@ -142,7 +142,7 @@ export default async function AdminFlixPage({ searchParams }: { searchParams: Pr
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
-                                {packages.map((pkg) => (
+                                {packages.map((pkg: any) => (
                                     <tr key={pkg.id} className="hover:bg-gray-50/50">
                                         <td className="px-5 py-3">
                                             <div className="flex items-center gap-3">

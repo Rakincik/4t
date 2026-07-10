@@ -122,6 +122,7 @@ interface Course {
     emoji?: string | null;
     sortOrder?: number;
     isCouponApplicable?: boolean;
+    isInstallmentApplicable?: boolean;
     instructorList?: string | null;
     coupons?: { id: string; code: string; type: string; amount: number; maxUses: number | null; usedCount: number; expiresAt: string | null; isActive: boolean }[];
 }
