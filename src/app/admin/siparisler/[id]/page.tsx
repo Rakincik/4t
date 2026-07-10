@@ -3,41 +3,9 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { redirect, notFound } from "next/navigation";
 import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon, ClockIcon } from "@heroicons/react/24/outline";
-import { sendMetaCAPI } from "@/lib/meta-capi";
+import OrderStatusForm from "./OrderStatusForm";
 
 export const dynamic = "force-dynamic";
-
-async function updateStatus(formData: FormData) {
-    "use server";
-    const id = formData.get("id") as string;
-    const status = formData.get("status") as string;
-    
-    const order = await prisma.order.update({
-        where: { id },
-        data: { status: status as any },
-        include: {
-            user: { select: { email: true, name: true, phone: true } }
-        }
-    });
-
-    if (status === "PAID" && order.user) {
-        const names = order.user.name.trim().split(" ");
-        const firstName = names[0];
-        const lastName = names.slice(1).join(" ") || "";
-
-        sendMetaCAPI({
-            eventName: "Purchase",
-            email: order.user.email,
-            phone: order.user.phone,
-            firstName,
-            lastName,
-            value: order.totalAmount,
-            orderId: order.id
-        }).catch(err => console.error("Failed to fire Meta CAPI on manual order approval:", err));
-    }
-
-    revalidatePath(`/admin/siparisler/${id}`);
-}
 
 async function updateNotes(formData: FormData) {
     "use server";
@@ -118,19 +86,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                             </div>
                             <span className="text-xs text-gray-400">{formatDate(order.createdAt)}</span>
                         </div>
-                        <form action={updateStatus} className="flex items-center gap-3">
-                            <input type="hidden" name="id" value={order.id} />
-                            <select name="status" defaultValue={order.status} className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white outline-none">
-                                <option value="PENDING">Beklemede</option>
-                                <option value="PAID">Ödendi</option>
-                                <option value="FAILED">Başarısız</option>
-                                <option value="REFUNDED">İade Edildi</option>
-                                <option value="CANCELLED">İptal Edildi</option>
-                            </select>
-                            <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90">
-                                Güncelle
-                            </button>
-                        </form>
+                        <OrderStatusForm orderId={order.id} initialStatus={order.status} />
                     </div>
 
                     {/* Ürünler */}

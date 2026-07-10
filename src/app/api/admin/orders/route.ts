@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getToken } from "next-auth/jwt";
+import { sendMetaCAPI } from "@/lib/meta-capi";
 
 async function checkAdmin(req: NextRequest) {
     const token = await getToken({ req });
@@ -58,6 +59,7 @@ export async function PATCH(req: NextRequest) {
             const orderWithItems = await prisma.order.findUnique({
                 where: { id: orderId },
                 include: {
+                    user: { select: { email: true, name: true, phone: true } },
                     items: {
                         include: {
                             course: {
@@ -72,6 +74,22 @@ export async function PATCH(req: NextRequest) {
             });
 
             if (orderWithItems) {
+                if (orderWithItems.user) {
+                    const names = orderWithItems.user.name.trim().split(" ");
+                    const firstName = names[0];
+                    const lastName = names.slice(1).join(" ") || "";
+
+                    sendMetaCAPI({
+                        eventName: "Purchase",
+                        email: orderWithItems.user.email,
+                        phone: orderWithItems.user.phone,
+                        firstName,
+                        lastName,
+                        value: orderWithItems.totalAmount,
+                        orderId: orderWithItems.id
+                    }).catch(err => console.error("Failed to fire Meta CAPI on manual order approval:", err));
+                }
+
                 for (const item of orderWithItems.items) {
                     // Mevcut erişimi kontrol et (Uzatma mantığı için)
                     const existingAccess = await (prisma.courseAccess as any).findUnique({
