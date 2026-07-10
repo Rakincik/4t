@@ -321,6 +321,7 @@ export default function KursDetailClient({ course }: { course: any }) {
       imageUrl: course.imageUrl || "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop",
       qty: 1,
       variantId: selectedVariant.id,
+      selectedAddonIds: selectedAddonIds,
       isCouponApplicable: course.isCouponApplicable ?? true,
       isInstallmentApplicable: course.isInstallmentApplicable ?? true,
     }, { openDrawer: true });
@@ -335,6 +336,7 @@ export default function KursDetailClient({ course }: { course: any }) {
       imageUrl: course.imageUrl || "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop",
       qty: 1,
       variantId: selectedVariant.id,
+      selectedAddonIds: selectedAddonIds,
       isCouponApplicable: course.isCouponApplicable ?? true,
       isInstallmentApplicable: course.isInstallmentApplicable ?? true,
     }, { openDrawer: false });

@@ -39,14 +39,39 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Sepetiniz boş." }, { status: 400 });
         }
 
-        // 3. Fiyat Doğrulama (DB'den çek)
-        const courseIds = items.map((i: any) => i.id);
+        // 3. Fiyat Doğrulama (Önce ID'leri normalize et ve DB'den çek)
+        const normalizedItems = items.map((item: any) => {
+            if (item.id && typeof item.id === "string" && item.id.startsWith("flix-")) {
+                const parts = item.id.split("-");
+                const courseId = parts[1];
+                const variantId = parts[2] || null;
+                const hasBook = parts.includes("book");
+                return {
+                    id: courseId,
+                    qty: item.qty,
+                    variantId: variantId || item.variantId || null,
+                    selectedAddonIds: hasBook ? ["flix-book"] : (item.selectedAddonIds || [])
+                };
+            }
+            return {
+                id: item.id,
+                qty: item.qty,
+                variantId: item.variantId || null,
+                selectedAddonIds: item.selectedAddonIds || []
+            };
+        });
+
+        const courseIds = normalizedItems.map((i: any) => i.id);
         const courses = await prisma.course.findMany({
             where: {
                 OR: [
                     { id: { in: courseIds } },
                     { slug: { in: courseIds } }
                 ]
+            },
+            include: {
+                variants: true,
+                addons: true
             }
         });
 
@@ -58,18 +83,65 @@ export async function POST(req: NextRequest) {
         let totalAmount = 0;
         const orderItemsToCreate = [];
 
-        for (const item of items) {
+        for (const item of normalizedItems) {
             const course = courses.find(c => c.id === item.id || c.slug === item.id);
             if (!course) continue;
 
             const qty = Number(item.qty) || 1;
-            const price = course.price;
-            totalAmount += (price * qty);
+            
+            // 4.1 Fiyat Belirleme
+            let basePrice = course.price;
+            let chosenVariantId = null;
+
+            if (item.variantId) {
+                const variant = course.variants.find(v => v.id === item.variantId);
+                if (variant) {
+                    basePrice = variant.price;
+                    chosenVariantId = variant.id;
+                }
+            } else if (course.variants && course.variants.length > 0) {
+                basePrice = course.variants[0].price;
+                chosenVariantId = course.variants[0].id;
+            }
+
+            // 4.2 Eklenti (Addons) Fiyatlarını Ekle
+            let addonsTotal = 0;
+            const addonItemsToCreate = [];
+
+            if (item.selectedAddonIds && Array.isArray(item.selectedAddonIds)) {
+                for (const addonId of item.selectedAddonIds) {
+                    if (addonId === "flix-book") {
+                        const flixBookPrice = course.bookPrice || 0;
+                        addonsTotal += flixBookPrice;
+                        addonItemsToCreate.push({
+                            addonName: "Kitap Seti",
+                            price: flixBookPrice
+                        });
+                    } else {
+                        const addon = course.addons.find(a => a.id === addonId);
+                        if (addon) {
+                            addonsTotal += addon.price;
+                            addonItemsToCreate.push({
+                                addonId: addon.id,
+                                addonName: addon.title,
+                                price: addon.price
+                            });
+                        }
+                    }
+                }
+            }
+
+            const itemPrice = basePrice + addonsTotal;
+            totalAmount += (itemPrice * qty);
 
             orderItemsToCreate.push({
                 courseId: course.id,
-                price: price,
-                quantity: qty
+                variantId: chosenVariantId,
+                price: itemPrice,
+                quantity: qty,
+                addons: addonItemsToCreate.length > 0 ? {
+                    create: addonItemsToCreate
+                } : undefined
             });
         }
 

@@ -76,7 +76,13 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         where: { id },
         include: {
             user: { select: { name: true, email: true, phone: true } },
-            items: { include: { course: { select: { title: true, slug: true, price: true } } } },
+            items: {
+                include: {
+                    course: { select: { title: true, slug: true, price: true } },
+                    variant: { select: { title: true } },
+                    addons: true
+                }
+            },
         },
     });
 
@@ -143,7 +149,21 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                     <tr key={item.id}>
                                         <td className="px-5 py-3">
                                             <p className="font-medium text-gray-900 text-sm">{stripHtml(item.course.title)}</p>
-                                            <p className="text-xs text-gray-400">/kurs/{item.course.slug}</p>
+                                            {item.variant && (
+                                                <p className="text-xs text-blue-600 font-semibold mt-0.5">Seçenek: {item.variant.title}</p>
+                                            )}
+                                            {item.addons && item.addons.length > 0 && (
+                                                <div className="text-xs text-gray-500 mt-1 space-y-0.5 border-l-2 border-gray-200 pl-2">
+                                                    <span className="font-bold text-gray-600">Seçilen Eklentiler:</span>
+                                                    {item.addons.map((a: any) => (
+                                                        <div key={a.id} className="flex items-center gap-1">
+                                                            <span>• {a.addonName}</span>
+                                                            <span className="text-gray-400">(+{formatTRY(a.price)})</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            <p className="text-xs text-gray-400 mt-1">/kurs/{item.course.slug}</p>
                                         </td>
                                         <td className="px-5 py-3 text-center text-sm text-gray-600">{item.quantity}</td>
                                         <td className="px-5 py-3 text-right font-semibold text-gray-900 text-sm">{formatTRY(item.price)}</td>

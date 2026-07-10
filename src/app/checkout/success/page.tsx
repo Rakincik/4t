@@ -63,15 +63,16 @@ function CheckoutSuccessContent() {
     }
   }, [cart]);
 
-  const [copied, setCopied] = useState(false);
+  const [copiedType, setCopiedType] = useState<"iban" | "account" | null>(null);
 
-  const iban = "TR00 0000 0000 0000 0000 0000 00"; // İLERİDE DEĞİŞTİRİLECEK
-  const accountName = "4T Akademi Yayıncılık Ltd. Şti."; // İLERİDE DEĞİŞTİRİLECEK
+  const iban = "TR14 0001 5001 5800 7306 1098 21";
+  const accountName = "DORT TEMEL EGITIM-OGRETIM YAYINCILIK HIZMETLERI LIMITED SIRKETI";
+  const bankDetails = "Vakıfbank, Türkiş Şubesi (Şube Kodu: 906, Hesap No: 00158007306109821)";
 
-  function copyToClipboard(text: string) {
+  function copyToClipboard(text: string, type: "iban" | "account") {
       navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setCopiedType(type);
+      setTimeout(() => setCopiedType(null), 2000);
   }
 
   const isCC = method === "cc";
@@ -135,30 +136,47 @@ function CheckoutSuccessContent() {
               <div className="space-y-4">
                   <div>
                       <div className="text-xs font-bold text-dark/60 mb-1">Alıcı Adı / Ünvanı</div>
-                      <div className="font-extrabold text-dark">{accountName}</div>
-                  </div>
-                  
-                  <div>
-                      <div className="text-xs font-bold text-dark/60 mb-1">Banka ve IBAN No</div>
                       <div className="flex items-center gap-2">
-                          <code className="font-mono font-bold text-dark bg-white px-3 py-1.5 rounded-lg border border-black/10">
-                              {iban}
-                          </code>
+                          <span className="font-extrabold text-dark text-xs sm:text-sm bg-white px-3 py-2.5 rounded-lg border border-black/10 flex-1 truncate max-w-[340px]">
+                              {accountName}
+                          </span>
                           <button 
-                              onClick={() => copyToClipboard(iban)}
-                              className="p-2 text-dark/50 hover:text-primary transition hover:bg-light-muted rounded-lg"
+                              onClick={() => copyToClipboard(accountName, "account")}
+                              className="p-2 text-dark/50 hover:text-primary transition hover:bg-light-muted rounded-lg shrink-0"
                               title="Kopyala"
                           >
                               <DocumentDuplicateIcon className="w-5 h-5" />
                           </button>
                       </div>
+                      {copiedType === "account" && <p className="text-xs font-bold text-emerald-600 mt-1">Alıcı adı panoya kopyalandı!</p>}
+                  </div>
+
+                  <div>
+                      <div className="text-xs font-bold text-dark/60 mb-1">Banka ve Şube Bilgisi</div>
+                      <div className="font-extrabold text-dark text-xs bg-white px-3 py-2.5 rounded-lg border border-black/10">{bankDetails}</div>
+                  </div>
+                  
+                  <div>
+                      <div className="text-xs font-bold text-dark/60 mb-1">IBAN No</div>
+                      <div className="flex items-center gap-2">
+                          <code className="font-mono font-bold text-dark bg-white px-3 py-1.5 rounded-lg border border-black/10 text-xs flex-1 truncate">
+                              {iban}
+                          </code>
+                          <button 
+                              onClick={() => copyToClipboard(iban, "iban")}
+                              className="p-2 text-dark/50 hover:text-primary transition hover:bg-light-muted rounded-lg shrink-0"
+                              title="Kopyala"
+                          >
+                              <DocumentDuplicateIcon className="w-5 h-5" />
+                          </button>
+                      </div>
+                      {copiedType === "iban" && <p className="text-xs font-bold text-emerald-600 mt-1">IBAN panoya kopyalandı!</p>}
                   </div>
               </div>
 
-              {copied && <p className="text-xs font-bold text-emerald-600 mt-3">IBAN panoya kopyalandı!</p>}
-
-              <div className="mt-6 w-full text-xs font-bold text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-100">
-                  Açıklama kısmına sipariş kodunuzu ({orderId || "SPRS-NO"}) yazmayı unutmayınız.
+              <div className="mt-6 w-full text-xs font-bold text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-100 space-y-1.5">
+                  <div>Lütfen açıklama kısmına adınızı ve sipariş kodunuzu ({orderId || "SPRS-NO"}) yazmayı unutmayınız.</div>
+                  <div className="text-[11px] font-semibold text-amber-600">Ödeme yaptıktan sonra dershaneyi bilgilendirebilirsiniz. Sağlıklı günler dileriz.</div>
               </div>
             </div>
           )}

@@ -20,6 +20,8 @@ export type CartItem = {
   qty: number; // genelde 1
   isCouponApplicable?: boolean;
   variantId?: string;
+  selectedAddonIds?: string[];
+  isInstallmentApplicable?: boolean;
 };
 
 type CartState = {

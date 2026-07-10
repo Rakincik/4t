@@ -21,11 +21,10 @@ export default function FloatingCartButton() {
   if (itemsCount === 0 || isOpen) {
     return null;
   }
-
   return (
     <button
       onClick={open}
-      className="fixed bottom-24 right-6 z-[9998] lg:hidden w-[60px] h-[60px] bg-[#DC2626] hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-lg shadow-red-600/30 hover:shadow-red-600/50 transition-all hover:scale-110 active:scale-95"
+      className="fixed bottom-[164px] sm:bottom-24 right-6 z-[9998] lg:hidden w-[60px] h-[60px] bg-[#DC2626] hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-lg shadow-red-600/30 hover:shadow-red-600/50 transition-all hover:scale-110 active:scale-95"
       aria-label="Sepeti Görüntüle"
     >
       <ShoppingCartIcon className="w-6 h-6 text-white" />
