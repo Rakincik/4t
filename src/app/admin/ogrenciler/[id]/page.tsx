@@ -99,6 +99,7 @@ const statusMap: Record<string, { label: string; cls: string; Icon: any }> = {
     PENDING: { label: "Bekliyor", cls: "bg-amber-100 text-amber-700", Icon: ClockIcon },
     FAILED: { label: "Başarısız", cls: "bg-red-100 text-red-700", Icon: XCircleIcon },
     REFUNDED: { label: "İade", cls: "bg-gray-100 text-gray-600", Icon: ArrowPathIcon },
+    CANCELLED: { label: "İptal Edildi", cls: "bg-red-50 text-red-500", Icon: XCircleIcon },
 };
 
 const typeLabels: Record<string, { label: string; cls: string }> = {

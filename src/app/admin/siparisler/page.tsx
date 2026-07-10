@@ -124,6 +124,7 @@ const statusConfig = {
     PAID: { label: "Ödendi", class: "bg-green-100 text-green-700" },
     FAILED: { label: "Başarısız", class: "bg-red-100 text-red-700" },
     REFUNDED: { label: "İade", class: "bg-gray-100 text-gray-700" },
+    CANCELLED: { label: "İptal Edildi", class: "bg-red-50 text-red-500" },
 };
 
 interface PageProps {

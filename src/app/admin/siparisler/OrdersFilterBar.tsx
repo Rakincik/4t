@@ -143,7 +143,8 @@ export default function OrdersFilterBar() {
                         { value: "PAID", label: "Ödendi" },
                         { value: "PENDING", label: "Bekliyor" },
                         { value: "FAILED", label: "Başarısız" },
-                        { value: "REFUNDED", label: "İade Edildi" }
+                        { value: "REFUNDED", label: "İade Edildi" },
+                        { value: "CANCELLED", label: "İptal Edildi" }
                     ]}
                 />
 

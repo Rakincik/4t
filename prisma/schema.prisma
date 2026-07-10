@@ -204,6 +204,7 @@ enum OrderStatus {
   PAID        // Ödendi
   FAILED      // Başarısız
   REFUNDED    // İade edildi
+  CANCELLED   // İptal edildi
 }
 
 // ============================================

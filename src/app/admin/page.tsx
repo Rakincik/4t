@@ -121,6 +121,7 @@ const statusMap: Record<string, { label: string; class: string }> = {
     PENDING: { label: "Bekliyor", class: "bg-amber-100 text-amber-700" },
     FAILED: { label: "Başarısız", class: "bg-red-100 text-red-700" },
     REFUNDED: { label: "İade", class: "bg-gray-100 text-gray-600" },
+    CANCELLED: { label: "İptal Edildi", class: "bg-red-50 text-red-500" },
 };
 
 /* ===================================================== */

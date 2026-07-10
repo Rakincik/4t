@@ -68,6 +68,7 @@ const statusConfig: Record<string, { label: string; class: string; icon: any }> 
     PAID: { label: "Ödendi", class: "bg-green-100 text-green-700 border-green-200", icon: CheckCircleIcon },
     FAILED: { label: "Başarısız", class: "bg-red-100 text-red-700 border-red-200", icon: XCircleIcon },
     REFUNDED: { label: "İade Edildi", class: "bg-gray-100 text-gray-600 border-gray-200", icon: XCircleIcon },
+    CANCELLED: { label: "İptal Edildi", class: "bg-red-50 text-red-600 border-red-100", icon: XCircleIcon },
 };
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -124,6 +125,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                 <option value="PAID">Ödendi</option>
                                 <option value="FAILED">Başarısız</option>
                                 <option value="REFUNDED">İade Edildi</option>
+                                <option value="CANCELLED">İptal Edildi</option>
                             </select>
                             <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90">
                                 Güncelle

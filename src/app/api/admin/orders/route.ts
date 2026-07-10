@@ -43,7 +43,7 @@ export async function PATCH(req: NextRequest) {
             );
         }
 
-        const validStatuses = ["PENDING", "PAID", "FAILED", "REFUNDED"];
+        const validStatuses = ["PENDING", "PAID", "FAILED", "REFUNDED", "CANCELLED"];
         if (!validStatuses.includes(status)) {
             return NextResponse.json({ error: "Invalid status" }, { status: 400 });
         }

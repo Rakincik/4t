@@ -68,6 +68,13 @@ function getStatusBadge(status: string, notes: string | null) {
                     İade Edildi
                 </span>
             );
+        case "CANCELLED":
+            return (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">
+                    <XCircleIcon className="w-4 h-4" />
+                    İptal Edildi
+                </span>
+            );
         default:
             return (
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gray-50 text-gray-600 border border-gray-100">
