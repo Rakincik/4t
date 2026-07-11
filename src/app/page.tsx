@@ -94,19 +94,19 @@ function TrustStrip({ stats }: { stats: { label: string; value: string }[] }) {
 /* ===================================================== */
 function CategoryCard({ title, icon: Icon, href, desc, inspectText }: { title: string, icon: any, href: string, desc: string, inspectText?: string }) {
   return (
-    <Link href={href} className="group relative bg-white border border-gray-100 p-8 rounded-3xl hover:border-red-100/50 transition-all duration-300 hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-2 overflow-hidden block h-full">
+    <Link href={href} className="group relative bg-white border border-gray-100 p-4 sm:p-8 rounded-2xl sm:rounded-3xl hover:border-red-100/50 transition-all duration-300 hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-2 overflow-hidden block h-full">
       {/* Decor Background */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50 rounded-bl-[100px] -mr-8 -mt-8 transition-colors group-hover:bg-red-50"></div>
+      <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-gray-50 rounded-bl-[60px] sm:rounded-bl-[100px] -mr-4 -mt-4 sm:-mr-8 sm:-mt-8 transition-colors group-hover:bg-red-50"></div>
 
       <div className="relative z-10">
-        <div className="w-14 h-14 bg-white border border-gray-100 shadow-sm text-[#0B1221] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#DC2626] group-hover:text-white group-hover:rotate-3 transition-all duration-300">
-          <Icon className="w-7 h-7" />
+        <div className="w-10 h-10 sm:w-14 sm:h-14 bg-white border border-gray-100 shadow-sm text-[#0B1221] rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-[#DC2626] group-hover:text-white group-hover:rotate-3 transition-all duration-300">
+          <Icon className="w-5 h-5 sm:w-7 sm:h-7" />
         </div>
 
-        <h3 className="text-xl font-bold text-[#0B1221] mb-3 group-hover:text-[#DC2626] transition-colors">{title}</h3>
-        <p className="text-gray-500 text-sm leading-relaxed mb-6">{desc}</p>
+        <h3 className="text-base sm:text-xl font-bold text-[#0B1221] mb-2 sm:mb-3 group-hover:text-[#DC2626] transition-colors">{title}</h3>
+        <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 line-clamp-3">{desc}</p>
 
-        <div className="flex items-center text-sm font-bold text-[#DC2626] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+        <div className="hidden sm:flex items-center text-sm font-bold text-[#DC2626] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
           {inspectText || "Programı İncele"} <ArrowRightIcon className="w-4 h-4 ml-2" />
         </div>
       </div>
@@ -312,7 +312,7 @@ export default function Home() {
             </a>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {catItems.map((item: any, idx: number) => (
               <CategoryCard
                 key={idx}

@@ -168,14 +168,14 @@ export default function KurslarClient({
       <MainHeader />
 
       {/* --- FAZ 1: MODERN HERO VE İSTATİSTİK BANDI --- */}
-      <section className="relative pt-12 pb-6 overflow-hidden">
+      <section className="relative pt-4 sm:pt-12 pb-4 sm:pb-6 overflow-hidden">
         {/* Soyut Arka Plan Deseni (Kurumsal Gri) */}
         <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none" />
 
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
           <div className="max-w-3xl">
             <FadeIn>
-              <div className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-600 mb-6 border border-red-100">
+              <div className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-600 mb-3 sm:mb-6 border border-red-100">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
@@ -183,11 +183,11 @@ export default function KurslarClient({
                 {cms?.hero?.metadata?.badge || "2026 Erken Kayıt Dönemi"}
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-extrabold text-[#0B1221] tracking-tight leading-[1.1] mb-6 whitespace-pre-wrap">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-[#0B1221] tracking-tight leading-[1.1] mb-3 sm:mb-6 whitespace-pre-wrap">
                 {cms?.hero?.metadata?.title || "Geleceğinizi Şansa Bırakmayın."}
               </h1>
 
-              <div className="text-lg text-gray-600 leading-relaxed max-w-xl" dangerouslySetInnerHTML={{ __html: cms?.hero?.metadata?.desc || "Türkiye'nin en seçkin eğitmen kadrosu ve yapay zeka destekli öğrenme sistemiyle, hedefinize en kısa ve sağlam yoldan ulaşın." }} />
+              <div className="text-sm sm:text-lg text-gray-600 leading-relaxed max-w-xl" dangerouslySetInnerHTML={{ __html: cms?.hero?.metadata?.desc || "Türkiye'nin en seçkin eğitmen kadrosu ve yapay zeka destekli öğrenme sistemiyle, hedefinize en kısa ve sağlam yoldan ulaşın." }} />
             </FadeIn>
           </div>
         </div>
@@ -195,24 +195,19 @@ export default function KurslarClient({
 
       {/* İstatistik Bandı (Slim Strip) */}
       <div className="border-y border-gray-100 bg-gray-50/50">
-        <div className="container mx-auto max-w-7xl px-4 py-4">
-          <div className="flex flex-wrap items-center justify-start gap-8 md:gap-12 text-sm text-gray-600">
+        <div className="container mx-auto max-w-7xl px-4 py-3 sm:py-4">
+          <div className="flex flex-wrap items-center justify-start gap-4 sm:gap-8 md:gap-12 text-xs sm:text-sm text-gray-600">
             <div className="flex items-center gap-2">
-              <UsersIcon className="w-5 h-5 text-gray-400" />
+              <UsersIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
               <span><strong className="text-gray-900">{cms?.stats?.metadata?.s1Value || "25K+"}</strong> {cms?.stats?.metadata?.s1Label || "Öğrenci"}</span>
             </div>
             <div className="flex items-center gap-2">
-              <ClockIcon className="w-5 h-5 text-gray-400" />
+              <ClockIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
               <span><strong className="text-gray-900">{cms?.stats?.metadata?.s2Value || "10K+"}</strong> {cms?.stats?.metadata?.s2Label || "Video Saati"}</span>
             </div>
             <div className="flex items-center gap-2">
-              <TagIcon className="w-5 h-5 text-gray-400" />
+              <TagIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
               <span><strong className="text-gray-900">{cms?.stats?.metadata?.s3Value || "%95"}</strong> {cms?.stats?.metadata?.s3Label || "Başarı Oranı"}</span>
-            </div>
-            <div className="hidden sm:block w-px h-4 bg-gray-300 mx-2"></div>
-            <div className="flex items-center gap-2 text-green-700 font-medium">
-              <CheckBadgeIcon className="w-5 h-5" />
-              <span>{cms?.stats?.metadata?.s4Text || "%100 Memnuniyet Garantisi"}</span>
             </div>
           </div>
         </div>
@@ -310,7 +305,7 @@ export default function KurslarClient({
 
           {sortedCourses.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
                 {paginatedCourses.map((course) => (
                   <div key={course.id}>
                     <CourseCard {...course} />

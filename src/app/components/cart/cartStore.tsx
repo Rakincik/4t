@@ -93,20 +93,13 @@ function reducer(state: CartState, action: CartActions): CartState {
     case "ADD": {
       const incoming = {
         ...action.payload,
-        qty: Math.max(1, Math.min(99, action.payload.qty || 1)),
+        qty: 1,
       };
 
       const exists = state.items.find((x) => x.id === incoming.id);
       if (exists) {
-        // qty arttırma istiyorsun => aynı ürüne +1 gibi davranır
-        return {
-          ...state,
-          items: state.items.map((x) =>
-            x.id === incoming.id
-              ? { ...x, qty: Math.min(99, x.qty + incoming.qty) }
-              : x
-          ),
-        };
+        // Zaten sepette varsa miktarını artırmıyoruz, mevcut durumu koruyoruz
+        return state;
       }
       return { ...state, items: [incoming, ...state.items] };
     }
@@ -115,47 +108,20 @@ function reducer(state: CartState, action: CartActions): CartState {
       return { ...state, items: state.items.filter((x) => x.id !== action.id) };
 
     case "SET_QTY": {
-      const nextQty = clampQty(action.qty);
-
-      // 0 => remove (UX: eksiye basınca 0 olursa silinsin)
-      if (nextQty <= 0) {
-        return { ...state, items: state.items.filter((x) => x.id !== action.id) };
-      }
-
       return {
         ...state,
         items: state.items.map((x) =>
-          x.id === action.id ? { ...x, qty: Math.max(1, nextQty) } : x
+          x.id === action.id ? { ...x, qty: 1 } : x
         ),
       };
     }
 
     case "INC": {
-      const it = state.items.find((x) => x.id === action.id);
-      if (!it) return state;
-      return {
-        ...state,
-        items: state.items.map((x) =>
-          x.id === action.id ? { ...x, qty: Math.min(99, x.qty + 1) } : x
-        ),
-      };
+      return state; // Miktar artırılamaz
     }
 
     case "DEC": {
-      const it = state.items.find((x) => x.id === action.id);
-      if (!it) return state;
-
-      const next = it.qty - 1;
-      if (next <= 0) {
-        return { ...state, items: state.items.filter((x) => x.id !== action.id) };
-      }
-
-      return {
-        ...state,
-        items: state.items.map((x) =>
-          x.id === action.id ? { ...x, qty: Math.max(1, next) } : x
-        ),
-      };
+      return state; // Miktar azaltılamaz
     }
 
     case "CLEAR":

@@ -11,7 +11,8 @@ import {
     LockClosedIcon,
     ShoppingCartIcon,
     CreditCardIcon,
-    ShieldCheckIcon
+    ShieldCheckIcon,
+    XMarkIcon
 } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -42,6 +43,7 @@ export default function FlixDetailClient({ course }: { course: any }) {
     const router = useRouter();
     const [withBook, setWithBook] = useState(false);
     const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id);
+    const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
     const selectedVariant = variants.find((v: any) => v.id === selectedVariantId) || variants[0];
     
@@ -437,6 +439,65 @@ export default function FlixDetailClient({ course }: { course: any }) {
         <>
             <MainHeader />
             <DetailHero />
+
+            {/* MOBILE ONLY: Inline Variant & Addon Selector */}
+            <div className="block lg:hidden bg-[#0F172A] border-y border-white/5 py-6 relative z-20">
+                <div className="container mx-auto px-6">
+                    <div className="max-w-lg mx-auto bg-black/40 border border-white/10 p-5 rounded-2xl">
+                        {/* Variant Selection */}
+                        {variants.length > 1 && (
+                            <div className="mb-5">
+                                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2.5">Abonelik Süresi</div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {variants.map((v: any) => (
+                                        <button
+                                            key={v.id}
+                                            onClick={() => setSelectedVariantId(v.id)}
+                                            className={`py-2.5 px-1 rounded-xl text-xs font-bold transition-all border text-center ${
+                                                selectedVariantId === v.id
+                                                    ? "bg-blue-600 border-blue-500 text-white shadow-md"
+                                                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                                            }`}
+                                        >
+                                            {v.title}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Book selection */}
+                        {bookPrice > 0 && (
+                            <div className="mb-2">
+                                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2.5">Kitaplı Seçenek</div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={() => setWithBook(false)}
+                                        className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                                            !withBook
+                                                ? "bg-gray-700 border-gray-600 text-white shadow-md"
+                                                : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                                        }`}
+                                    >
+                                        Sadece Abonelik
+                                    </button>
+                                    <button
+                                        onClick={() => setWithBook(true)}
+                                        className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                                            withBook
+                                                ? "bg-[#DC2626] border-red-500 text-white shadow-md"
+                                                : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                                        }`}
+                                    >
+                                        Kitap Dahil
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             <EpisodesList />
             
             {/* MOBILE STICKY BOTTOM BAR (Native App Feel) */}

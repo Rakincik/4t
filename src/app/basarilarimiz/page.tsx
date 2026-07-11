@@ -161,21 +161,32 @@ export default function SuccessPage() {
 
       {/* İstatistikler Bandı */}
       {stats && stats.length > 0 && (
-        <section className="w-full bg-[#0B1221] py-12 border-b border-white/10 relative overflow-hidden">
+        <section className="w-full bg-[#0B1221] py-12 sm:py-16 border-b border-white/10 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-full bg-blue-600/10 blur-3xl pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 w-64 h-full bg-red-600/10 blur-3xl pointer-events-none"></div>
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-center divide-y sm:divide-y-0 sm:divide-x divide-white/10">
-              {stats.map((stat: any, idx: number) => (
-                <div key={idx} className="flex flex-col items-center justify-center pt-8 sm:pt-0">
-                  <div className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-2">
-                    {stat.value}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {stats.map((stat: any, idx: number) => {
+                const isLong = stat.label && stat.label.length > 24;
+                return (
+                  <div 
+                    key={idx} 
+                    className={`
+                      flex flex-col items-center justify-center p-5 sm:p-6 rounded-2xl
+                      bg-white/[0.03] border border-white/[0.08] backdrop-blur-md
+                      hover:bg-white/[0.06] hover:border-blue-500/30 transition-all duration-300
+                      ${isLong ? 'col-span-2 md:col-span-1' : 'col-span-1'}
+                    `}
+                  >
+                    <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-400 via-indigo-200 to-white bg-clip-text text-transparent tracking-tight mb-2 select-none">
+                      {stat.value}
+                    </div>
+                    <div className="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider text-center leading-snug">
+                      {stat.label}
+                    </div>
                   </div>
-                  <div className="text-sm md:text-base font-bold text-gray-400 uppercase tracking-widest">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

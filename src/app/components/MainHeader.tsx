@@ -209,7 +209,7 @@ export default function MainHeader() {
     <header className="w-full sticky top-0 z-[200] font-sans" ref={headerRef}>
 
       {/* TOP BAR / LEAD BAR */}
-      <div className="bg-[#0B1221] border-b border-white/5 relative overflow-hidden">
+      <div className="hidden sm:block bg-[#0B1221] border-b border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-full bg-blue-600/10 blur-xl pointer-events-none"></div>
 
         <div className="container mx-auto max-w-[1440px] px-4">
@@ -499,76 +499,112 @@ export default function MainHeader() {
               </div>
             )}
 
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Menü</div>
-                {/* Tekli Linkler */}
-                {headerMenus.filter(m => {
-                  const displayTitle = m.title.replace(/\s*\(Header\)\s*/i, "").trim();
-                  const isForceDropdown = m.slug === "header-uzaktan" || (m.items?.length === 1 && m.items[0].label.toLowerCase() !== displayTitle.toLowerCase());
-                  return !isForceDropdown && m.items?.length === 1 && (!m.items[0].children || m.items[0].children.length === 0);
-                }).map(menuBlock => {
+            <div className="space-y-4">
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Menü</div>
+              
+              {(() => {
+                // Dinamik sıralama kriteri (Kullanıcının talep ettiği sıra):
+                // 1. Uzaktan Eğitim, 2. 4T Flix, 3. Kamplar, 4. Örgün Eğitim, 5. Diğerleri
+                const getOrderVal = (slug: string) => {
+                  const s = slug.toLowerCase();
+                  if (s.includes("uzaktan")) return 1;
+                  if (s.includes("flix")) return 2;
+                  if (s.includes("kamp")) return 3;
+                  if (s.includes("orgun") || s.includes("örgün")) return 4;
+                  if (s.includes("kurumsal") || s.includes("hakkimizda") || s.includes("basarilarimiz") || s.includes("blog")) return 5;
+                  return 10;
+                };
+
+                const sortedMenus = [...headerMenus].sort((a, b) => getOrderVal(a.slug) - getOrderVal(b.slug));
+
+                return sortedMenus.map((menuBlock) => {
                   const displayTitle = menuBlock.title.replace(/\s*\(Header\)\s*/i, "").trim();
-                  const child = menuBlock.items[0];
-                  if (menuBlock.slug === "header-flix") {
-                    return <a key={child.id} href={child.url} className="block py-3 text-lg font-bold text-[#DC2626]">{displayTitle}</a>;
+                  
+                  // Açılır menü olup olmadığını anlama logic'i
+                  const isDropdown = menuBlock.slug === "header-uzaktan" || 
+                                     (menuBlock.items?.length || 0) > 1 || 
+                                     (menuBlock.items?.length === 1 && (menuBlock.items[0]?.children?.length || 0) > 0) ||
+                                     (menuBlock.items?.length === 1 && menuBlock.items[0].label.toLowerCase() !== displayTitle.toLowerCase());
+
+                  if (!isDropdown && menuBlock.items?.length === 1) {
+                    const child = menuBlock.items[0];
+                    const isFlix = menuBlock.slug === "header-flix";
+                    return (
+                      <a 
+                        key={menuBlock.id} 
+                        href={child.url} 
+                        className={cn(
+                          "block py-3 text-lg font-bold transition-colors border-b border-gray-50",
+                          isFlix ? "text-[#DC2626] hover:text-red-700" : "text-[#0B1221] hover:text-[#DC2626]"
+                        )}
+                      >
+                        {displayTitle}
+                      </a>
+                    );
                   }
-                  return <a key={child.id} href={child.url} className="block py-3 text-lg font-bold text-[#0B1221]">{displayTitle}</a>;
-                })}
-                <a href="/iletisim" className="block py-3 text-lg font-bold text-[#0B1221]">İletişim</a>
-              </div>
 
-              {/* Açılır Menüler / Submenüler (Accordion Görünümü) */}
-              {headerMenus.filter(m => {
-                const displayTitle = m.title.replace(/\s*\(Header\)\s*/i, "").trim();
-                const isForceDropdown = m.slug === "header-uzaktan" || (m.items?.length === 1 && m.items[0].label.toLowerCase() !== displayTitle.toLowerCase());
-                return isForceDropdown || (m.items?.length || 0) > 1 || (m.items?.length === 1 && (m.items[0]?.children?.length || 0) > 0);
-              }).map(menuBlock => {
-                const title = menuBlock.title.replace(/\s*\(Header\)\s*/i, "").trim();
-                const isSubmenuOpen = openMobileSubmenu === menuBlock.slug;
-                return (
-                  <div key={menuBlock.id} className="pt-4 border-t border-gray-100">
-                    <button
-                      onClick={() => setOpenMobileSubmenu(isSubmenuOpen ? null : menuBlock.slug)}
-                      className="flex items-center justify-between w-full py-2 text-[#0B1221] font-bold text-base focus:outline-none"
-                    >
-                      <span>{title}</span>
-                      <ChevronDownIcon className={cn("h-5 w-5 text-gray-500 transition-transform duration-200", isSubmenuOpen && "rotate-180")} />
-                    </button>
-                    {isSubmenuOpen && (
-                      <div className="pl-2 mt-2 space-y-1">
-                        {menuBlock.items.map(l => (
-                          <div key={l.id} className="mb-2">
-                            <a href={l.url} className="block py-1.5 text-gray-700 font-bold hover:text-[#DC2626] transition-colors text-sm">
-                              {l.label}
+                  // Dropdown (Akordeon Görünümü)
+                  const isSubmenuOpen = openMobileSubmenu === menuBlock.slug;
+                  return (
+                    <div key={menuBlock.id} className="border-b border-gray-50 py-1">
+                      <button
+                        onClick={() => setOpenMobileSubmenu(isSubmenuOpen ? null : menuBlock.slug)}
+                        className="flex items-center justify-between w-full py-3 text-[#0B1221] font-bold text-lg focus:outline-none"
+                      >
+                        <span>{displayTitle}</span>
+                        <ChevronDownIcon className={cn("h-5 w-5 text-gray-400 transition-transform duration-200", isSubmenuOpen && "rotate-180")} />
+                      </button>
+                      
+                      {isSubmenuOpen && (
+                        <div className="pl-3 pb-3 space-y-2 mt-1 animate-fade-in">
+                          {menuBlock.items.map(l => (
+                            <div key={l.id} className="mb-2">
+                              <a href={l.url} className="block py-1.5 text-gray-700 font-bold hover:text-[#DC2626] transition-colors text-[15px]">
+                                {l.label}
+                              </a>
+                              {l.children && l.children.length > 0 && (
+                                <div className="pl-4 border-l border-gray-200 ml-2 space-y-1.5 mt-1">
+                                  {l.children.map(sub => (
+                                    <a key={sub.id} href={sub.url} className="block py-1 text-sm text-gray-500 font-semibold hover:text-[#DC2626] transition-colors">
+                                      {sub.label}
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+
+                          {/* Alt Menü İçin Tümünü Gör Butonu */}
+                          <div className="mt-2 pt-2 border-t border-gray-100">
+                            <a href={
+                              menuBlock.slug === "header-orgun" ? "/orgun-egitim" :
+                              menuBlock.slug === "header-kamplar" ? "/kamplar" :
+                              menuBlock.slug === "header-kurumsal" ? "/hakkimizda" :
+                              "/kurslar"
+                            } className="inline-flex items-center text-xs font-extrabold text-[#DC2626] hover:underline uppercase tracking-wider">
+                              Tümünü Gör →
                             </a>
-                            {l.children && l.children.length > 0 && (
-                              <div className="pl-4 border-l border-gray-200 ml-2 space-y-1 mt-1">
-                                {l.children.map(sub => (
-                                  <a key={sub.id} href={sub.url} className="block py-1.5 text-xs text-gray-500 font-medium hover:text-[#DC2626]">
-                                    {sub.label}
-                                  </a>
-                                ))}
-                              </div>
-                            )}
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
+              
+              {/* İletişim Link */}
+              <a href="/iletisim" className="block py-3 text-lg font-bold text-[#0B1221] hover:text-[#DC2626] transition-colors border-b border-gray-50">İletişim</a>
+            </div>
 
-              <div className="pt-6 border-t border-gray-100 space-y-3">
-                <a href="https://4tuzem.okinar.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full py-3 bg-[#DC2626] text-white rounded-xl font-bold hover:opacity-90">
-                  <UserCircleIcon className="w-5 h-5" />
-                  Öğrenci Paneli
-                </a>
-                <a href="https://4tyayinevi.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full py-3 bg-yellow-400 text-[#0B1221] rounded-xl font-bold hover:bg-yellow-300">
-                  <BookOpenIcon className="w-5 h-5" />
-                  4T Yayınevi
-                </a>
-              </div>
+            <div className="pt-6 border-t border-gray-100 space-y-3">
+              <a href="https://4tuzem.okinar.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full py-3 bg-[#DC2626] text-white rounded-xl font-bold hover:opacity-90">
+                <UserCircleIcon className="w-5 h-5" />
+                Öğrenci Paneli
+              </a>
+              <a href="https://4tyayinevi.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full py-3 bg-yellow-400 text-[#0B1221] rounded-xl font-bold hover:bg-yellow-300">
+                <BookOpenIcon className="w-5 h-5" />
+                4T Yayınevi
+              </a>
             </div>
           </div>
         </div>

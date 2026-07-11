@@ -99,60 +99,77 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
       {/* Kırmızı üst çizgi */}
       <div className="h-1 bg-[#DC2626] shrink-0" />
 
-      <div className="p-5 flex flex-col flex-grow">
+      <div className="p-3 sm:p-5 flex flex-col flex-grow min-w-0">
         {/* Badge */}
         {p.badge && (
-          <span className="inline-block px-2 py-0.5 bg-[#DC2626] text-[10px] font-bold text-white rounded mb-2 uppercase tracking-wider">
+          <span className="inline-block px-2 py-0.5 bg-[#DC2626] text-[10px] font-bold text-white rounded mb-2 uppercase tracking-wider self-start">
             {p.badge}
           </span>
         )}
 
         <a href={`/flix/${p.slug}`} className="block hover:opacity-90 transition-opacity">
-          <div className="text-white font-bold text-base mb-2 group-hover:text-[#DC2626] [&_*]:inline [&_*]:m-0 whitespace-pre-wrap transition-colors line-clamp-2" dangerouslySetInnerHTML={{ __html: (p.title || "").replace(/&nbsp;/g, ' ') }} />
-          <div className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-3 [&_*]:inline [&_*]:m-0 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: (p.desc || "").replace(/&nbsp;/g, ' ') }} />
+          <div className="text-white font-bold text-sm sm:text-base mb-1.5 group-hover:text-[#DC2626] [&_*]:inline [&_*]:m-0 whitespace-pre-wrap transition-colors line-clamp-2 min-h-0 sm:min-h-[48px]" dangerouslySetInnerHTML={{ __html: (p.title || "").replace(/&nbsp;/g, ' ') }} />
+          <div className="text-gray-400 text-xs sm:text-sm mb-3 leading-relaxed line-clamp-2 sm:line-clamp-3 [&_*]:inline [&_*]:m-0 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: (p.desc || "").replace(/&nbsp;/g, ' ') }} />
         </a>
 
         {/* Yıllık Abonelik Bilgisi */}
-        <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-          <CalendarDaysIcon className="w-4 h-4 text-blue-400 shrink-0" />
-          <span className="text-[11px] text-blue-300 font-medium">Yıllık Abonelik — 12 ay boyunca açık kalır</span>
+        <div className="hidden sm:flex items-center gap-1.5 mb-3 px-2.5 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-[10px] text-blue-300 font-medium">
+          <CalendarDaysIcon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+          <span>Yıllık Abonelik — 12 ay boyunca açık kalır</span>
         </div>
 
         {/* Stats */}
-        <div className="space-y-1.5 mb-4 text-xs">
+        <div className="space-y-1 mb-3 text-[10px] sm:text-xs">
           <div className="flex justify-between"><span className="text-gray-500">Toplam Ders Saati</span><span className="text-white font-bold">{p.hours}</span></div>
           <div className="flex justify-between"><span className="text-gray-500">Video Çözümlü Soru</span><span className="text-white font-bold">{p.questions}</span></div>
         </div>
 
-        {/* Kitaplı Seçenek Toggle */}
-        <div className="mb-4">
-          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Kitaplı Seçenek</div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setWithBook(false)}
-              className={`flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all border ${
-                !withBook
-                  ? "bg-blue-600 border-blue-500 text-white shadow-md"
-                  : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-              }`}
-            >
-              <CalendarDaysIcon className="w-3.5 h-3.5" />
-              Yıllık Abonelik
-            </button>
-            <button
-              onClick={() => setWithBook(true)}
-              className={`flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all border ${
-                withBook
-                  ? "bg-[#DC2626] border-red-500 text-white shadow-md"
-                  : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-              }`}
-            >
-              <BookOpenIcon className="w-3.5 h-3.5" />
-              Kitap Dahil
-            </button>
+        {/* Kitaplı Seçenek Seçici */}
+        <div className="mb-3">
+          {/* Masaüstünde Klasik İkili Toggle Butonları */}
+          <div className="hidden sm:block">
+            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Kitaplı Seçenek</div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setWithBook(false)}
+                className={`flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all border ${
+                  !withBook
+                    ? "bg-blue-600 border-blue-500 text-white shadow-md"
+                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                }`}
+              >
+                <CalendarDaysIcon className="w-3.5 h-3.5" />
+                Yıllık Abonelik
+              </button>
+              <button
+                onClick={() => setWithBook(true)}
+                className={`flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all border ${
+                  withBook
+                    ? "bg-[#DC2626] border-red-500 text-white shadow-md"
+                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                }`}
+              >
+                <BookOpenIcon className="w-3.5 h-3.5" />
+                Kitap Dahil
+              </button>
+            </div>
           </div>
+
+          {/* Mobilde Kompakt Checkbox Seçici */}
+          <div className="flex sm:hidden items-center">
+            <label className="flex items-center gap-2 cursor-pointer py-1 select-none">
+              <input 
+                type="checkbox" 
+                checked={withBook} 
+                onChange={(e) => setWithBook(e.target.checked)} 
+                className="w-4 h-4 rounded border-white/10 bg-white/5 text-red-600 focus:ring-red-500 focus:ring-offset-0 focus:outline-none" 
+              />
+              <span className="text-[11px] font-bold text-gray-300">Kitap Seti Ekle (+{formatCurrency(p.bookPrice)})</span>
+            </label>
+          </div>
+          
           {withBook && (
-            <div className="text-[10px] text-green-400 mt-1.5 flex items-center gap-1">
+            <div className="hidden sm:flex text-[10px] text-green-400 mt-1.5 items-center gap-1">
               <CheckCircleIcon className="w-3 h-3" />
               Kitap Seti Dahil (+{formatCurrency(p.bookPrice)})
             </div>
@@ -160,8 +177,8 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
         </div>
 
         <div className="mt-auto">
-          {/* Fiyat Dökümü */}
-          <div className="mb-4 space-y-1 text-xs border-t border-white/5 pt-3">
+          {/* Masaüstünde Detaylı Fiyat Dökümü */}
+          <div className="hidden sm:block mb-4 space-y-1 text-xs border-t border-white/5 pt-3">
             <div className="flex justify-between">
               <span className="text-gray-500">Ürün toplamı</span>
               <span className="text-gray-400 line-through">{formatCurrency(p.originalPrice)}</span>
@@ -185,8 +202,32 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
             )}
           </div>
 
-          {/* Sepete Ekle & Detaylar Butonları */}
-          <div className="grid grid-cols-2 gap-3 mt-4">
+          {/* Mobilde Sadece Özet Fiyat ve Sepet Butonu Satırı */}
+          <div className="flex sm:hidden items-center justify-between border-t border-white/5 pt-3 mb-2">
+            <div className="flex flex-col">
+              <span className="text-[9px] text-gray-500 font-bold uppercase leading-none mb-1">Toplam Tutar</span>
+              <div className="flex items-baseline gap-1 leading-none">
+                <span className="text-sm font-extrabold text-white leading-none">
+                  {formatCurrency(totalPrice)}
+                </span>
+                {p.originalPrice > p.price && (
+                  <span className="text-[10px] text-gray-400 line-through leading-none">
+                    {formatCurrency(p.originalPrice + (withBook ? p.bookPrice : 0))}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={handleAddToCart}
+              className="flex items-center justify-center w-8 h-8 rounded-full text-white bg-[#DC2626] transition-all duration-300 shadow-sm shrink-0 active:scale-95"
+            >
+              <ShoppingCartIcon className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Masaüstünde Klasik Alt Butonlar */}
+          <div className="hidden sm:grid grid-cols-2 gap-3 mt-4">
             <button
               onClick={handleAddToCart}
               className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#DC2626] text-white text-xs font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-900/20"
@@ -361,13 +402,13 @@ export default function FlixPage({ flixProducts }: { flixProducts: FlixProduct[]
             <p className="text-gray-400 max-w-lg mx-auto">Sınav dalına özel video paketini seç, hemen izlemeye başla. Tüm paketler sınırsız tekrar hakkı içerir.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
             {flixProducts.length > 0 ? (
               flixProducts.map((p) => (
                 <FlixProductCard key={p.id} product={p} />
               ))
             ) : (
-              <div className="col-span-1 md:col-span-2 lg:col-span-4 text-center py-10 text-gray-500">
+              <div className="col-span-2 lg:col-span-4 text-center py-10 text-gray-500">
                 Henüz gösterilecek bir FLIX paketi bulunmamaktadır.
               </div>
             )}

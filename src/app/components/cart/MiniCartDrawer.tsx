@@ -111,31 +111,6 @@ export default function MiniCartDrawer() {
                         </button>
                       </div>
 
-                      <div className="mt-3 flex items-center justify-between">
-                        <div className="inline-flex items-center rounded-2xl border border-black/10 bg-light">
-                          <button
-                            type="button"
-                            onClick={() => setQty(it.id, it.qty - 1)}
-                            className="h-10 w-10 inline-flex items-center justify-center hover:bg-light-muted rounded-2xl transition"
-                            aria-label="Azalt"
-                          >
-                            <MinusIcon className="h-4 w-4 text-dark/60" />
-                          </button>
-                          <div className="px-3 text-sm font-extrabold text-dark">{it.qty}</div>
-                          <button
-                            type="button"
-                            onClick={() => setQty(it.id, it.qty + 1)}
-                            className="h-10 w-10 inline-flex items-center justify-center hover:bg-light-muted rounded-2xl transition"
-                            aria-label="Arttır"
-                          >
-                            <PlusIcon className="h-4 w-4 text-dark/60" />
-                          </button>
-                        </div>
-
-                        <div className="text-sm font-extrabold text-dark">
-                          {formatTRY(it.price * it.qty)}
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>

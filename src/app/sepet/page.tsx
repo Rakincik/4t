@@ -98,24 +98,8 @@ export default function SepetPage() {
                       <div className="text-sm text-dark/50">{it.category || "Eğitim Paketi"}</div>
 
                       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                        <div className="inline-flex items-center rounded-2xl border border-black/10 bg-light">
-                          <button
-                            onClick={() => setQty(it.id, it.qty - 1)}
-                            className="h-10 w-10 inline-flex items-center justify-center hover:bg-light-muted rounded-2xl transition"
-                          >
-                            −
-                          </button>
-                          <div className="px-4 text-sm font-extrabold text-dark">{it.qty}</div>
-                          <button
-                            onClick={() => setQty(it.id, it.qty + 1)}
-                            className="h-10 w-10 inline-flex items-center justify-center hover:bg-light-muted rounded-2xl transition"
-                          >
-                            +
-                          </button>
-                        </div>
-
                         <div className="text-lg font-extrabold text-primary">
-                          {formatTRY(it.price * it.qty)}
+                          {formatTRY(it.price)}
                         </div>
 
                         <button

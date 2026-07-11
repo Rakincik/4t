@@ -404,6 +404,63 @@ export default function KursDetailClient({ course }: { course: any }) {
             {/* Media Gallery */}
             <CourseMediaGallery image={course.image} video={course.video} gallery={course.gallery} />
 
+            {/* MOBILE ONLY: Inline Variant & Addon Selector */}
+            <div className="block lg:hidden mt-6 bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+              {/* Variant selection */}
+              {course.variants.length > 1 && (
+                <div className="mb-5">
+                  <h4 className="text-sm font-extrabold text-gray-900 mb-2.5">Eğitim Modeli Seçin:</h4>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {course.variants.map((variant: any) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => setSelectedVariantId(variant.id)}
+                        className={`flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border-2 transition-all text-xs font-bold ${
+                          selectedVariantId === variant.id 
+                            ? 'border-[#DC2626] bg-red-50 text-[#DC2626]' 
+                            : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                        }`}
+                      >
+                        <span>{variant.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Addon selection */}
+              {course.addons.length > 0 && (
+                <div className="mb-2">
+                  <h4 className="text-sm font-extrabold text-gray-900 mb-2.5">Paketinize Ekleyin (İsteğe Bağlı):</h4>
+                  <div className="space-y-2">
+                    {course.addons.map((addon: any) => (
+                      <label 
+                        key={addon.id} 
+                        className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                          selectedAddonIds.includes(addon.id) 
+                            ? 'border-[#DC2626] bg-red-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <input 
+                            type="checkbox" 
+                            checked={selectedAddonIds.includes(addon.id)}
+                            onChange={() => handleAddonToggle(addon.id)} 
+                            className="w-4 h-4 text-[#DC2626] border-gray-300 rounded focus:ring-[#DC2626]" 
+                          />
+                          <span className={`font-bold text-xs ${selectedAddonIds.includes(addon.id) ? 'text-[#DC2626]' : 'text-gray-700'}`}>
+                            {addon.title}
+                          </span>
+                        </div>
+                        <span className="text-xs font-extrabold text-gray-500">+₺{addon.price.toLocaleString()}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Tabs & Content */}
             <CourseTabs course={course} />
           </div>
@@ -559,115 +616,13 @@ export default function KursDetailClient({ course }: { course: any }) {
           <div className="text-2xl font-extrabold text-[#0B1221]">₺{currentPrice.toLocaleString()}</div>
         </div>
         <button 
-          onClick={() => setIsMobileDrawerOpen(true)}
+          onClick={handleBuyNow}
           className="flex-1 bg-[#DC2626] font-bold text-white py-3.5 rounded-xl shadow-lg shadow-red-500/30 active:scale-95 transition-transform"
           style={{ backgroundColor: course.color || "#DC2626" }}
         >
           Satın Al
         </button>
       </div>
-
-      {/* MOBILE BOTTOM SHEET / VARIANT DRAWER */}
-      {isMobileDrawerOpen && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[998] lg:hidden transition-opacity duration-300 animate-in fade-in"
-            onClick={() => setIsMobileDrawerOpen(false)}
-          />
-
-          {/* Drawer Sheet */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[32px] border-t border-gray-200 p-6 shadow-[0_-20px_40px_rgba(0,0,0,0.15)] z-[999] lg:hidden transform translate-y-0 transition-transform duration-300 ease-out max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom">
-            {/* Drag Handle */}
-            <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" />
-
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-extrabold text-gray-900">Seçenekleri Belirleyin</h3>
-              <button 
-                onClick={() => setIsMobileDrawerOpen(false)}
-                className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition"
-              >
-                <XMarkIcon className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* 1. Eğitim Modeli (Variants) */}
-            <div className="mb-6">
-              <h4 className="text-sm font-bold text-gray-900 mb-3">1. Eğitim Modeli Seçin:</h4>
-              <div className="grid grid-cols-2 gap-3">
-                {course.variants.map((variant: any) => (
-                  <button
-                    key={variant.id}
-                    onClick={() => setSelectedVariantId(variant.id)}
-                    className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all text-sm ${selectedVariantId === variant.id ? 'border-[#DC2626] bg-red-50 text-[#DC2626] font-bold' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
-                  >
-                    <span>{variant.title}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 2. Ek Seçenekler (Addons) */}
-            <div className="mb-6">
-              <h4 className="text-sm font-bold text-gray-900 mb-3">2. Paketinize Ekleyin (İsteğe Bağlı):</h4>
-              <div className="space-y-2">
-                {course.addons.map((addon: any) => (
-                  <label key={addon.id} className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedAddonIds.includes(addon.id) ? 'border-[#DC2626] bg-red-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <div className="flex items-center gap-3">
-                      <input 
-                        type="checkbox" 
-                        checked={selectedAddonIds.includes(addon.id)}
-                        onChange={() => handleAddonToggle(addon.id)} 
-                        className="w-4 h-4 text-[#DC2626] border-gray-300 rounded focus:ring-[#DC2626]" 
-                      />
-                      <span className={`font-semibold text-sm ${selectedAddonIds.includes(addon.id) ? 'text-[#DC2626]' : 'text-gray-700'}`}>{addon.title}</span>
-                    </div>
-                    <span className="text-sm font-bold text-gray-500">+₺{addon.price.toLocaleString()}</span>
-                  </label>
-                ))}
-                
-                {/* Clear addons */}
-                <button 
-                  onClick={clearAddons}
-                  className={`w-full text-left p-3 rounded-xl border-2 transition-all text-sm font-semibold flex items-center justify-between ${selectedAddonIds.length === 0 ? 'border-gray-400 bg-gray-100 text-gray-800' : 'border-dashed border-gray-200 text-gray-400 hover:border-gray-300'}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedAddonIds.length === 0 ? 'border-gray-800' : 'border-gray-300'}`}>
-                      {selectedAddonIds.length === 0 && <div className="w-2 h-2 rounded-full bg-gray-800"></div>}
-                    </div>
-                    <span>Ek Bir Seçenek İstemiyorum</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* Price and buying actions */}
-            <div className="pt-4 border-t border-gray-150 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-4">
-              <div>
-                <div className="text-xs text-gray-500 line-through">{oldPrice && `₺${oldPrice.toLocaleString()}`}</div>
-                <div className="text-2xl font-extrabold text-[#0B1221]">₺{currentPrice.toLocaleString()}</div>
-              </div>
-              <div className="flex gap-2 flex-1">
-                <button 
-                  onClick={() => { handleAddToCart(); setIsMobileDrawerOpen(false); }}
-                  className="flex-1 bg-white font-bold py-3.5 rounded-xl border-2 text-xs transition-colors"
-                  style={{ color: course.color || "#0B1221", borderColor: course.color || "#e5e7eb" }}
-                >
-                  Sepete Ekle
-                </button>
-                <button 
-                  onClick={() => { handleBuyNow(); setIsMobileDrawerOpen(false); }}
-                  className="flex-1 text-white font-bold py-3.5 rounded-xl text-xs shadow-lg transition-transform active:scale-95"
-                  style={{ backgroundColor: course.color || "#DC2626", boxShadow: `0 10px 15px -3px ${course.color || "#DC2626"}4D` }}
-                >
-                  Hemen Satın Al
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
 
       <Footer />
     </main>
