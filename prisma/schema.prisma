@@ -115,6 +115,9 @@ model Course {
   flixUpsellText   String? @db.Text
   flixUpsellLink   String?
 
+  // Çapraz Satış Önerileri
+  recommendedCourseIds Json?
+
   // Erişim Yönetimi
   accessEndDate      DateTime?  // Sabit bitiş tarihi (KURS tipi: sınav tarihi vb.)
   accessDurationDays Int?       // Satın almadan itibaren kaç gün erişim (FLIX tipi)
@@ -413,6 +416,7 @@ model AbandonedCart {
   phone       String?  // Student phone number for WhatsApp
   courses     Json     // List of course IDs and names left in cart
   isRecovered Boolean  @default(false) // Marks true if customer completes payment later
+  status      String   @default("PENDING") // PENDING, CONTACTED, RECOVERED
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

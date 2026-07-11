@@ -238,25 +238,52 @@ export default function OrgunEgitimEditorPage() {
                                         <div className="bg-white rounded-lg border border-gray-100 p-3 space-y-2 relative group">
                                             <button onClick={() => setSlides(slides.filter((_, idx) => idx !== i))} className="absolute top-2 right-2 p-1 text-red-300 hover:text-red-600 transition-colors bg-white rounded-full"><TrashIcon className="w-4 h-4" /></button>
                                             <div className="flex gap-3">
-                                                <div className="w-24 shrink-0 space-y-1">
-                                                    {s.image ? (
-                                                        <div className="relative group/img aspect-video rounded overflow-hidden border border-gray-200">
-                                                            <img src={s.image} alt="" className="w-full h-full object-cover" />
-                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                                                                <button onClick={() => { const ns = [...slides]; ns[i].image = ""; setSlides(ns); }} className="text-[10px] text-white font-bold bg-red-500 px-2 py-0.5 rounded">Sil</button>
+                                                <div className="flex flex-row md:flex-col gap-3 shrink-0">
+                                                    {/* Masaüstü Görsel */}
+                                                    <div className="w-24 space-y-1">
+                                                        <span className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider text-center">Masaüstü</span>
+                                                        {s.image ? (
+                                                            <div className="relative group/img aspect-video rounded overflow-hidden border border-gray-200">
+                                                                <img src={s.image} alt="" className="w-full h-full object-cover" />
+                                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                                                  <button onClick={() => { const ns = [...slides]; ns[i].image = ""; setSlides(ns); }} className="text-[10px] text-white font-bold bg-red-500 px-2 py-0.5 rounded">Sil</button>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    ) : (
-                                                        <label className="flex aspect-video rounded border-2 border-dashed border-gray-200 hover:border-blue-400 items-center justify-center text-gray-400 cursor-pointer">
-                                                            <PhotoIcon className="w-5 h-5" />
-                                                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
-                                                                const file = e.target.files?.[0]; if (!file) return;
-                                                                const url = await uploadFile(file);
-                                                                if (url) { const ns = [...slides]; ns[i].image = url; setSlides(ns); }
-                                                            }} />
-                                                        </label>
-                                                    )}
-                                                    <p className="text-[8px] text-gray-400 text-center leading-tight">16:9 • Maks 5MB<br/>(Önerilen 3MB)</p>
+                                                        ) : (
+                                                            <label className="flex aspect-video rounded border-2 border-dashed border-gray-200 hover:border-blue-400 items-center justify-center text-gray-400 cursor-pointer">
+                                                                <PhotoIcon className="w-5 h-5" />
+                                                                <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                                                                    const file = e.target.files?.[0]; if (!file) return;
+                                                                    const url = await uploadFile(file);
+                                                                    if (url) { const ns = [...slides]; ns[i].image = url; setSlides(ns); }
+                                                                }} />
+                                                            </label>
+                                                        )}
+                                                        <p className="text-[7px] text-gray-400 text-center leading-tight">16:9 • Maks 5MB</p>
+                                                    </div>
+
+                                                    {/* Mobil Görsel */}
+                                                    <div className="w-24 space-y-1">
+                                                        <span className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider text-center">Mobil</span>
+                                                        {s.mobileImage ? (
+                                                            <div className="relative group/mobimg aspect-[3/4] rounded overflow-hidden border border-gray-200">
+                                                                <img src={s.mobileImage} alt="" className="w-full h-full object-cover" />
+                                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/mobimg:opacity-100 transition-opacity flex items-center justify-center">
+                                                                  <button onClick={() => { const ns = [...slides]; ns[i].mobileImage = ""; setSlides(ns); }} className="text-[10px] text-white font-bold bg-red-500 px-2 py-0.5 rounded">Sil</button>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <label className="flex aspect-[3/4] rounded border-2 border-dashed border-gray-200 hover:border-blue-400 items-center justify-center text-gray-400 cursor-pointer">
+                                                                <DevicePhoneMobileIcon className="w-5 h-5" />
+                                                                <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                                                                    const file = e.target.files?.[0]; if (!file) return;
+                                                                    const url = await uploadFile(file);
+                                                                    if (url) { const ns = [...slides]; ns[i].mobileImage = url; setSlides(ns); }
+                                                                }} />
+                                                            </label>
+                                                        )}
+                                                        <p className="text-[7px] text-gray-400 text-center leading-tight">Dikey • Maks 5MB</p>
+                                                    </div>
                                                 </div>
                                                 <div className="flex-1 space-y-2">
                                                     <input className={inputCls} placeholder="Üst Etiket (rn: ANKARA MERKEZ KAMPÜSÜ)" value={s.subtitle} onChange={e => { const ns = [...slides]; ns[i].subtitle = e.target.value; setSlides(ns); }} />
@@ -287,7 +314,7 @@ export default function OrgunEgitimEditorPage() {
                                         </div>
                                     )}
                                 />
-                                <button onClick={() => setSlides([...slides, { id: Date.now(), image: "", subtitle: "", title: "", description: "", cta: "", href: "", btnBg: "#DC2626", btnColor: "#FFFFFF", btnPosition: "left" }])} className="mt-2 text-[10px] text-blue-600 font-bold flex items-center gap-1 hover:underline"><PlusIcon className="w-3 h-3" /> Slayt Ekle</button>
+                                <button onClick={() => setSlides([...slides, { id: Date.now(), image: "", mobileImage: "", subtitle: "", title: "", description: "", cta: "", href: "", btnBg: "#DC2626", btnColor: "#FFFFFF", btnPosition: "left" }])} className="mt-2 text-[10px] text-blue-600 font-bold flex items-center gap-1 hover:underline"><PlusIcon className="w-3 h-3" /> Slayt Ekle</button>
                             </div>
                         </SectionAccordion>
 

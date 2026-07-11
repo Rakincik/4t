@@ -161,11 +161,11 @@ export default function CourseCard({
         {/* --- Özellikler Listesi (Mobil: 2x2 Grid Halinde İlk 4 Tik) --- */}
         {featuresList.length > 0 && (
           <div className="mb-2 block sm:hidden">
-            <ul className="grid grid-cols-2 gap-x-2 gap-y-0.5">
+            <ul className="grid grid-cols-2 gap-x-2 gap-y-1.5">
               {featuresList.slice(0, 4).map((feature, idx) => (
-                <li key={idx} className="flex items-center gap-1 text-[10px] text-gray-600 min-w-0">
-                  <CheckIcon className="w-3 h-3 text-green-500 shrink-0" />
-                  <span className="truncate leading-none">{feature}</span>
+                <li key={idx} className="flex items-start gap-1 text-[10px] text-gray-600 min-w-0">
+                  <CheckIcon className="w-3 h-3 text-green-500 shrink-0 mt-0.5" />
+                  <span className="line-clamp-2 leading-tight">{feature}</span>
                 </li>
               ))}
             </ul>

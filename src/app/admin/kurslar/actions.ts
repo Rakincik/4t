@@ -71,6 +71,7 @@ function parseFormData(formData: FormData) {
         accessDurationDays: formData.get("accessDurationDays") ? parseInt(formData.get("accessDurationDays") as string) : null,
         flixUpsellText: formData.get("flixUpsellText") as string || null,
         flixUpsellLink: formData.get("flixUpsellLink") as string || null,
+        recommendedCourseIds: formData.get("recommendedCourseIds") ? JSON.parse(formData.get("recommendedCourseIds") as string) : null,
     };
 }
 

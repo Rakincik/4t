@@ -156,12 +156,21 @@ export default function KurslarClient({
        list.push(cat.name);
     });
     
-    // Kamp vs. manuel ekleyebiliriz DB'de yoksa
-    if (!list.some(l => normalizeTR(l) === "kamp")) list.push("Kamp");
-    if (!list.some(l => normalizeTR(l) === "flix")) list.push("FLIX");
+    // Kamp veya FLIX tipinde en az bir kurs varsa listeye ekle
+    const hasKamp = initialCourses.some(c => 
+      c.type === "KAMP" || 
+      (c.category && normalizeTR(c.category).split(',').map(s => s.trim()).includes("kamp"))
+    );
+    const hasFlix = initialCourses.some(c => 
+      c.type === "FLIX" || 
+      (c.category && normalizeTR(c.category).split(',').map(s => s.trim()).includes("flix"))
+    );
+
+    if (hasKamp && !list.some(l => normalizeTR(l) === "kamp")) list.push("Kamp");
+    if (hasFlix && !list.some(l => normalizeTR(l) === "flix")) list.push("FLIX");
 
     return list;
-  }, [activeCategories]);
+  }, [activeCategories, initialCourses]);
 
   return (
     <main className="min-h-screen bg-white">

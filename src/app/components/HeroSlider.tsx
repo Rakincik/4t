@@ -8,6 +8,7 @@ import Image from "next/image";
 export interface Slide {
     id: number;
     image: string;
+    mobileImage?: string;
     subtitle: string;
     title: string;
     description: string;
@@ -38,7 +39,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
     if (!slides || slides.length === 0) return null;
 
     return (
-        <section className="relative h-[60svh] min-h-[400px] md:h-[80svh] md:min-h-[500px] lg:h-[85svh] lg:min-h-[600px] w-full overflow-hidden bg-[#0B1221]">
+        <section className="relative h-[50svh] min-h-[360px] md:h-[80svh] md:min-h-[500px] lg:h-[85svh] lg:min-h-[600px] w-full overflow-hidden bg-[#0B1221]">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={current}
@@ -56,29 +57,46 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                             animate={{ scale: 1 }}
                             transition={{ duration: 6 }}
                         >
-                            <Image fill sizes="100vw" priority src={slides[current].image} alt={slides[current].title} className="object-cover" />
+                            <Image 
+                                fill 
+                                sizes="100vw" 
+                                priority 
+                                src={slides[current].image} 
+                                alt={slides[current].title} 
+                                className={`object-cover ${slides[current].mobileImage ? "hidden md:block" : ""}`} 
+                            />
+                            {slides[current].mobileImage && (
+                                <Image 
+                                    fill 
+                                    sizes="100vw" 
+                                    priority 
+                                    src={slides[current].mobileImage} 
+                                    alt={slides[current].title} 
+                                    className="object-cover md:hidden" 
+                                />
+                            )}
                         </motion.div>
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#0B1221]/95 via-[#0B1221]/70 to-transparent"></div>
+                        <div className="absolute inset-0 bg-[#0B1221]/75 md:bg-gradient-to-r md:from-[#0B1221]/95 md:via-[#0B1221]/70 md:to-transparent"></div>
                     </div>
 
                     {/* Content */}
-                    <div className="relative h-full container mx-auto max-w-7xl px-4 flex items-center pb-16 md:pb-32">
-                        <div className="max-w-2xl space-y-4 md:space-y-6 pt-16">
+                    <div className="relative h-full container mx-auto max-w-7xl px-4 flex items-center pb-12 md:pb-32">
+                        <div className="max-w-2xl space-y-3 md:space-y-6 pt-12 md:pt-16">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="inline-flex items-center gap-3 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20"
+                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20"
                             >
-                                <span className="w-2 h-2 rounded-full bg-[#DC2626] animate-pulse"></span>
-                                <span className="text-xs font-bold uppercase tracking-widest text-white">{slides[current].subtitle}</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626] animate-pulse"></span>
+                                <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white">{slides[current].subtitle}</span>
                             </motion.div>
 
                             <motion.h1
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.5 }}
-                                className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.1]"
+                                className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.1]"
                             >
                                 {slides[current].title}
                             </motion.h1>
@@ -87,7 +105,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.7 }}
-                                className="text-sm md:text-xl text-gray-300 leading-relaxed max-w-xl line-clamp-3 md:line-clamp-none"
+                                className="text-xs sm:text-sm md:text-xl text-gray-300 leading-relaxed max-w-xl line-clamp-2 md:line-clamp-none"
                             >
                                 {slides[current].description}
                             </motion.p>
@@ -96,7 +114,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.9 }}
-                                className={`pt-4 w-full flex ${slides[current].btnPosition === 'center' ? 'justify-center' : slides[current].btnPosition === 'right' ? 'justify-end' : 'justify-start'}`}
+                                className={`pt-2 w-full flex ${slides[current].btnPosition === 'center' ? 'justify-center' : slides[current].btnPosition === 'right' ? 'justify-end' : 'justify-start'}`}
                             >
                                 <a
                                     href={slides[current].href}
@@ -104,12 +122,12 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                         backgroundColor: slides[current].btnBg || "#DC2626",
                                         color: slides[current].btnColor || "#FFFFFF"
                                     }}
-                                    className="group inline-flex items-center gap-3 px-6 py-3 md:px-8 md:py-4 font-bold rounded-2xl transition-all shadow-lg hover:shadow-black/20 hover:-translate-y-1 hover:brightness-110"
+                                    className="group inline-flex items-center gap-2.5 px-5 py-3 md:px-8 md:py-4 text-xs md:text-base font-bold rounded-xl md:rounded-2xl transition-all shadow-lg hover:shadow-black/20 hover:-translate-y-1 hover:brightness-110"
                                 >
                                     {slides[current].cta}
-                                    <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRightIcon className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
                                 </a>
-                            </motion.div>
+                              </motion.div>
                         </div>
                     </div>
                 </motion.div>
@@ -132,12 +150,12 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
             </div>
 
             {/* Dots */}
-            <div className="absolute bottom-12 md:bottom-24 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+            <div className="absolute bottom-8 md:bottom-24 left-1/2 -translate-x-1/2 flex gap-2 z-20">
                 {slides.map((_, idx) => (
                     <button
                         key={idx}
                         onClick={() => setCurrent(idx)}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${current === idx ? "w-8 bg-[#DC2626]" : "w-2 bg-white/40 hover:bg-white/60"
+                        className={`h-1.5 rounded-full transition-all duration-300 ${current === idx ? "w-6 bg-[#DC2626]" : "w-1.5 bg-white/40 hover:bg-white/60"
                             }`}
                     />
                 ))}

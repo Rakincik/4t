@@ -163,3 +163,28 @@ font, [style*="font-family"] {
     display: none;
   }
 }
+
+/* SÖZLEŞME VE DIĞER ALANLAR IÇIN BELIRGIN SCROLLBAR */
+@utility scrollbar-visible {
+  scrollbar-width: auto;
+  scrollbar-color: #2563EB #F1F5F9;
+
+  &::-webkit-scrollbar {
+    width: 6px !important;
+    display: block !important;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #F1F5F9 !important;
+    border-radius: 999px !important;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #2563EB !important;
+    border-radius: 999px !important;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #1E40AF !important;
+  }
+}

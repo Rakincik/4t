@@ -68,7 +68,16 @@ export default async function KamplarPage() {
     .replaceAll("ı", "i").replaceAll("ğ", "g").replaceAll("ü", "u")
     .replaceAll("ş", "s").replaceAll("ö", "o").replaceAll("ç", "c");
 
-  const usedCategories = new Set(formattedKamplar.map(c => c.category ? c.category.toLowerCase() : ""));
+  const usedCategories = new Set<string>();
+  formattedKamplar.forEach(c => {
+    if (c.category) {
+      c.category.split(',').forEach(cat => {
+        const trimmed = cat.trim().toLowerCase();
+        if (trimmed) usedCategories.add(trimmed);
+      });
+    }
+  });
+
   const relevantCategories = activeCategoriesDB.filter(cat => 
     usedCategories.has(cat.slug.toLowerCase()) || 
     usedCategories.has(normalizeTR(cat.name))

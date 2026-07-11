@@ -384,7 +384,7 @@ export default function Home() {
             <h2 className="text-3xl font-extrabold text-[#0B1221] mt-2">{blogTitle}</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
             {(latestBlogs.length > 0 ? latestBlogs : [
               {
                 slug: "yazi-1",
@@ -411,23 +411,25 @@ export default function Home() {
                 imageUrl: "https://images.unsplash.com/photo-1506784983877-45594fa4c58d?q=80&w=600&auto=format&fit=crop"
               }
             ]).slice(0,3).map((post, index) => (
-              <a key={post.slug || index} href={`/blog/${post.slug}`} className="group cursor-pointer">
-                <div className="aspect-[16/9] rounded-2xl overflow-hidden mb-6 bg-gray-100 relative">
+              <a key={post.slug || index} href={`/blog/${post.slug}`} className="group cursor-pointer flex flex-row md:flex-col items-start gap-4 md:gap-0">
+                <div className="w-28 h-20 md:w-full md:h-auto md:aspect-[16/9] rounded-xl md:rounded-2xl overflow-hidden shrink-0 md:mb-6 bg-gray-100 relative">
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-10"></div>
-                  <Image fill sizes="(max-width: 768px) 100vw, 33vw" src={post.imageUrl || "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600"} className="object-cover group-hover:scale-105 transition-transform duration-700" alt={post.title} />
+                  <Image fill sizes="(max-width: 768px) 112px, 33vw" src={post.imageUrl || "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600"} className="object-cover group-hover:scale-105 transition-transform duration-700" alt={post.title} />
                 </div>
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-xs font-bold text-[#DC2626] uppercase tracking-wider bg-red-50 px-2 py-1 rounded">{post.category || "Genel"}</span>
-                  <span className="text-xs text-gray-400">
-                    {new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" }).format(new Date(post.createdAt))}
-                  </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5 md:gap-3 mb-1.5 md:mb-3">
+                    <span className="text-[10px] md:text-xs font-bold text-[#DC2626] uppercase tracking-wider bg-red-50 px-1.5 py-0.5 md:px-2 md:py-1 rounded line-clamp-1 truncate max-w-[120px] md:max-w-none">{post.category || "Genel"}</span>
+                    <span className="text-[10px] md:text-xs text-gray-400 font-medium">
+                      {new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", year: "numeric" }).format(new Date(post.createdAt))}
+                    </span>
+                  </div>
+                  <h3 className="text-sm md:text-xl font-bold text-gray-900 group-hover:text-[#DC2626] transition-colors mb-1 md:mb-2 line-clamp-2 leading-snug md:leading-normal">
+                    {post.title}
+                  </h3>
+                  <p className="hidden md:line-clamp-2 text-sm text-gray-500 leading-relaxed">
+                    {post.excerpt}
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-[#0B1221] leading-tight group-hover:text-[#DC2626] transition-colors">
-                  {post.title}
-                </h3>
-                <p className="text-gray-500 mt-3 line-clamp-2 text-sm leading-relaxed">
-                  {post.excerpt}
-                </p>
               </a>
             ))}
           </div>

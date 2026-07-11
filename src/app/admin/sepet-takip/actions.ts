@@ -10,6 +10,13 @@ export async function getAbandonedCarts() {
             orderBy: { createdAt: "desc" }
         });
 
+        // Fetch all course prices to calculate cart total values
+        const coursesDb = await prisma.course.findMany({
+            select: { id: true, price: true }
+        });
+        const priceMap = new Map<string, number>();
+        coursesDb.forEach(c => priceMap.set(c.id, c.price));
+
         // Collect all non-empty emails and phones to look up matching users
         const emails = carts.map(c => c.email).filter(Boolean) as string[];
         const phones = carts.map(c => c.phone).filter(Boolean) as string[];
@@ -45,14 +52,25 @@ export async function getAbandonedCarts() {
                 userId = userMap.get(c.phone) || null;
             }
 
+            // Calculate total cart value
+            const coursesList = (c.courses as any[]) || [];
+            let cartValue = 0;
+            coursesList.forEach(item => {
+                if (item.id && priceMap.has(item.id)) {
+                    cartValue += priceMap.get(item.id) || 0;
+                }
+            });
+
             return {
                 id: c.id,
                 name: c.name || "Misafir Öğrenci",
                 email: c.email || "-",
                 phone: c.phone || "-",
-                courses: (c.courses as any[]) || [],
+                courses: coursesList,
                 createdAt: c.createdAt.toISOString(),
-                userId
+                userId,
+                status: c.status || "PENDING",
+                cartValue
             };
         });
     } catch (error) {
@@ -71,5 +89,91 @@ export async function deleteAbandonedCart(id: string) {
     } catch (error: any) {
         console.error("deleteAbandonedCart Error:", error);
         return { success: false, error: "Kayıt silinirken hata oluştu." };
+    }
+}
+
+export async function recoverAbandonedCartAction(id: string) {
+    try {
+        const cart = await prisma.abandonedCart.findUnique({
+            where: { id }
+        });
+        if (!cart) return { success: false, error: "Sepet kaydı bulunamadı." };
+
+        const courseList = (cart.courses as any[]) || [];
+        const courseIds = courseList.map(c => c.id).filter(Boolean);
+
+        const dbCourses = await prisma.course.findMany({
+            where: { id: { in: courseIds }, isDeleted: false, isActive: true },
+            select: {
+                id: true,
+                slug: true,
+                title: true,
+                price: true,
+                imageUrl: true,
+                isCouponApplicable: true,
+                isInstallmentApplicable: true
+            }
+        });
+
+        return { success: true, courses: dbCourses };
+    } catch (error: any) {
+        console.error("recoverAbandonedCartAction Error:", error);
+        return { success: false, error: error.message || "Sepet yüklenirken hata oluştu." };
+    }
+}
+
+export async function updateCartStatus(id: string, status: string) {
+    try {
+        await prisma.abandonedCart.update({
+            where: { id },
+            data: { status }
+        });
+        revalidatePath("/admin/sepet-takip");
+        return { success: true };
+    } catch (error: any) {
+        console.error("updateCartStatus Error:", error);
+        return { success: false, error: "Durum güncellenirken hata oluştu." };
+    }
+}
+
+export async function createRecoveryCoupon(name: string, amount: number = 10, customCode?: string) {
+    try {
+        let code = customCode?.trim().toUpperCase();
+        
+        if (!code) {
+            // Strip non-turkish-alphabetic chars and convert to uppercase for firstName
+            const cleanName = name.replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, "").toUpperCase();
+            const firstName = cleanName.trim().split(' ')[0] || "SEPET";
+            const randomDigits = Math.floor(100 + Math.random() * 900);
+            code = `KRT-${firstName}-${randomDigits}`;
+        }
+
+        // Check if coupon code already exists to prevent duplicate key constraint errors
+        const existing = await prisma.coupon.findUnique({
+            where: { code }
+        });
+        if (existing) {
+            return { success: false, error: `"${code}" kupon kodu zaten mevcut. Lütfen başka bir kod adı yazın.` };
+        }
+
+        const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 48); // 48 hours validity
+
+        const coupon = await prisma.coupon.create({
+            data: {
+                code,
+                type: "PERCENT",
+                amount: amount, // custom amount
+                minOrder: 0,
+                maxUses: 1,
+                usedCount: 0,
+                isActive: true,
+                expiresAt
+            }
+        });
+
+        return { success: true, code: coupon.code, amount: amount };
+    } catch (error: any) {
+        console.error("createRecoveryCoupon Error:", error);
+        return { success: false, error: error.message || "Kupon üretilirken hata oluştu." };
     }
 }

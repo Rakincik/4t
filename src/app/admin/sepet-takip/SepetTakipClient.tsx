@@ -10,7 +10,7 @@ import {
     ArrowTopRightOnSquareIcon,
     InformationCircleIcon
 } from "@heroicons/react/24/outline";
-import { deleteAbandonedCart } from "./actions";
+import { deleteAbandonedCart, updateCartStatus, createRecoveryCoupon } from "./actions";
 
 interface CartItem {
     id: string;
@@ -25,6 +25,8 @@ interface AbandonedCart {
     courses: CartItem[];
     createdAt: string;
     userId?: string | null;
+    status: string;
+    cartValue: number;
 }
 
 function stripHtml(html: string) {
@@ -34,18 +36,40 @@ function stripHtml(html: string) {
 export default function SepetTakipClient({ initialCarts }: { initialCarts: AbandonedCart[] }) {
     const [carts, setCarts] = useState<AbandonedCart[]>(initialCarts);
     const [searchTerm, setSearchTerm] = useState("");
+    const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'yesterday' | 'week'>('all');
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [couponGeneratingId, setCouponGeneratingId] = useState<string | null>(null);
 
-    // Filter carts based on search query
+    // Filter carts based on date and search queries
     const filteredCarts = useMemo(() => {
+        let result = carts;
+
+        // Apply Date Range filter
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfYesterday = new Date(startOfToday.getTime() - 1000 * 60 * 60 * 24);
+        const sevenDaysAgo = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
+
+        if (dateFilter === 'today') {
+            result = result.filter(c => new Date(c.createdAt) >= startOfToday);
+        } else if (dateFilter === 'yesterday') {
+            result = result.filter(c => {
+                const dt = new Date(c.createdAt);
+                return dt >= startOfYesterday && dt < startOfToday;
+            });
+        } else if (dateFilter === 'week') {
+            result = result.filter(c => new Date(c.createdAt) >= sevenDaysAgo);
+        }
+
+        // Apply search query filter
         const query = searchTerm.toLowerCase().trim();
-        if (!query) return carts;
-        return carts.filter(c => 
+        if (!query) return result;
+        return result.filter(c => 
             c.name.toLowerCase().includes(query) ||
             c.phone.includes(query) ||
             c.email.toLowerCase().includes(query)
         );
-    }, [carts, searchTerm]);
+    }, [carts, dateFilter, searchTerm]);
 
     // Format dates to human-friendly local time
     function formatDate(isoString: string) {
@@ -62,21 +86,102 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
         }
     }
 
-    // Format phone to clean country-code format (e.g. 905xxxxxxxxx) for WhatsApp
-    function getCleanWhatsAppLink(phone: string, name: string, courses: CartItem[]) {
-        const digitsOnly = phone.replace(/\D/g, "");
+    function formatTRY(n: number) {
+        try {
+            return new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(n);
+        } catch {
+            return `₺${n.toLocaleString("tr-TR")}`;
+        }
+    }
+
+    async function handleStatusChange(id: string, newStatus: string) {
+        try {
+            const res = await updateCartStatus(id, newStatus);
+            if (res.success) {
+                setCarts(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
+            } else {
+                alert("Durum güncellenirken hata oluştu.");
+            }
+        } catch {
+            alert("Sunucu bağlantısı kurulurken hata oluştu.");
+        }
+    }
+
+    async function handleWhatsAppRecovery(c: AbandonedCart) {
+        // Step 1: Prompt the user to enter custom discount percentage
+        const rawPercent = prompt(
+            `Müşteri: ${c.name}\n\nBu adaya özel 48 saat geçerli İndirim Kuponu tanımlamak istiyorsanız indirim oranını (%) sadece sayı olarak girin (örn: 10, 15, 20).\nKuponsuz standart sepet kurtarma mesajı göndermek için İptal'e basın.`,
+            "10"
+        );
+
+        let finalMessage = "";
+        let couponCode = "";
+        let appliedPercent = 10;
+
+        const digitsOnly = c.phone.replace(/\D/g, "");
         let cleanPhone = digitsOnly;
-        
         if (cleanPhone.startsWith("0")) {
             cleanPhone = "90" + cleanPhone.slice(1);
         } else if (cleanPhone.length === 10) {
             cleanPhone = "90" + cleanPhone;
         }
 
-        const courseNames = courses.map(c => `"${stripHtml(c.title)}"`).join(", ");
-        const message = `Merhaba ${name},\n\n4T Akademi sepetinizde yarım kalan ${courseNames} eğitim paketiniz ile ilgili sipariş adımlarında yardımcı olmamı ister misiniz?\n\nKayıt işlemlerinizi kolaylaştırmak adına size yardımcı olmak için buradayım.`;
-        
-        return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+        const recoveryLink = `${window.location.origin}/sepet?recover=${c.id}`;
+        const courseNames = c.courses.map(course => `"${stripHtml(course.title)}"`).join(", ");
+
+        if (rawPercent !== null) {
+            const parsedPercent = parseInt(rawPercent.trim(), 10);
+            if (isNaN(parsedPercent) || parsedPercent <= 0 || parsedPercent > 100) {
+                alert("Geçersiz indirim oranı girdiniz. Standart kurtarma mesajı ile devam ediliyor.");
+            } else {
+                appliedPercent = parsedPercent;
+                
+                // Prompt 2: Suggest a code and allow the user to modify/override it
+                const cleanName = c.name.replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, "").toUpperCase();
+                const firstName = cleanName.trim().split(' ')[0] || "SEPET";
+                const defaultCode = `KRT-${firstName}-${appliedPercent}`;
+
+                const customCodeInput = prompt(
+                    `Oluşturulacak kupon kodunun adını belirleyin:\n(Boş bırakırsanız otomatik kod kullanılır, iptal ederseniz standart mesaj gönderilir)`,
+                    defaultCode
+                );
+
+                if (customCodeInput !== null) {
+                    const finalCode = customCodeInput.trim().toUpperCase() || defaultCode;
+                    setCouponGeneratingId(c.id);
+                    try {
+                        const coupRes = await createRecoveryCoupon(c.name, appliedPercent, finalCode);
+                        if (coupRes.success && coupRes.code) {
+                            couponCode = coupRes.code;
+                            finalMessage = `Merhaba ${c.name},\n\n4T Akademi sepetinizde yarım kalan ${courseNames} eğitim paketiniz ile ilgili sipariş adımlarında yardımcı olmamı ister misiniz?\n\nKayıt işlemlerinizi kolaylaştırmak adına size özel 48 saat geçerli %${appliedPercent} indirim kuponu tanımladık:\n🎫 İndirim Kodu: *${couponCode}*\n\nTek tıkla sepetinizi geri yükleyip indirimli almak için şu bağlantıyı kullanabilirsiniz:\n👉 ${recoveryLink}\n\nKayıt işlemlerinizde yardımcı olmak için buradayım.`;
+                        } else {
+                            alert(coupRes.error || "Kupon üretilemedi, standart sepet kurtarma linki ile devam ediliyor.");
+                        }
+                    } catch (err) {
+                        console.error("Coupon generation failed:", err);
+                    } finally {
+                        setCouponGeneratingId(null);
+                    }
+                }
+            }
+        }
+
+        if (!finalMessage) {
+            // Standart message without coupon
+            finalMessage = `Merhaba ${c.name},\n\n4T Akademi sepetinizde yarım kalan ${courseNames} eğitim paketiniz ile ilgili sipariş adımlarında yardımcı olmamı ister misiniz?\n\nTek tıkla sepetinizi geri yükleyip kaldığınız yerden devam etmek için şu bağlantıyı kullanabilirsiniz:\n👉 ${recoveryLink}\n\nKayıt işlemlerinizi kolaylaştırmak adına size yardımcı olmak için buradayım.`;
+        }
+
+        // Step 2: Automatically mark lead status as CONTACTED (Ulaşıldı) in DB and local state
+        try {
+            await updateCartStatus(c.id, "CONTACTED");
+            setCarts(prev => prev.map(item => item.id === c.id ? { ...item, status: "CONTACTED" } : item));
+        } catch (e) {
+            console.error("Status update failed:", e);
+        }
+
+        // Step 3: Open WhatsApp window
+        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(finalMessage)}`;
+        window.open(waUrl, "_blank");
     }
 
     async function handleDelete(id: string) {
@@ -96,10 +201,12 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
         }
     }
 
+    const last24hCount = carts.filter(c => new Date(c.createdAt) >= new Date(Date.now() - 1000 * 60 * 60 * 24)).length;
+
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-6">
             {/* Header section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Terk Edilmiş Sepet Takibi</h1>
                     <p className="text-sm text-gray-500 mt-1 font-medium">
@@ -107,18 +214,39 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
                     </p>
                 </div>
 
-                {/* Search Bar */}
-                <div className="relative w-full md:w-80">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <MagnifyingGlassIcon className="h-5 w-5" />
-                    </span>
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="İsim, telefon veya e-posta ara..."
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#0B1221]/10 focus:border-[#0B1221] transition text-sm bg-white"
-                    />
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                    {/* Tarih Filtre Butonları */}
+                    <div className="flex bg-gray-100 p-1 rounded-xl w-full sm:w-auto">
+                        {[
+                            { id: 'all', label: 'Tümü' },
+                            { id: 'today', label: 'Bugün' },
+                            { id: 'yesterday', label: 'Dün' },
+                            { id: 'week', label: 'Bu Hafta' }
+                        ].map((btn) => (
+                            <button
+                                key={btn.id}
+                                type="button"
+                                onClick={() => setDateFilter(btn.id as any)}
+                                className={`flex-1 sm:flex-none px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${dateFilter === btn.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+                            >
+                                {btn.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="relative w-full sm:w-64">
+                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <MagnifyingGlassIcon className="h-4.5 w-4.5" />
+                        </span>
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Aday ara..."
+                            className="w-full pl-9 pr-4 py-2 border border-gray-250/80 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-xs bg-white font-medium"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -132,7 +260,7 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
 
             {/* Stats section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-gray-150 shadow-sm flex items-center gap-4">
+                <div className="bg-white p-5 rounded-2xl border border-gray-150 shadow-sm flex items-center gap-4 hover:shadow transition duration-200">
                     <div className="w-12 h-12 rounded-xl bg-orange-50 border border-orange-100 text-orange-600 flex items-center justify-center">
                         <ShoppingBagIcon className="h-6 w-6" />
                     </div>
@@ -142,7 +270,7 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
                     </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-gray-150 shadow-sm flex items-center gap-4">
+                <div className="bg-white p-5 rounded-2xl border border-gray-150 shadow-sm flex items-center gap-4 hover:shadow transition duration-200">
                     <div className="w-12 h-12 rounded-xl bg-green-50 border border-green-100 text-green-600 flex items-center justify-center">
                         <PhoneIcon className="h-6 w-6" />
                     </div>
@@ -154,13 +282,13 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
                     </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-gray-150 shadow-sm flex items-center gap-4 sm:col-span-2 lg:col-span-1">
+                <div className="bg-white p-5 rounded-2xl border border-gray-150 shadow-sm flex items-center gap-4 sm:col-span-2 lg:col-span-1 hover:shadow transition duration-200">
                     <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center">
                         <ClockIcon className="h-6 w-6" />
                     </div>
                     <div>
-                        <div className="text-sm font-bold text-gray-900">Son 24 Saat</div>
-                        <div className="text-xs text-gray-450 font-bold uppercase tracking-wider mt-0.5">Sıcak Müşteri Takibi</div>
+                        <div className="text-2xl font-bold text-gray-900">{last24hCount}</div>
+                        <div className="text-xs text-gray-450 font-bold uppercase tracking-wider mt-0.5">Son 24 Saat Sıcak Takip</div>
                     </div>
                 </div>
             </div>
@@ -168,24 +296,36 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
             {/* Table / Grid list */}
             <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
                 {filteredCarts.length === 0 ? (
-                    <div className="p-12 text-center text-gray-400 font-medium">
-                        Kayıt bulunamadı.
+                    <div className="p-16 text-center max-w-md mx-auto flex flex-col items-center justify-center gap-4">
+                        <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100/50 flex items-center justify-center text-emerald-500 shadow-sm animate-pulse-once">
+                            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 className="text-base font-extrabold text-gray-900">Harika! Terk Edilmiş Sepet Yok</h3>
+                            <p className="text-xs text-gray-500 mt-2 leading-relaxed font-medium">
+                                Sitenizdeki tüm kullanıcılar ödeme adımlarını başarıyla tamamlamış veya henüz yeni bir sepet terk etme vakası gerçekleşmemiş.
+                            </p>
+                        </div>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-450 uppercase tracking-wider">
+                                <tr className="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-400 uppercase tracking-wider">
                                     <th className="p-4 pl-6">Müşteri</th>
-                                    <th className="p-4">İletişim</th>
+                                    <th className="p-4">İletişim Bilgileri</th>
                                     <th className="p-4">Sepetteki Kurslar</th>
-                                    <th className="p-4">Tarih</th>
-                                    <th className="p-4 pr-6 text-right">İletişim / İşlem</th>
+                                    <th className="p-4 text-right">Sepet Tutarı</th>
+                                    <th className="p-4 text-center">Kurtarma Durumu</th>
+                                    <th className="p-4">Terk Edilme Tarihi</th>
+                                    <th className="p-4 pr-6 text-right">Kurtarma Aksiyonu</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100 text-sm font-medium text-gray-700">
+                            <tbody className="divide-y divide-gray-100 text-sm font-medium text-gray-700 bg-white">
                                 {filteredCarts.map((c) => (
-                                    <tr key={c.id} className="hover:bg-gray-50/50 transition">
+                                    <tr key={c.id} className="hover:bg-gray-50/40 transition-colors duration-150">
                                         {/* Name */}
                                         <td className="p-4 pl-6">
                                             {c.userId ? (
@@ -193,7 +333,7 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
                                                     href={`/admin/ogrenciler/${c.userId}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="font-bold text-blue-600 hover:text-blue-855 hover:underline inline-flex items-center gap-1 group"
+                                                    className="font-bold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 group transition"
                                                 >
                                                     {c.name}
                                                     <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
@@ -201,27 +341,39 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
                                             ) : (
                                                 <div className="font-bold text-gray-900">{c.name}</div>
                                             )}
-                                            <div className={`text-xs font-semibold mt-0.5 ${c.userId ? "text-emerald-600 font-bold" : "text-gray-450"}`}>
-                                                {c.userId ? "Kayıtlı Öğrenci" : "Misafir Ziyaretçi"}
+                                            <div className="mt-1.5 flex">
+                                                {c.userId ? (
+                                                    <span className="bg-emerald-50 text-emerald-700 border border-emerald-100/80 px-2 py-0.5 rounded-lg text-[10px] font-extrabold inline-flex items-center gap-1">
+                                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                        Kayıtlı Öğrenci
+                                                    </span>
+                                                ) : (
+                                                    <span className="bg-gray-50 text-gray-500 border border-gray-200/80 px-2 py-0.5 rounded-lg text-[10px] font-extrabold inline-flex items-center gap-1">
+                                                        <span className="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                                                        Misafir Ziyaretçi
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
 
                                         {/* Contact details */}
-                                        <td className="p-4 space-y-0.5">
-                                            <div className="flex items-center gap-1.5 text-gray-900">
+                                        <td className="p-4 space-y-1">
+                                            <div className="flex items-center gap-1.5 text-gray-900 font-semibold">
                                                 <PhoneIcon className="h-4 w-4 text-gray-400" />
                                                 <span>{c.phone}</span>
                                             </div>
-                                            <div className="text-xs text-gray-500 font-medium">{c.email}</div>
+                                            <div className="text-xs text-gray-400 font-medium flex items-center gap-1.5">
+                                                <span>{c.email}</span>
+                                            </div>
                                         </td>
 
                                         {/* Cart items */}
                                         <td className="p-4 max-w-xs">
-                                            <div className="flex flex-wrap gap-1">
+                                            <div className="flex flex-wrap gap-1.5">
                                                 {c.courses.map((item, idx) => (
                                                     <span 
                                                         key={idx}
-                                                        className="px-2 py-0.5 rounded-md bg-[#0B1221]/5 text-gray-800 text-xs font-bold border border-black/5"
+                                                        className="px-2 py-0.5 rounded-lg bg-blue-50/50 text-blue-700 text-xs font-bold border border-blue-100/50 shadow-inner-sm"
                                                     >
                                                         {stripHtml(item.title)}
                                                     </span>
@@ -229,9 +381,33 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
                                             </div>
                                         </td>
 
+                                        {/* Cart total value */}
+                                        <td className="p-4 text-right font-extrabold text-gray-900">
+                                            {formatTRY(c.cartValue)}
+                                        </td>
+
+                                        {/* Status dropdown */}
+                                        <td className="p-4 text-center">
+                                            <select
+                                                value={c.status}
+                                                onChange={(e) => handleStatusChange(c.id, e.target.value)}
+                                                className={`text-xs font-bold px-2.5 py-1.5 rounded-xl border outline-none cursor-pointer transition ${
+                                                    c.status === "RECOVERED"
+                                                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                                        : c.status === "CONTACTED"
+                                                        ? "bg-blue-50 text-blue-700 border-blue-200"
+                                                        : "bg-gray-50 text-gray-600 border-gray-250"
+                                                }`}
+                                            >
+                                                <option value="PENDING">Bekliyor</option>
+                                                <option value="CONTACTED">Ulaşıldı</option>
+                                                <option value="RECOVERED">Satış Yapıldı</option>
+                                            </select>
+                                        </td>
+
                                         {/* Date */}
                                         <td className="p-4 text-gray-500">
-                                            <div className="flex items-center gap-1.5">
+                                            <div className="flex items-center gap-1.5 text-xs font-semibold">
                                                 <ClockIcon className="h-4 w-4 text-gray-400" />
                                                 <span>{formatDate(c.createdAt)}</span>
                                             </div>
@@ -239,30 +415,42 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
 
                                         {/* Actions */}
                                         <td className="p-4 pr-6 text-right">
-                                            <div className="flex items-center justify-end gap-2">
+                                            <div className="flex items-center justify-end gap-2.5">
                                                 {c.phone && c.phone !== "-" ? (
-                                                    <a
-                                                        href={getCleanWhatsAppLink(c.phone, c.name, c.courses)}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold shadow-sm hover:shadow transition active:scale-95"
+                                                    <button
+                                                        type="button"
+                                                        disabled={couponGeneratingId === c.id}
+                                                        onClick={() => handleWhatsAppRecovery(c)}
+                                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-55 disabled:scale-100 cursor-pointer"
                                                     >
-                                                        <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                                                            <path d="M17.472 14.382c-.022-.08-.117-.162-.193-.238-.076-.076-.172-.116-.27-.116h-1.01c-.1 0-.194.04-.27.116-.076.076-.171.158-.193.238l-.348 1.258c-.024.088-.108.148-.198.148-.052 0-.102-.02-.144-.058-1.59-1.428-2.614-2.452-4.042-4.042-.038-.042-.058-.092-.058-.144 0-.09.06-.174.148-.198l1.258-.348c.08-.022.162-.117.238-.193.076-.076.116-.172.116-.27v-1.01c0-.1-.04-.194-.116-.27-.076-.076-.158-.171-.238-.193l-1.258-.348c-.088-.024-.182.012-.224.092l-.634 1.22c-.104.2-.09.444.036.632 1.488 2.218 3.284 4.014 5.502 5.502.188.126.432.14.632.036l1.22-.634c.08-.042.116-.136.092-.224l-.348-1.258zM12 2C6.477 2 2 6.477 2 12c0 1.887.525 3.65 1.442 5.162L2.043 21.92l4.908-1.353C8.423 21.493 10.15 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.634 0-3.15-.472-4.432-1.282l-.317-.197-2.92.805.807-2.923-.195-.316C4.135 14.882 3.666 13.5 3.666 12c0-4.596 3.738-8.333 8.334-8.333 4.595 0 8.333 3.737 8.333 8.333 0 4.596-3.738 8.333-8.333 8.333z"/>
-                                                        </svg>
-                                                        WhatsApp
-                                                        <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 opacity-60" />
-                                                    </a>
+                                                        {couponGeneratingId === c.id ? (
+                                                            <span className="flex items-center gap-1">
+                                                                <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                                </svg>
+                                                                Kupon Hazırlanıyor...
+                                                            </span>
+                                                        ) : (
+                                                            <>
+                                                                <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                                                                    <path d="M17.472 14.382c-.022-.08-.117-.162-.193-.238-.076-.076-.172-.116-.27-.116h-1.01c-.1 0-.194.04-.27.116-.076.076-.171.158-.193.238l-.348 1.258c-.024.088-.108.148-.198.148-.052 0-.102-.02-.144-.058-1.59-1.428-2.614-2.452-4.042-4.042-.038-.042-.058-.092-.058-.144 0-.09.06-.174.148-.198l1.258-.348c.08-.022.162-.117.238-.193.076-.076.116-.172.116-.27v-1.01c0-.1-.04-.194-.116-.27-.076-.076-.158-.171-.238-.193l-1.258-.348c-.088-.024-.182.012-.224.092l-.634 1.22c-.104.2-.09.444.036.632 1.488 2.218 3.284 4.014 5.502 5.502.188.126.432.14.632.036l1.22-.634c.08-.042.116-.136.092-.224l-.348-1.258zM12 2C6.477 2 2 6.477 2 12c0 1.887.525 3.65 1.442 5.162L2.043 21.92l4.908-1.353C8.423 21.493 10.15 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.634 0-3.15-.472-4.432-1.282l-.317-.197-2.92.805.807-2.923-.195-.316C4.135 14.882 3.666 13.5 3.666 12c0-4.596 3.738-8.333 8.334-8.333 4.595 0 8.333 3.737 8.333 8.333 0 4.596-3.738 8.333-8.333 8.333z"/>
+                                                                </svg>
+                                                                Sıcak Satış WhatsApp
+                                                                <ArrowTopRightOnSquareIcon className="h-3 w-3 opacity-70" />
+                                                            </>
+                                                        )}
+                                                    </button>
                                                 ) : (
-                                                    <span className="text-xs text-gray-400 font-bold px-2.5 py-1.5 rounded-lg border border-gray-100 bg-gray-50">
-                                                        No Phone
+                                                    <span className="text-[10px] text-gray-400 font-extrabold px-2.5 py-1.5 rounded-xl border border-gray-150 bg-gray-50 select-none">
+                                                        İletişim Yok
                                                     </span>
                                                 )}
                                                 <button
                                                     onClick={() => handleDelete(c.id)}
                                                     disabled={deletingId === c.id}
-                                                    className="p-1.5 border border-red-150 hover:bg-red-50 text-red-600 rounded-lg transition disabled:opacity-50 active:scale-95"
-                                                    title="Kaydı Arşivle/Sil"
+                                                    className="p-2 border border-gray-200 hover:border-red-500 text-gray-400 hover:text-white hover:bg-red-500 rounded-xl transition duration-200 disabled:opacity-50 active:scale-95 cursor-pointer"
+                                                    title="Arşive Kaldır"
                                                 >
                                                     <TrashIcon className="h-4.5 w-4.5" />
                                                 </button>

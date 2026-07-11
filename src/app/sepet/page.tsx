@@ -3,8 +3,9 @@
 import MainHeader from "@/app/components/MainHeader";
 import Footer from "@/app/components/Footer";
 import { useCart } from "@/app/components/cart/cartStore";
-import { useState } from "react";
-import { validateCouponAction } from "./actions";
+import { useState, useEffect } from "react";
+import { validateCouponAction, getRecommendedCoursesAction } from "./actions";
+import { recoverAbandonedCartAction } from "@/app/admin/sepet-takip/actions";
 import Image from "next/image";
 
 function formatTRY(n: number) {
@@ -16,10 +17,59 @@ function formatTRY(n: number) {
 }
 
 export default function SepetPage() {
-  const { state, subtotal, discount, total, remove, setQty, clear, applyCoupon, removeCoupon } = useCart();
+  const { state, subtotal, discount, total, remove, setQty, clear, applyCoupon, removeCoupon, add } = useCart();
   const [couponInput, setCouponInput] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponMsg, setCouponMsg] = useState({ type: "", text: "" });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const recoverId = urlParams.get("recover");
+    if (!recoverId) return;
+
+    const restoreCart = async () => {
+      const res = await recoverAbandonedCartAction(recoverId);
+      if (res.success && res.courses && res.courses.length > 0) {
+        clear();
+        res.courses.forEach((c: any) => {
+          add({
+            id: c.id,
+            slug: c.slug,
+            title: c.title,
+            price: c.price,
+            imageUrl: c.imageUrl || "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop",
+            qty: 1,
+            variantId: undefined,
+            selectedAddonIds: [],
+            isCouponApplicable: c.isCouponApplicable ?? true,
+            isInstallmentApplicable: c.isInstallmentApplicable ?? true,
+          });
+        });
+        
+        // Remove recover from URL search query
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, "", newUrl);
+      }
+    };
+    restoreCart();
+  }, [clear, add]);
+
+  const [recs, setRecs] = useState<any[]>([]);
+  const [recsLoading, setRecsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchRecs = async () => {
+      setRecsLoading(true);
+      const cartIds = state.items.map(i => i.id);
+      const res = await getRecommendedCoursesAction(cartIds);
+      if (res.success && res.courses) {
+        setRecs(res.courses);
+      }
+      setRecsLoading(false);
+    };
+    fetchRecs();
+  }, [state.items]);
 
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) return;
@@ -49,7 +99,7 @@ export default function SepetPage() {
     <main className="min-h-screen bg-light">
       <MainHeader />
 
-      <section className="container mx-auto max-w-7xl px-4 pt-28 pb-20">
+      <section className="container mx-auto max-w-7xl px-4 pt-12 pb-20">
         <div className="flex items-end justify-between gap-4">
           <div>
             <div className="text-sm font-bold text-dark/60">Sepet</div>
@@ -113,6 +163,68 @@ export default function SepetPage() {
                   </div>
                 </div>
               ))
+            )}
+
+            {/* Bunu Alanlar Bunları da Aldı (Öneriler) */}
+            {recs.length > 0 && (
+              <div className="mt-8 pt-6 border-t border-black/10">
+                <h3 className="text-xl font-extrabold text-dark mb-4">Bunu Alanlar Bunları da Aldı</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {recs.map((rec) => (
+                    <div key={rec.id} className="rounded-3xl border border-black/10 bg-white p-4 flex gap-4 items-center group transition hover:shadow-md">
+                      <div className="h-16 w-20 rounded-2xl overflow-hidden bg-light border border-black/10 flex-shrink-0 relative">
+                        {rec.imageUrl ? (
+                          <Image fill sizes="80px" src={rec.imageUrl} alt={rec.title} className="object-cover" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center bg-gray-100 text-gray-400">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-extrabold text-dark truncate hover:text-[#DC2626] transition-colors">
+                          <a href={`/kurs/${rec.slug}`}>
+                            {rec.title?.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ")}
+                          </a>
+                        </h4>
+                        <p className="text-xs text-dark/50">{rec.category || "Eğitim Paketi"}</p>
+                        
+                        <div className="mt-2 flex items-center justify-between gap-2">
+                          <div className="text-sm font-extrabold text-[#DC2626]">
+                            {formatTRY(rec.price)}
+                            {rec.oldPrice ? (
+                              <span className="ml-2 text-xs text-dark/40 line-through font-bold">
+                                {formatTRY(rec.oldPrice)}
+                              </span>
+                            ) : null}
+                          </div>
+                          
+                          <button
+                            onClick={() => add({
+                              id: rec.id,
+                              slug: rec.slug,
+                              title: rec.title,
+                              price: rec.price,
+                              imageUrl: rec.imageUrl || "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop",
+                              qty: 1,
+                              variantId: undefined,
+                              selectedAddonIds: [],
+                              isCouponApplicable: rec.isCouponApplicable ?? true,
+                              isInstallmentApplicable: rec.isInstallmentApplicable ?? true,
+                            })}
+                            className="text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-xl shadow-sm transition"
+                          >
+                            + Ekle
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 
@@ -178,8 +290,8 @@ export default function SepetPage() {
                 Ödemeye Geç
               </a>
 
-              <div className="mt-4 text-xs text-dark/50">
-                * Ödeme adımında taksit/Param seçenekleri gösterilecek.
+              <div className="mt-4 text-xs text-red-600 font-semibold">
+                * Kart bilgilerinizi girdikten sonra taksit seçeneklerinizi görebilirsiniz.
               </div>
             </div>
           </aside>

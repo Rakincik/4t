@@ -132,6 +132,7 @@ interface CourseFormProps {
     course?: Course;
     existingCategories?: string[];
     dbCategories?: { id: string; slug: string; name: string }[];
+    dbCourses?: { id: string; title: string; type?: string; category?: string | null }[];
 }
 
 const TYPES = [
@@ -169,7 +170,7 @@ function parseJsonSafe(val: any, fallback: any) {
     return fallback;
 }
 
-export default function CourseForm({ mode, course, existingCategories = [], dbCategories = [] }: CourseFormProps) {
+export default function CourseForm({ mode, course, existingCategories = [], dbCategories = [], dbCourses = [] }: CourseFormProps) {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -178,6 +179,21 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [uploadingIntroVideo, setUploadingIntroVideo] = useState(false);
+    const [recommendedCourseIds, setRecommendedCourseIds] = useState<string[]>(() => {
+        return parseJsonSafe((course as any)?.recommendedCourseIds, []);
+    });
+
+    const moveRecommendation = (index: number, direction: 'left' | 'right') => {
+        if (direction === 'left' && index === 0) return;
+        if (direction === 'right' && index === recommendedCourseIds.length - 1) return;
+
+        const newIds = [...recommendedCourseIds];
+        const targetIndex = direction === 'left' ? index - 1 : index + 1;
+        const temp = newIds[index];
+        newIds[index] = newIds[targetIndex];
+        newIds[targetIndex] = temp;
+        setRecommendedCourseIds(newIds);
+    };
     const [uploadingInstructorPhoto, setUploadingInstructorPhoto] = useState<number | null>(null);
     const videoFileInputRef = useRef<HTMLInputElement>(null);
     const [uploadingVideoKey, setUploadingVideoKey] = useState<string | null>(null);
@@ -197,6 +213,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
 
     const [flixUpsellData, setFlixUpsellData] = useState(parsedUpsell);
     const [flixUpsellLink, setFlixUpsellLink] = useState((course as any)?.flixUpsellLink || "");
+    const [courseQuery, setCourseQuery] = useState("");
 
     // Temel
     const [title, setTitle] = useState(course?.title || "");
@@ -397,6 +414,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
             fd.append("accessDurationDays", accessDurationDays);
             fd.append("flixUpsellText", JSON.stringify(flixUpsellData));
             fd.append("flixUpsellLink", flixUpsellLink);
+            fd.append("recommendedCourseIds", JSON.stringify(recommendedCourseIds));
             fd.append("coupons", JSON.stringify(coupons.map(c => ({
                 code: c.code.toUpperCase().trim(), type: c.type, amount: parseFloat(c.amount) || 0,
                 maxUses: c.maxUses ? parseInt(c.maxUses) : null,
@@ -840,6 +858,138 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
                         <div>
                             <label className={labelCls}>Yönlendirilecek Link</label>
                             <input type="text" value={flixUpsellLink} onChange={(e) => setFlixUpsellLink(e.target.value)} className={inputCls} placeholder="Örn: /flix/kaymakamlik-flix" />
+                        </div>
+
+                        {/* ÇAPRAZ SATIŞ ÖNERİLERİ */}
+                        <div className="border-t border-gray-100 pt-5">
+                            <div className="flex items-center justify-between mb-1.5">
+                                <label className={labelCls}>Çapraz Satış Önerileri (Bunu Alanlar Bunları da Aldı)</label>
+                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${recommendedCourseIds.length === 3 ? 'bg-green-50 text-green-700 border border-green-100' : recommendedCourseIds.length > 3 ? 'bg-amber-50 text-amber-700 border border-amber-100' : 'bg-gray-100 text-gray-500'}`}>
+                                    {recommendedCourseIds.length} / 3 Seçildi
+                                </span>
+                            </div>
+                            <p className="text-xs text-gray-500 mb-4">Bu kurs sepete eklendiğinde önerilecek 3 adet tavsiye kurs seçin. Eğer boş bırakılırsa, sistem otomatik olarak diğer popüler kursları önerecektir.</p>
+                            
+                            <div className="space-y-4">
+                                {/* Seçilen Öneriler */}
+                                {recommendedCourseIds.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mb-1 p-3 bg-blue-50/20 rounded-2xl border border-blue-100/50">
+                                        {recommendedCourseIds.map((id, index) => {
+                                            const matched = dbCourses.find((c) => c.id === id);
+                                            if (!matched) return null;
+                                            return (
+                                                <span key={id} className="inline-flex items-center gap-1.5 bg-white text-blue-700 pl-2.5 pr-2 py-1.5 rounded-xl text-xs font-extrabold border border-blue-200/60 shadow-sm transition hover:border-blue-300">
+                                                    {/* Sıralama Okları */}
+                                                    <div className="flex items-center gap-0.5 mr-0.5 border-r border-gray-100 pr-1.5 select-none">
+                                                        <button
+                                                            type="button"
+                                                            disabled={index === 0}
+                                                            onClick={() => moveRecommendation(index, 'left')}
+                                                            className={`w-4 h-4 rounded flex items-center justify-center text-[9px] transition ${index === 0 ? 'text-gray-200 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-50'}`}
+                                                            title="Sola Taşı"
+                                                        >
+                                                            ◀
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            disabled={index === recommendedCourseIds.length - 1}
+                                                            onClick={() => moveRecommendation(index, 'right')}
+                                                            className={`w-4 h-4 rounded flex items-center justify-center text-[9px] transition ${index === recommendedCourseIds.length - 1 ? 'text-gray-200 cursor-not-allowed' : 'text-blue-500 hover:bg-blue-50'}`}
+                                                            title="Sağa Taşı"
+                                                        >
+                                                            ▶
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <span className="truncate max-w-[200px]">{matched.title}</span>
+                                                    
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setRecommendedCourseIds(prev => prev.filter(x => x !== id))}
+                                                        className="w-4.5 h-4.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition font-extrabold text-[11px] ml-1 select-none"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* Arama ve Seçim Alanı */}
+                                <div className="border border-gray-200 rounded-2xl p-4 bg-white shadow-inner-sm space-y-3">
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Kurs adına göre hızlı ara..."
+                                            value={courseQuery}
+                                            onChange={(e) => setCourseQuery(e.target.value)}
+                                            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200"
+                                        />
+                                        <svg className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                    
+                                    <div 
+                                        className="max-h-56 overflow-y-auto space-y-1.5 pr-1"
+                                        style={{ scrollbarWidth: "thin", scrollbarColor: "#e5e7eb transparent" }}
+                                    >
+                                        {dbCourses
+                                            .filter(c => c.id !== course?.id) // Kendisini önermesin
+                                            .filter(c => c.title.toLocaleLowerCase('tr-TR').includes(courseQuery.toLocaleLowerCase('tr-TR'))).length === 0 ? (
+                                                <div className="text-center py-8 text-gray-400 text-xs font-medium flex flex-col items-center justify-center gap-2">
+                                                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    Arama sonucunda kurs bulunamadı
+                                                </div>
+                                            ) : (
+                                                dbCourses
+                                                    .filter(c => c.id !== course?.id)
+                                                    .filter(c => c.title.toLocaleLowerCase('tr-TR').includes(courseQuery.toLocaleLowerCase('tr-TR')))
+                                                    .slice(0, 15) // Hızlı liste için limit
+                                                    .map((c) => {
+                                                        const isChecked = recommendedCourseIds.includes(c.id);
+                                                        return (
+                                                            <div
+                                                                key={c.id}
+                                                                onClick={() => {
+                                                                    if (isChecked) {
+                                                                        setRecommendedCourseIds(prev => prev.filter(id => id !== c.id));
+                                                                    } else {
+                                                                        setRecommendedCourseIds(prev => [...prev, c.id]);
+                                                                    }
+                                                                }}
+                                                                className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer select-none transition-all duration-200 text-xs ${isChecked ? 'bg-blue-50/40 border-blue-200/80 shadow-sm' : 'border-gray-100/70 hover:bg-gray-50/50 hover:border-gray-200'}`}
+                                                            >
+                                                                <div className="min-w-0 flex-1 pr-4">
+                                                                    <div className="font-bold text-gray-700 truncate">{c.title}</div>
+                                                                    <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                                                        {c.category && (
+                                                                            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[9px] font-bold">
+                                                                                {c.category}
+                                                                            </span>
+                                                                        )}
+                                                                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${c.type === 'KAMP' ? 'bg-orange-50 text-orange-600 border border-orange-100/50' : 'bg-blue-50 text-blue-600 border border-blue-100/50'}`}>
+                                                                            {c.type === 'KAMP' ? 'Kamp' : 'Kurs'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all duration-200 ${isChecked ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 bg-white hover:border-gray-400'}`}>
+                                                                    {isChecked && (
+                                                                        <svg className="w-3 h-3 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                                        </svg>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })
+                                            )}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { XMarkIcon, TrashIcon, MinusIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { useCart } from "./cartStore";
 import Image from "next/image";
+import { getRecommendedCoursesAction } from "@/app/sepet/actions";
 
 function formatTRY(n: number) {
   try {
@@ -14,7 +15,23 @@ function formatTRY(n: number) {
 }
 
 export default function MiniCartDrawer() {
-  const { state, isOpen, close, subtotal, total, remove, setQty } = useCart();
+  const { state, isOpen, close, subtotal, total, remove, setQty, add } = useCart();
+  const [recs, setRecs] = useState<any[]>([]);
+  const [recsLoading, setRecsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const fetchRecs = async () => {
+      setRecsLoading(true);
+      const cartIds = state.items.map(i => i.id);
+      const res = await getRecommendedCoursesAction(cartIds);
+      if (res.success && res.courses) {
+        setRecs(res.courses);
+      }
+      setRecsLoading(false);
+    };
+    fetchRecs();
+  }, [state.items, isOpen]);
 
   const count = useMemo(() => state.items.reduce((s, x) => s + x.qty, 0), [state.items]);
 
@@ -115,6 +132,51 @@ export default function MiniCartDrawer() {
                   </div>
                 </div>
               ))
+            )}
+
+            {state.items.length > 0 && recs.length > 0 && (
+              <div className="mt-6 pt-4 border-t border-black/10">
+                <div className="text-xs font-bold text-dark/50 mb-3 uppercase tracking-wider">Bunları da Ekleyebilirsiniz</div>
+                <div className="space-y-3">
+                  {recs.slice(0, 2).map((rec) => (
+                    <div key={rec.id} className="rounded-2xl border border-black/10 bg-gray-50/50 p-3 flex gap-3 items-center group transition hover:shadow-sm">
+                      <div className="h-12 w-16 rounded-xl overflow-hidden bg-white border border-black/10 flex-shrink-0 relative">
+                        {rec.imageUrl ? (
+                          <Image fill sizes="60px" src={rec.imageUrl} alt={rec.title} className="object-cover" />
+                        ) : null}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-dark truncate">
+                          {rec.title?.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ")}
+                        </div>
+                        <div className="flex items-center justify-between mt-1.5">
+                          <div className="text-xs font-extrabold text-[#DC2626]">
+                            {formatTRY(rec.price)}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => add({
+                              id: rec.id,
+                              slug: rec.slug,
+                              title: rec.title,
+                              price: rec.price,
+                              imageUrl: rec.imageUrl || "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop",
+                              qty: 1,
+                              variantId: undefined,
+                              selectedAddonIds: [],
+                              isCouponApplicable: rec.isCouponApplicable ?? true,
+                              isInstallmentApplicable: rec.isInstallmentApplicable ?? true,
+                            })}
+                            className="text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-700 px-2.5 py-1 rounded-lg transition"
+                          >
+                            + Ekle
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 

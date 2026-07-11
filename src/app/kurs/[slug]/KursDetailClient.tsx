@@ -411,19 +411,41 @@ export default function KursDetailClient({ course }: { course: any }) {
                 <div className="mb-5">
                   <h4 className="text-sm font-extrabold text-gray-900 mb-2.5">Eğitim Modeli Seçin:</h4>
                   <div className="grid grid-cols-2 gap-2.5">
-                    {course.variants.map((variant: any) => (
-                      <button
-                        key={variant.id}
-                        onClick={() => setSelectedVariantId(variant.id)}
-                        className={`flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border-2 transition-all text-xs font-bold ${
-                          selectedVariantId === variant.id 
-                            ? 'border-[#DC2626] bg-red-50 text-[#DC2626]' 
-                            : 'border-gray-200 text-gray-500 hover:border-gray-300'
-                        }`}
-                      >
-                        <span>{variant.title}</span>
-                      </button>
-                    ))}
+                    {course.variants.map((variant: any) => {
+                      const isSelected = selectedVariantId === variant.id;
+                      const isOnline = variant.title.toLowerCase().includes("online");
+                      return (
+                        <button
+                          key={variant.id}
+                          onClick={() => setSelectedVariantId(variant.id)}
+                          className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all relative group overflow-hidden ${
+                            isSelected 
+                              ? 'border-[#DC2626] bg-red-50/40 text-[#DC2626] shadow-md shadow-red-500/5' 
+                              : 'border-gray-200 text-gray-500 hover:border-[#DC2626]/50 hover:bg-red-50/10'
+                          }`}
+                        >
+                          <div className={`mb-1.5 rounded-lg p-1.5 transition-all ${isSelected ? 'bg-[#DC2626]/10 text-[#DC2626]' : 'bg-gray-50 text-gray-400 group-hover:text-[#DC2626] group-hover:bg-[#DC2626]/5'}`}>
+                            {isOnline ? (
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                            )}
+                          </div>
+                          <span className="font-extrabold text-xs">{variant.title}</span>
+                          {isSelected && (
+                            <div className="absolute top-0 right-0 bg-[#DC2626] text-white p-0.5 rounded-bl-md">
+                              <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -433,29 +455,55 @@ export default function KursDetailClient({ course }: { course: any }) {
                 <div className="mb-2">
                   <h4 className="text-sm font-extrabold text-gray-900 mb-2.5">Paketinize Ekleyin (İsteğe Bağlı):</h4>
                   <div className="space-y-2">
-                    {course.addons.map((addon: any) => (
-                      <label 
-                        key={addon.id} 
-                        className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                          selectedAddonIds.includes(addon.id) 
-                            ? 'border-[#DC2626] bg-red-50' 
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
+                    {course.addons.map((addon: any) => {
+                      const isSelected = selectedAddonIds.includes(addon.id);
+                      const isBook = addon.title.toLowerCase().includes("kitap") || addon.title.toLowerCase().includes("seti");
+                      return (
+                        <label 
+                          key={addon.id} 
+                          className={`flex items-center justify-between p-3 rounded-2xl border-2 cursor-pointer transition-all relative group ${
+                            isSelected 
+                              ? 'border-[#DC2626] bg-red-50/40 shadow-md shadow-red-500/5' 
+                              : 'border-gray-200 hover:border-[#DC2626]/50 hover:bg-red-50/10'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={`w-4.5 h-4.5 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-[#DC2626] border-[#DC2626] text-white shadow-sm' : 'border-gray-300 bg-white group-hover:border-[#DC2626]'}`}>
+                              {isSelected && (
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </div>
+                            
+                            <div className={`rounded-lg p-1 transition-all ${isSelected ? 'bg-[#DC2626]/10 text-[#DC2626]' : 'bg-gray-50 text-gray-400 group-hover:text-[#DC2626] group-hover:bg-[#DC2626]/5'}`}>
+                              {isBook ? (
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                              ) : (
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479L12 14zm0 0L5.84 10.578a12.084 12.084 0 00-.665 6.479L12 14z" />
+                                </svg>
+                              )}
+                            </div>
+
+                            <span className={`font-bold text-xs truncate ${isSelected ? 'text-[#DC2626]' : 'text-gray-700'}`}>
+                              {addon.title}
+                            </span>
+                          </div>
+                          <span className={`text-xs font-black shrink-0 ${isSelected ? 'text-[#DC2626]' : 'text-gray-500'}`}>
+                            +₺{addon.price.toLocaleString()}
+                          </span>
                           <input 
                             type="checkbox" 
-                            checked={selectedAddonIds.includes(addon.id)}
+                            checked={isSelected}
                             onChange={() => handleAddonToggle(addon.id)} 
-                            className="w-4 h-4 text-[#DC2626] border-gray-300 rounded focus:ring-[#DC2626]" 
+                            className="sr-only"
                           />
-                          <span className={`font-bold text-xs ${selectedAddonIds.includes(addon.id) ? 'text-[#DC2626]' : 'text-gray-700'}`}>
-                            {addon.title}
-                          </span>
-                        </div>
-                        <span className="text-xs font-extrabold text-gray-500">+₺{addon.price.toLocaleString()}</span>
-                      </label>
-                    ))}
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -473,54 +521,121 @@ export default function KursDetailClient({ course }: { course: any }) {
               <div className="bg-white rounded-2xl p-6 shadow-xl shadow-gray-200/50 border border-gray-100">
 
                 {/* Müşteri Akışı: Eğitim Modeli (Varyasyonlar) */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-bold text-gray-900 mb-3">1. Eğitim Modeli Seçin:</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {course.variants.map((variant: any) => (
-                      <button
-                        key={variant.id}
-                        onClick={() => setSelectedVariantId(variant.id)}
-                        className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${selectedVariantId === variant.id ? 'border-[#DC2626] bg-red-50 text-[#DC2626]' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
-                      >
-                        <span className="font-bold">{variant.title}</span>
-                      </button>
-                    ))}
+                {course.variants.length > 1 && (
+                  <div className="mb-6">
+                    <h4 className="text-sm font-bold text-gray-900 mb-3">1. Eğitim Modeli Seçin:</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      {course.variants.map((variant: any) => {
+                        const isSelected = selectedVariantId === variant.id;
+                        const isOnline = variant.title.toLowerCase().includes("online");
+                        return (
+                          <button
+                            key={variant.id}
+                            onClick={() => setSelectedVariantId(variant.id)}
+                            className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all relative group overflow-hidden ${
+                              isSelected 
+                                ? 'border-[#DC2626] bg-red-50/40 text-[#DC2626] shadow-md shadow-red-500/5' 
+                                : 'border-gray-200 text-gray-500 hover:border-[#DC2626]/50 hover:bg-red-50/10'
+                            }`}
+                          >
+                            <div className={`mb-1.5 rounded-lg p-1.5 transition-all ${isSelected ? 'bg-[#DC2626]/10 text-[#DC2626]' : 'bg-gray-50 text-gray-400 group-hover:text-[#DC2626] group-hover:bg-[#DC2626]/5'}`}>
+                              {isOnline ? (
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                              ) : (
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                              )}
+                            </div>
+                            <span className="font-extrabold text-sm">{variant.title}</span>
+                            {isSelected && (
+                              <div className="absolute top-0 right-0 bg-[#DC2626] text-white p-0.5 rounded-bl-md">
+                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Müşteri Akışı: Ek Seçenekler (Addons) */}
                 <div className="mb-6">
                   <h4 className="text-sm font-bold text-gray-900 mb-3">2. Paketinize Ekleyin (İsteğe Bağlı):</h4>
                   <div className="space-y-2">
-                    {course.addons.map((addon: any) => (
-                      <label key={addon.id} className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedAddonIds.includes(addon.id) ? 'border-[#DC2626] bg-red-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                        <div className="flex items-center gap-3">
+                    {course.addons.map((addon: any) => {
+                      const isSelected = selectedAddonIds.includes(addon.id);
+                      const isBook = addon.title.toLowerCase().includes("kitap") || addon.title.toLowerCase().includes("seti");
+                      return (
+                        <label 
+                          key={addon.id} 
+                          className={`flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all relative group ${
+                            isSelected 
+                              ? 'border-[#DC2626] bg-red-50/40 shadow-md shadow-red-500/5' 
+                              : 'border-gray-200 hover:border-[#DC2626]/50 hover:bg-red-50/10'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-[#DC2626] border-[#DC2626] text-white shadow-sm' : 'border-gray-300 bg-white group-hover:border-[#DC2626]'}`}>
+                              {isSelected && (
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </div>
+                            
+                            <div className={`rounded-lg p-1.5 transition-all ${isSelected ? 'bg-[#DC2626]/10 text-[#DC2626]' : 'bg-gray-50 text-gray-400 group-hover:text-[#DC2626] group-hover:bg-[#DC2626]/5'}`}>
+                              {isBook ? (
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                              ) : (
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479L12 14zm0 0L5.84 10.578a12.084 12.084 0 00-.665 6.479L12 14z" />
+                                </svg>
+                              )}
+                            </div>
+
+                            <span className={`font-bold text-sm truncate ${isSelected ? 'text-[#DC2626]' : 'text-gray-700'}`}>
+                              {addon.title}
+                            </span>
+                          </div>
+                          <span className={`text-sm font-black shrink-0 ${isSelected ? 'text-[#DC2626]' : 'text-gray-500'}`}>
+                            +₺{addon.price.toLocaleString()}
+                          </span>
                           <input 
                             type="checkbox" 
-                            checked={selectedAddonIds.includes(addon.id)}
+                            checked={isSelected}
                             onChange={() => handleAddonToggle(addon.id)} 
-                            className="w-4 h-4 text-[#DC2626] border-gray-300 rounded focus:ring-[#DC2626]" 
+                            className="sr-only"
                           />
-                          <span className={`font-semibold text-sm ${selectedAddonIds.includes(addon.id) ? 'text-[#DC2626]' : 'text-gray-700'}`}>{addon.title}</span>
+                        </label>
+                      );
+                    })}
+                      
+                      {/* "Ek Bir Seçenek İstemiyorum" Button */}
+                      <button 
+                        onClick={clearAddons}
+                        className={`w-full text-left p-3.5 rounded-2xl border-2 transition-all text-xs sm:text-sm font-bold flex items-center justify-between group cursor-pointer ${
+                          selectedAddonIds.length === 0 
+                            ? 'border-[#0B1221] bg-gray-50 text-[#0B1221] shadow-sm' 
+                            : 'border-dashed border-gray-200 text-gray-400 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedAddonIds.length === 0 ? 'border-[#0B1221] bg-white' : 'border-gray-300 bg-white group-hover:border-gray-400'}`}>
+                            {selectedAddonIds.length === 0 && <div className="w-2.5 h-2.5 rounded-full bg-[#0B1221]"></div>}
+                          </div>
+                          <span>Ek Bir Seçenek İstemiyorum</span>
                         </div>
-                        <span className="text-sm font-bold text-gray-500">+₺{addon.price.toLocaleString()}</span>
-                      </label>
-                    ))}
-                    
-                    {/* "Ek Bir Seçenek İstemiyorum" Button */}
-                    <button 
-                      onClick={clearAddons}
-                      className={`w-full text-left p-3 rounded-xl border-2 transition-all text-sm font-semibold flex items-center justify-between ${selectedAddonIds.length === 0 ? 'border-gray-400 bg-gray-100 text-gray-800' : 'border-dashed border-gray-200 text-gray-400 hover:border-gray-300'}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedAddonIds.length === 0 ? 'border-gray-800' : 'border-gray-300'}`}>
-                          {selectedAddonIds.length === 0 && <div className="w-2 h-2 rounded-full bg-gray-800"></div>}
-                        </div>
-                        <span>Ek Bir Seçenek İstemiyorum</span>
-                      </div>
-                    </button>
+                      </button>
+                    </div>
                   </div>
-                </div>
 
                 <div className="flex items-end gap-3 mb-6 pt-4 border-t border-gray-100">
                   <div className="text-4xl font-extrabold text-[#0B1221]">₺{currentPrice.toLocaleString()}</div>

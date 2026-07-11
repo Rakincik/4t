@@ -9,6 +9,7 @@ import {
   LockClosedIcon,
   CreditCardIcon,
   CheckBadgeIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/solid";
 
 function cn(...classes: (string | false | null | undefined)[]) {
@@ -17,6 +18,19 @@ function cn(...classes: (string | false | null | undefined)[]) {
 
 export default function Footer() {
   const [config, setConfig] = useState<any>(null);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    uzaktanEgitim: false,
+    urunler: false,
+    kurumsal: false,
+    yasal: false,
+  });
+
+  const toggleSection = (key: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
 
   useEffect(() => {
     fetch("/api/settings/global")
@@ -163,15 +177,26 @@ export default function Footer() {
         </div>
 
         {/* LINKS SECTION */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
+        <div className="flex flex-col md:grid md:grid-cols-4 gap-y-4 md:gap-x-8 md:gap-y-12">
 
           {/* Uzaktan Eğitim */}
-          <div>
-            <h4 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-1 h-6 bg-[#DC2626] rounded-full"></span>
-              Uzaktan Eğitim
-            </h4>
-            <ul className="space-y-3">
+          <div className="border-b border-white/5 md:border-none pb-4 md:pb-0">
+            <button
+              onClick={() => toggleSection("uzaktanEgitim")}
+              className="w-full flex items-center justify-between text-left md:pointer-events-none focus:outline-none cursor-pointer md:cursor-default"
+            >
+              <h4 className="text-white font-bold text-base md:text-lg flex items-center gap-2">
+                <span className="w-1 h-5 md:h-6 bg-[#DC2626] rounded-full"></span>
+                Uzaktan Eğitim
+              </h4>
+              <ChevronDownIcon 
+                className={cn(
+                  "w-5 h-5 text-gray-500 transition-transform duration-300 md:hidden",
+                  openSections.uzaktanEgitim && "rotate-180"
+                )} 
+              />
+            </button>
+            <ul className={cn("space-y-3 mt-3 md:mt-6", openSections.uzaktanEgitim ? "block" : "hidden md:block")}>
               {footerLinks.uzaktanEgitim.map((item) => (
                 <li key={item.name}>
                   <a href={item.href} className="text-gray-400 hover:text-white hover:translate-x-1 transition-all inline-block text-sm">
@@ -183,12 +208,23 @@ export default function Footer() {
           </div>
 
           {/* Ürünler */}
-          <div>
-            <h4 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
-              Ürünler
-            </h4>
-            <ul className="space-y-3">
+          <div className="border-b border-white/5 md:border-none pb-4 md:pb-0">
+            <button
+              onClick={() => toggleSection("urunler")}
+              className="w-full flex items-center justify-between text-left md:pointer-events-none focus:outline-none cursor-pointer md:cursor-default"
+            >
+              <h4 className="text-white font-bold text-base md:text-lg flex items-center gap-2">
+                <span className="w-1 h-5 md:h-6 bg-blue-500 rounded-full"></span>
+                Ürünler
+              </h4>
+              <ChevronDownIcon 
+                className={cn(
+                  "w-5 h-5 text-gray-500 transition-transform duration-300 md:hidden",
+                  openSections.urunler && "rotate-180"
+                )} 
+              />
+            </button>
+            <ul className={cn("space-y-3 mt-3 md:mt-6", openSections.urunler ? "block" : "hidden md:block")}>
               {footerLinks.urunler.map((item) => (
                 <li key={item.name}>
                   <a href={item.href} className="text-gray-400 hover:text-white hover:translate-x-1 transition-all inline-block text-sm">
@@ -200,12 +236,23 @@ export default function Footer() {
           </div>
 
           {/* Kurumsal */}
-          <div>
-            <h4 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-1 h-6 bg-purple-500 rounded-full"></span>
-              Kurumsal
-            </h4>
-            <ul className="space-y-3">
+          <div className="border-b border-white/5 md:border-none pb-4 md:pb-0">
+            <button
+              onClick={() => toggleSection("kurumsal")}
+              className="w-full flex items-center justify-between text-left md:pointer-events-none focus:outline-none cursor-pointer md:cursor-default"
+            >
+              <h4 className="text-white font-bold text-base md:text-lg flex items-center gap-2">
+                <span className="w-1 h-5 md:h-6 bg-purple-500 rounded-full"></span>
+                Kurumsal
+              </h4>
+              <ChevronDownIcon 
+                className={cn(
+                  "w-5 h-5 text-gray-500 transition-transform duration-300 md:hidden",
+                  openSections.kurumsal && "rotate-180"
+                )} 
+              />
+            </button>
+            <ul className={cn("space-y-3 mt-3 md:mt-6", openSections.kurumsal ? "block" : "hidden md:block")}>
               {footerLinks.kurumsal.map((item) => (
                 <li key={item.name}>
                   <a href={item.href} className="text-gray-400 hover:text-white hover:translate-x-1 transition-all inline-block text-sm">
@@ -217,12 +264,23 @@ export default function Footer() {
           </div>
 
           {/* Yasal */}
-          <div>
-            <h4 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-1 h-6 bg-gray-500 rounded-full"></span>
-              Yasal
-            </h4>
-            <ul className="space-y-3">
+          <div className="border-b border-white/5 md:border-none pb-4 md:pb-0">
+            <button
+              onClick={() => toggleSection("yasal")}
+              className="w-full flex items-center justify-between text-left md:pointer-events-none focus:outline-none cursor-pointer md:cursor-default"
+            >
+              <h4 className="text-white font-bold text-base md:text-lg flex items-center gap-2">
+                <span className="w-1 h-5 md:h-6 bg-gray-500 rounded-full"></span>
+                Yasal
+              </h4>
+              <ChevronDownIcon 
+                className={cn(
+                  "w-5 h-5 text-gray-500 transition-transform duration-300 md:hidden",
+                  openSections.yasal && "rotate-180"
+                )} 
+              />
+            </button>
+            <ul className={cn("space-y-3 mt-3 md:mt-6", openSections.yasal ? "block" : "hidden md:block")}>
               {footerLinks.yasal.map((item) => (
                 <li key={item.name}>
                   <a href={item.href} className="text-gray-400 hover:text-white hover:translate-x-1 transition-all inline-block text-sm">

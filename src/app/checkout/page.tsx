@@ -325,7 +325,7 @@ export default function CheckoutPage() {
     <main className="min-h-screen bg-light pb-10">
       <MainHeader />
 
-      <section className="container mx-auto max-w-7xl px-4 pt-28 pb-20">
+      <section className="container mx-auto max-w-7xl px-4 pt-12 pb-20">
         {/* शीर्ष */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
@@ -716,7 +716,7 @@ export default function CheckoutPage() {
                             {fetchingInstallments ? (
                               <div className="text-xs text-dark/50 animate-pulse py-2">Taksit seçenekleri sorgulanıyor...</div>
                             ) : (
-                              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                              <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-visible pr-2">
                                 {installments.map((inst: any) => {
                                   const count = inst.InstallmentNumber;
                                   const isSelected = selectedInstallment === count;
@@ -799,7 +799,7 @@ export default function CheckoutPage() {
                             setHasReadContract(true);
                           }
                         }}
-                        className="h-44 overflow-y-auto text-[11px] text-dark/60 space-y-2 pr-1 font-medium leading-relaxed bg-white border border-black/5 rounded-xl p-3"
+                        className="h-44 overflow-y-auto scrollbar-visible text-[11px] text-dark/60 space-y-2 pr-2 font-medium leading-relaxed bg-white border border-black/5 rounded-xl p-3"
                       >
                         {contractTextParagraphs.map((p, idx) => (
                           <p key={idx}>{p}</p>
@@ -995,7 +995,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex items-center gap-2 rounded-2xl border border-black/10 bg-white px-3 py-2">
                     <CreditCardIcon className="h-4 w-4 text-primary" />
-                    Taksit
+                    Taksit imkanı
                   </div>
                 </div>
 
@@ -1028,8 +1028,8 @@ export default function CheckoutPage() {
                 </button>
 
 
-                <div className="mt-3 text-xs text-dark/50">
-                  Satın alma sonrası erişim otomatik tanımlanır.
+                <div className="mt-3 text-xs text-red-600 font-semibold">
+                  * Kart bilgilerinizi girdikten sonra taksit seçeneklerinizi görebilirsiniz.
                 </div>
               </div>
             </div>

@@ -66,3 +66,81 @@ export async function validateCouponAction(code: string, cartItems: { id: string
         return { error: "Kupon doğrulanırken bir hata oluştu." };
     }
 }
+
+export async function getRecommendedCoursesAction(excludeIds: string[]) {
+    try {
+        // Sepetteki kursları çekip adminin elle belirlediği öneri ID'lerini toplayalım
+        const cartCourses = await prisma.course.findMany({
+            where: { id: { in: excludeIds } },
+            select: { recommendedCourseIds: true }
+        });
+
+        let manualIds: string[] = [];
+        cartCourses.forEach((c: any) => {
+            if (c.recommendedCourseIds && Array.isArray(c.recommendedCourseIds)) {
+                manualIds = [...manualIds, ...c.recommendedCourseIds];
+            }
+        });
+
+        // Sepette halihazırda olanları ve mükerrer kayıtları temizleyelim
+        manualIds = Array.from(new Set(manualIds)).filter(id => !excludeIds.includes(id));
+
+        let recommendedCourses: any[] = [];
+
+        // 1. Eğer admin elle önerilen kurs eklediyse onları yükleyelim
+        if (manualIds.length > 0) {
+            recommendedCourses = await prisma.course.findMany({
+                where: {
+                    id: { in: manualIds },
+                    isActive: true,
+                    isDeleted: false
+                },
+                take: 3,
+                select: {
+                    id: true,
+                    slug: true,
+                    title: true,
+                    price: true,
+                    oldPrice: true,
+                    imageUrl: true,
+                    category: true,
+                    isCouponApplicable: true,
+                    isInstallmentApplicable: true,
+                }
+            });
+        }
+
+        // 2. Eğer elle eklenen kurs sayısı 3'ten azsa veya hiç yoksa otomatik öneriyle tamamlayalım
+        if (recommendedCourses.length < 3) {
+            const currentRecIds = recommendedCourses.map(c => c.id);
+            const remainingToTake = 3 - recommendedCourses.length;
+
+            const autoCourses = await prisma.course.findMany({
+                where: {
+                    id: { notIn: [...excludeIds, ...currentRecIds] },
+                    isActive: true,
+                    isDeleted: false
+                },
+                take: remainingToTake,
+                select: {
+                    id: true,
+                    slug: true,
+                    title: true,
+                    price: true,
+                    oldPrice: true,
+                    imageUrl: true,
+                    category: true,
+                    isCouponApplicable: true,
+                    isInstallmentApplicable: true,
+                }
+            });
+
+            recommendedCourses = [...recommendedCourses, ...autoCourses];
+        }
+
+        return { success: true, courses: recommendedCourses };
+    } catch (err: any) {
+        console.error("Recommendations Fetch Error:", err);
+        return { success: false, error: err.message };
+    }
+}
