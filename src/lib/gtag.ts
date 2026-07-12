@@ -106,3 +106,12 @@ export const logPurchase = (transactionId: string, items: GAEventItem[], total: 
     }))
   });
 };
+
+export const logGenerateLead = (method: string, category: string = "Contact Form") => {
+  runGtag("event", "generate_lead", {
+    currency: "TRY",
+    value: 0,
+    lead_type: category,
+    method: method
+  });
+};

@@ -15,6 +15,7 @@ import {
 
 import MainHeader from "@/app/components/MainHeader";
 import Footer from "@/app/components/Footer";
+import { logGenerateLead } from "@/lib/gtag";
 
 /* ===================================================== */
 /* UTILS                                                 */
@@ -161,6 +162,7 @@ function ContactFormSection({ contactData }: { contactData: typeof DEFAULT_CONTA
     setTimeout(() => {
       setLoading(false);
       setSent(true);
+      logGenerateLead("contact_form", "Contact Form Submit");
       setForm((p) => ({
         ...p,
         message: "",

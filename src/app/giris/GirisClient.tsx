@@ -5,6 +5,7 @@ import styles from "./giris.module.css";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { logGenerateLead } from "@/lib/gtag";
 
 export default function GirisClient() {
   const router = useRouter();
@@ -82,6 +83,7 @@ export default function GirisClient() {
       if (!response.ok) {
         setRegisterError(data.error || "Kayıt başarısız");
       } else {
+        logGenerateLead("register_form", "User Sign Up");
         setRegisterSuccess("Kayıt başarılı! Şimdi giriş yapabilirsiniz.");
         setRegisterName("");
         setRegisterEmail("");
