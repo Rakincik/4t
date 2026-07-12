@@ -107,17 +107,41 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
         }
     }
 
-    async function handleWhatsAppRecovery(c: AbandonedCart) {
-        // Step 1: Prompt the user to enter custom discount percentage
-        const rawPercent = prompt(
-            `Müşteri: ${c.name}\n\nBu adaya özel 48 saat geçerli İndirim Kuponu tanımlamak istiyorsanız indirim oranını (%) sadece sayı olarak girin (örn: 10, 15, 20).\nKuponsuz standart sepet kurtarma mesajı göndermek için İptal'e basın.`,
-            "10"
-        );
+    // Modal state controllers
+    const [selectedCart, setSelectedCart] = useState<AbandonedCart | null>(null);
+    const [useCoupon, setUseCoupon] = useState(true);
+    const [discountPercent, setDiscountPercent] = useState(10);
+    const [customCouponCode, setCustomCouponCode] = useState("");
+    const [isCouponEdited, setIsCouponEdited] = useState(false);
 
+    function handleSelectCartForRecovery(c: AbandonedCart) {
+        setSelectedCart(c);
+        setUseCoupon(true);
+        setDiscountPercent(10);
+        setIsCouponEdited(false);
+        
+        // Generate default code
+        const cleanName = c.name.replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, "").toUpperCase();
+        const firstName = cleanName.trim().split(' ')[0] || "SEPET";
+        setCustomCouponCode(`KRT-${firstName}-10`);
+    }
+
+    function handlePercentChange(val: number) {
+        setDiscountPercent(val);
+        if (!isCouponEdited && selectedCart) {
+            const cleanName = selectedCart.name.replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, "").toUpperCase();
+            const firstName = cleanName.trim().split(' ')[0] || "SEPET";
+            setCustomCouponCode(`KRT-${firstName}-${val}`);
+        }
+    }
+
+    async function handleConfirmRecovery() {
+        if (!selectedCart) return;
+        
+        const c = selectedCart;
         let finalMessage = "";
         let couponCode = "";
-        let appliedPercent = 10;
-
+        
         const digitsOnly = c.phone.replace(/\D/g, "");
         let cleanPhone = digitsOnly;
         if (cleanPhone.startsWith("0")) {
@@ -129,59 +153,47 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
         const recoveryLink = `${window.location.origin}/sepet?recover=${c.id}`;
         const courseNames = c.courses.map(course => `"${stripHtml(course.title)}"`).join(", ");
 
-        if (rawPercent !== null) {
-            const parsedPercent = parseInt(rawPercent.trim(), 10);
-            if (isNaN(parsedPercent) || parsedPercent <= 0 || parsedPercent > 100) {
-                alert("Geçersiz indirim oranı girdiniz. Standart kurtarma mesajı ile devam ediliyor.");
-            } else {
-                appliedPercent = parsedPercent;
+        setCouponGeneratingId(c.id);
+
+        try {
+            if (useCoupon) {
+                const finalCode = customCouponCode.trim().toUpperCase();
+                if (!finalCode) {
+                    alert("Lütfen kupon kodunu girin veya kuponsuz gönderme seçeneğini seçin.");
+                    setCouponGeneratingId(null);
+                    return;
+                }
                 
-                // Prompt 2: Suggest a code and allow the user to modify/override it
-                const cleanName = c.name.replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, "").toUpperCase();
-                const firstName = cleanName.trim().split(' ')[0] || "SEPET";
-                const defaultCode = `KRT-${firstName}-${appliedPercent}`;
-
-                const customCodeInput = prompt(
-                    `Oluşturulacak kupon kodunun adını belirleyin:\n(Boş bırakırsanız otomatik kod kullanılır, iptal ederseniz standart mesaj gönderilir)`,
-                    defaultCode
-                );
-
-                if (customCodeInput !== null) {
-                    const finalCode = customCodeInput.trim().toUpperCase() || defaultCode;
-                    setCouponGeneratingId(c.id);
-                    try {
-                        const coupRes = await createRecoveryCoupon(c.name, appliedPercent, finalCode);
-                        if (coupRes.success && coupRes.code) {
-                            couponCode = coupRes.code;
-                            finalMessage = `Merhaba ${c.name},\n\n4T Akademi sepetinizde yarım kalan ${courseNames} eğitim paketiniz ile ilgili sipariş adımlarında yardımcı olmamı ister misiniz?\n\nKayıt işlemlerinizi kolaylaştırmak adına size özel 48 saat geçerli %${appliedPercent} indirim kuponu tanımladık:\n🎫 İndirim Kodu: *${couponCode}*\n\nTek tıkla sepetinizi geri yükleyip indirimli almak için şu bağlantıyı kullanabilirsiniz:\n👉 ${recoveryLink}\n\nKayıt işlemlerinizde yardımcı olmak için buradayım.`;
-                        } else {
-                            alert(coupRes.error || "Kupon üretilemedi, standart sepet kurtarma linki ile devam ediliyor.");
-                        }
-                    } catch (err) {
-                        console.error("Coupon generation failed:", err);
-                    } finally {
-                        setCouponGeneratingId(null);
-                    }
+                const coupRes = await createRecoveryCoupon(c.name, discountPercent, finalCode);
+                if (coupRes.success && coupRes.code) {
+                    couponCode = coupRes.code;
+                    finalMessage = `Merhaba ${c.name},\n\n4T Akademi sepetinizde yarım kalan ${courseNames} eğitim paketiniz ile ilgili sipariş adımlarında yardımcı olmamı ister misiniz?\n\nKayıt işlemlerinizi kolaylaştırmak adına size özel 48 saat geçerli %${discountPercent} indirim kuponu tanımladık:\n🎫 İndirim Kodu: *${couponCode}*\n\nTek tıkla sepetinizi geri yükleyip indirimli almak için şu bağlantıyı kullanabilirsiniz:\n👉 ${recoveryLink}\n\nKayıt işlemlerinizde yardımcı olmak için buradayım.`;
+                } else {
+                    alert(coupRes.error || "Kupon üretilemedi, standart sepet kurtarma linki ile devam ediliyor.");
                 }
             }
-        }
 
-        if (!finalMessage) {
-            // Standart message without coupon
-            finalMessage = `Merhaba ${c.name},\n\n4T Akademi sepetinizde yarım kalan ${courseNames} eğitim paketiniz ile ilgili sipariş adımlarında yardımcı olmamı ister misiniz?\n\nTek tıkla sepetinizi geri yükleyip kaldığınız yerden devam etmek için şu bağlantıyı kullanabilirsiniz:\n👉 ${recoveryLink}\n\nKayıt işlemlerinizi kolaylaştırmak adına size yardımcı olmak için buradayım.`;
-        }
+            if (!finalMessage) {
+                // Standart message without coupon
+                finalMessage = `Merhaba ${c.name},\n\n4T Akademi sepetinizde yarım kalan ${courseNames} eğitim paketiniz ile ilgili sipariş adımlarında yardımcı olmamı ister misiniz?\n\nTek tıkla sepetinizi geri yükleyip kaldığınız yerden devam etmek için şu bağlantıyı kullanabilirsiniz:\n👉 ${recoveryLink}\n\nKayıt işlemlerinizi kolaylaştırmak adına size yardımcı olmak için buradayım.`;
+            }
 
-        // Step 2: Automatically mark lead status as CONTACTED (Ulaşıldı) in DB and local state
-        try {
+            // Mark lead status as CONTACTED in DB and local state
             await updateCartStatus(c.id, "CONTACTED");
             setCarts(prev => prev.map(item => item.id === c.id ? { ...item, status: "CONTACTED" } : item));
-        } catch (e) {
-            console.error("Status update failed:", e);
-        }
 
-        // Step 3: Open WhatsApp window
-        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(finalMessage)}`;
-        window.open(waUrl, "_blank");
+            // Redirect to WhatsApp
+            const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(finalMessage)}`;
+            window.open(waUrl, "_blank");
+            
+            // Close modal
+            setSelectedCart(null);
+        } catch (err) {
+            console.error("WhatsApp recovery failed:", err);
+            alert("İşlem gerçekleştirilirken bir hata oluştu.");
+        } finally {
+            setCouponGeneratingId(null);
+        }
     }
 
     async function handleDelete(id: string) {
@@ -420,7 +432,7 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
                                                     <button
                                                         type="button"
                                                         disabled={couponGeneratingId === c.id}
-                                                        onClick={() => handleWhatsAppRecovery(c)}
+                                                        onClick={() => handleSelectCartForRecovery(c)}
                                                         className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-55 disabled:scale-100 cursor-pointer"
                                                     >
                                                         {couponGeneratingId === c.id ? (
@@ -463,6 +475,128 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
                     </div>
                 )}
             </div>
+
+            {/* Modern Recovery Modal */}
+            {selectedCart && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+                    <div className="bg-white rounded-3xl border border-black/10 shadow-2xl w-full max-w-md overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="p-6 border-b border-black/5 bg-gray-50/50">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-extrabold text-dark flex items-center gap-2">
+                                    <span className="p-1.5 bg-green-50 text-green-600 rounded-lg">
+                                        <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                            <path d="M17.472 14.382c-.022-.08-.117-.162-.193-.238-.076-.076-.172-.116-.27-.116h-1.01c-.1 0-.194.04-.27.116-.076.076-.171.158-.193.238l-.348 1.258c-.024.088-.108.148-.198.148-.052 0-.102-.02-.144-.058-1.59-1.428-2.614-2.452-4.042-4.042-.038-.042-.058-.092-.058-.144 0-.09.06-.174.148-.198l1.258-.348c.08-.022.162-.117.238-.193.076-.076.116-.172.116-.27v-1.01c0-.1-.04-.194-.116-.27-.076-.076-.158-.171-.238-.193l-1.258-.348c-.088-.024-.182.012-.224.092l-.634 1.22c-.104.2-.09.444.036.632 1.488 2.218 3.284 4.014 5.502 5.502.188.126.432.14.632.036l1.22-.634c.08-.042.116-.136.092-.224l-.348-1.258zM12 2C6.477 2 2 6.477 2 12c0 1.887.525 3.65 1.442 5.162L2.043 21.92l4.908-1.353C8.423 21.493 10.15 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.634 0-3.15-.472-4.432-1.282l-.317-.197-2.92.805.807-2.923-.195-.316C4.135 14.882 3.666 13.5 3.666 12c0-4.596 3.738-8.333 8.334-8.333 4.595 0 8.333 3.737 8.333 8.333 0 4.596-3.738 8.333-8.333 8.333z"/>
+                                        </svg>
+                                    </span>
+                                    Sıcak Satış & Sepet Kurtarma
+                                </h3>
+                                <button 
+                                    onClick={() => setSelectedCart(null)}
+                                    className="p-1.5 hover:bg-gray-100 text-gray-400 hover:text-dark rounded-xl transition cursor-pointer"
+                                >
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2 font-medium">
+                                Aday <span className="font-extrabold text-dark">{selectedCart.name}</span> için özelleştirilmiş kurtarma mesajı gönderin.
+                            </p>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-5">
+                            {/* Toggle Coupon Option */}
+                            <label className="flex items-center gap-2.5 cursor-pointer select-none pb-4 border-b border-black/5">
+                                <input 
+                                    type="checkbox" 
+                                    checked={useCoupon} 
+                                    onChange={(e) => setUseCoupon(e.target.checked)}
+                                    className="w-4.5 h-4.5 text-green-650 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                                />
+                                <span className="text-sm font-extrabold text-dark">İndirim Kuponu Tanımla</span>
+                            </label>
+
+                            {useCoupon && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <div className="col-span-1">
+                                            <label className="block text-[10px] font-bold text-dark/60 mb-1.5 uppercase tracking-wide">Oran (%)</label>
+                                            <input 
+                                                type="number" 
+                                                min="1" 
+                                                max="99"
+                                                value={discountPercent} 
+                                                onChange={(e) => handlePercentChange(Math.max(1, Math.min(99, parseInt(e.target.value, 10) || 1)))}
+                                                className="w-full rounded-2xl border border-black/10 p-3 text-sm font-bold text-dark focus:outline-none focus:ring-2 focus:ring-green-500/20 bg-white"
+                                            />
+                                        </div>
+                                        <div className="col-span-2">
+                                            <label className="block text-[10px] font-bold text-dark/60 mb-1.5 uppercase tracking-wide">Kupon Kodu</label>
+                                            <input 
+                                                type="text" 
+                                                value={customCouponCode} 
+                                                onChange={(e) => {
+                                                    setCustomCouponCode(e.target.value);
+                                                    setIsCouponEdited(true);
+                                                }}
+                                                className="w-full rounded-2xl border border-black/10 p-3 text-sm font-mono font-bold text-dark uppercase focus:outline-none focus:ring-2 focus:ring-green-500/20 bg-white"
+                                                placeholder="KUPON-KODU"
+                                            />
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 leading-relaxed">
+                                        * Bu kupon adaya özel <strong>48 saat</strong> geçerli olacak şekilde otomatik oluşturulacaktır. Dilerseniz kupon kodunu manuel değiştirebilirsiniz.
+                                    </p>
+                                </div>
+                            )}
+
+                            {!useCoupon && (
+                                <div className="p-4 bg-gray-50 rounded-2xl border border-black/5">
+                                    <p className="text-xs text-gray-500 leading-relaxed font-medium">
+                                        Adaya indirim tanımlanmadan, sepetini tek tıkla geri yükleyebileceği <strong>standart sepet linki</strong> içeren bir mesaj hazırlanacaktır.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="p-6 border-t border-black/5 bg-gray-50/50 flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedCart(null)}
+                                className="flex-1 rounded-2xl border border-black/10 hover:bg-gray-100 py-3 text-sm font-bold text-dark transition cursor-pointer"
+                            >
+                                İptal
+                            </button>
+                            <button
+                                type="button"
+                                disabled={couponGeneratingId === selectedCart.id}
+                                onClick={handleConfirmRecovery}
+                                className="flex-[1.5] flex items-center justify-center gap-1.5 rounded-2xl bg-green-600 hover:bg-green-700 py-3 text-sm font-bold text-white shadow-md hover:shadow-lg transition cursor-pointer disabled:opacity-60"
+                            >
+                                {couponGeneratingId === selectedCart.id ? (
+                                    <>
+                                        <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                        </svg>
+                                        Kupon Oluşturuluyor...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                                            <path d="M17.472 14.382c-.022-.08-.117-.162-.193-.238-.076-.076-.172-.116-.27-.116h-1.01c-.1 0-.194.04-.27.116-.076.076-.171.158-.193.238l-.348 1.258c-.024.088-.108.148-.198.148-.052 0-.102-.02-.144-.058-1.59-1.428-2.614-2.452-4.042-4.042-.038-.042-.058-.092-.058-.144 0-.09.06-.174.148-.198l1.258-.348c.08-.022.162-.117.238-.193.076-.076.116-.172.116-.27v-1.01c0-.1-.04-.194-.116-.27-.076-.076-.158-.171-.238-.193l-1.258-.348c-.088-.024-.182.012-.224.092l-.634 1.22c-.104.2-.09.444.036.632 1.488 2.218 3.284 4.014 5.502 5.502.188.126.432.14.632.036l1.22-.634c.08-.042.116-.136.092-.224l-.348-1.258zM12 2C6.477 2 2 6.477 2 12c0 1.887.525 3.65 1.442 5.162L2.043 21.92l4.908-1.353C8.423 21.493 10.15 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.634 0-3.15-.472-4.432-1.282l-.317-.197-2.92.805.807-2.923-.195-.316C4.135 14.882 3.666 13.5 3.666 12c0-4.596 3.738-8.333 8.334-8.333 4.595 0 8.333 3.737 8.333 8.333 0 4.596-3.738 8.333-8.333 8.333z"/>
+                                        </svg>
+                                        WhatsApp'tan Gönder
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
