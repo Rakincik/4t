@@ -245,7 +245,7 @@ export default function FlixDetailClient({ course }: { course: any }) {
     /* ===================================================== */
     function DetailHero() {
         return (
-            <section className="relative min-h-[90vh] w-full pt-32 pb-20 flex items-center">
+            <section className="relative min-h-0 lg:min-h-[80vh] w-full pt-20 lg:pt-32 pb-10 lg:pb-20 flex items-center">
                 <div className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0B1221] via-[#0B1221]/70 to-[#0B1221]/30 z-10"></div>
                     <div className="absolute inset-0 bg-gradient-to-r from-[#0B1221] via-[#0B1221]/80 to-transparent z-10"></div>

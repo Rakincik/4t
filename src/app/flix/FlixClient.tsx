@@ -288,7 +288,7 @@ export default function FlixPage({ flixProducts }: { flixProducts: FlixProduct[]
       <MainHeader />
 
       {/* ============ HERO SLIDER ============ */}
-      <section className="relative h-[70vh] min-h-[500px] flex items-center overflow-hidden bg-[#0B1221]">
+      <section className="relative h-[50vh] min-h-[360px] lg:h-[70vh] lg:min-h-[500px] flex items-center overflow-hidden bg-[#0B1221]">
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
@@ -322,23 +322,23 @@ export default function FlixPage({ flixProducts }: { flixProducts: FlixProduct[]
               transition={{ duration: 0.5 }}
               className="max-w-2xl"
             >
-              <div className="flex items-center gap-3 mb-5">
-                <span className="text-[#DC2626] font-black text-3xl tracking-tighter">4T</span>
-                <span className="text-white font-light text-3xl tracking-widest border-l pl-2 border-white/30">FLIX</span>
-                <span className="ml-3 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-[10px] font-bold uppercase tracking-widest text-white flex items-center gap-1.5">
+              <div className="flex items-center gap-2 mb-3 lg:mb-5">
+                <span className="text-[#DC2626] font-black text-2xl lg:text-3xl tracking-tighter">4T</span>
+                <span className="text-white font-light text-2xl lg:text-3xl tracking-widest border-l pl-2 border-white/30">FLIX</span>
+                <span className="ml-2 lg:ml-3 px-2.5 py-0.5 lg:px-3 lg:py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-[9px] lg:text-[10px] font-bold uppercase tracking-widest text-white flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626] animate-pulse" />
                   {slide.subtitle}
                 </span>
               </div>
 
-              <h1 className="text-5xl md:text-7xl font-black text-white leading-[0.95] mb-5">
+              <h1 className="text-3xl sm:text-4xl lg:text-7xl font-black text-white leading-[1] lg:leading-[0.95] mb-3 lg:mb-5">
                 {slide.title}
               </h1>
 
-              <p className="text-gray-300 text-lg font-light max-w-md mb-8">{slide.description}</p>
+              <p className="text-gray-300 text-sm lg:text-lg font-light max-w-md mb-5 lg:mb-8">{slide.description}</p>
 
-              <a href="#paketler" className="inline-flex items-center gap-3 bg-[#DC2626] hover:bg-red-700 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-xl shadow-red-900/30">
-                <PlayCircleIcon className="w-6 h-6" />
+              <a href="#paketler" className="inline-flex items-center gap-2 lg:gap-3 bg-[#DC2626] hover:bg-red-700 text-white px-5 py-2.5 lg:px-8 lg:py-4 rounded-xl font-bold text-xs lg:text-sm transition-all shadow-xl shadow-red-900/30">
+                <PlayCircleIcon className="w-4 h-4 lg:w-6 lg:h-6" />
                 Paketleri Gör
               </a>
             </motion.div>
