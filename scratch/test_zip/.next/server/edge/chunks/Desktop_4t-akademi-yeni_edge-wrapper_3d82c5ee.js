@@ -1,3 +1,0 @@
-(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["chunks/Desktop_4t-akademi-yeni_edge-wrapper_3d82c5ee.js",97682,(e,t,h)=>{self._ENTRIES||={};let n=Promise.resolve().then(()=>e.i(11780));n.catch(()=>{}),self._ENTRIES.middleware_middleware=new Proxy(n,{get(e,t){if("then"===t)return(t,h)=>e.then(t,h);let h=(...h)=>e.then(e=>(0,e[t])(...h));return h.then=(h,n)=>e.then(e=>e[t]).then(h,n),h}})}]);
-
-//# sourceMappingURL=Desktop_4t-akademi-yeni_edge-wrapper_3d82c5ee.js.map

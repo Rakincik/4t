@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/R%C3%BCstem/Desktop/4t-akademi-yeni/src/app/kurs/%5Bslug%5D/layout.tsx"],"sourcesContent":["export function generateStaticParams() {\n  return [\n    { slug: \"115-donem-kaymakamlik\" },\n    { slug: \"kaymakamlik-soru-kampi\" },\n    { slug: \"kpss-a-premium\" },\n    { slug: \"kpss-a-iktisat-kampi\" },\n    { slug: \"sayistay-soru-kampi\" },\n    { slug: \"guy-hazirlik\" },\n  ];\n}\n\nexport default function KursSlugLayout({ children }: { children: React.ReactNode }) {\n  return children;\n}\n"],"names":[],"mappings":";;;;;;AAAO,SAAS;IACd,OAAO;QACL;YAAE,MAAM;QAAwB;QAChC;YAAE,MAAM;QAAyB;QACjC;YAAE,MAAM;QAAiB;QACzB;YAAE,MAAM;QAAuB;QAC/B;YAAE,MAAM;QAAsB;QAC9B;YAAE,MAAM;QAAe;KACxB;AACH;AAEe,SAAS,eAAe,EAAE,QAAQ,EAAiC;IAChF,OAAO;AACT","debugId":null}}]
-}

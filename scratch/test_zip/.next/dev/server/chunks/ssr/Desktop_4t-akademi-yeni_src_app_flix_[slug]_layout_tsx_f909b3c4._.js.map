@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/R%C3%BCstem/Desktop/4t-akademi-yeni/src/app/flix/%5Bslug%5D/layout.tsx"],"sourcesContent":["export function generateStaticParams() {\n  return [\n    { slug: \"kaymakamlik-flix\" },\n    { slug: \"adli-hakimlik-flix\" },\n    { slug: \"idari-hakimlik-flix\" },\n    { slug: \"kpss-a-grubu-flix\" },\n    { slug: \"kpss-gygk-flix\" },\n    { slug: \"sayistay-flix\" },\n    { slug: \"icra-mudurlugu-flix\" },\n    { slug: \"kurum-sinavlari-flix\" },\n  ];\n}\n\nexport default function FlixSlugLayout({ children }: { children: React.ReactNode }) {\n  return children;\n}\n"],"names":[],"mappings":";;;;;;AAAO,SAAS;IACd,OAAO;QACL;YAAE,MAAM;QAAmB;QAC3B;YAAE,MAAM;QAAqB;QAC7B;YAAE,MAAM;QAAsB;QAC9B;YAAE,MAAM;QAAoB;QAC5B;YAAE,MAAM;QAAiB;QACzB;YAAE,MAAM;QAAgB;QACxB;YAAE,MAAM;QAAsB;QAC9B;YAAE,MAAM;QAAuB;KAChC;AACH;AAEe,SAAS,eAAe,EAAE,QAAQ,EAAiC;IAChF,OAAO;AACT","debugId":null}}]
-}

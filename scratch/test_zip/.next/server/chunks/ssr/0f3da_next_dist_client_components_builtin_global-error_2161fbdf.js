@@ -1,3 +1,0 @@
-module.exports=[24264,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(3974);a.n(d("[project]/Desktop/4t-akademi-yeni/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},85850,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(3974);a.n(d("[project]/Desktop/4t-akademi-yeni/node_modules/next/dist/client/components/builtin/global-error.js"))},99243,a=>{"use strict";a.i(24264);var b=a.i(85850);a.n(b)}];
-
-//# sourceMappingURL=0f3da_next_dist_client_components_builtin_global-error_2161fbdf.js.map
