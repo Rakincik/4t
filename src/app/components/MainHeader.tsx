@@ -249,7 +249,7 @@ export default function MainHeader() {
         <div className="bg-white border-b border-black/10">
           <div className="container mx-auto max-w-[1440px] px-4 h-[74px] flex items-center">
             <a href="/" aria-label="4T Akademi">
-              <img src="/Logo.svg" alt="4T Akademi" className="h-12 w-auto" />
+              <img src="/Logo.svg" alt="4T Akademi" className="h-[60px] w-auto" />
             </a>
           </div>
         </div>
@@ -327,7 +327,7 @@ export default function MainHeader() {
                 <img
                   src="/Logo.svg"
                   alt="4T Akademi"
-                  className="h-12 w-auto group-hover:opacity-90 transition-opacity"
+                  className="h-[60px] w-auto group-hover:opacity-90 transition-opacity"
                 />
               </a>
 
