@@ -507,6 +507,14 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
 
                         {/* Modal Body */}
                         <div className="p-6 space-y-5">
+                            {/* Bilgilendirme Notu */}
+                            <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-2xl flex items-start gap-2 text-blue-800 text-[11px] leading-relaxed">
+                                <InformationCircleIcon className="h-4 w-4 shrink-0 text-blue-500 mt-0.5" />
+                                <span>
+                                    <strong>İpucu:</strong> İndirim oranını (%) girip kupon kodunu yanındaki kutudan <strong>doğrudan değiştirebilirsiniz</strong>. Kuponsuz standart sepet kurtarma linki göndermek için ise aşağıdaki seçeneği kapatabilirsiniz.
+                                </span>
+                            </div>
+
                             {/* Toggle Coupon Option */}
                             <label className="flex items-center gap-2.5 cursor-pointer select-none pb-4 border-b border-black/5">
                                 <input 
