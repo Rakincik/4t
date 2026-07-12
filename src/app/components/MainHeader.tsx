@@ -782,7 +782,14 @@ export default function MainHeader() {
                             )}
                           </div>
                           <h4 className="font-bold text-[#0B1221] text-sm group-hover:text-[#DC2626] transition-colors truncate">
-                            {item.title}
+                            {item.title
+                              ?.replace(/<[^>]*>/g, "")
+                              ?.replace(/&nbsp;/g, " ")
+                              ?.replace(/&amp;/g, "&")
+                              ?.replace(/&lt;/g, "<")
+                              ?.replace(/&gt;/g, ">")
+                              ?.replace(/&quot;/g, '"')
+                              ?.replace(/&#39;/g, "'")}
                           </h4>
                         </div>
 
@@ -812,7 +819,14 @@ export default function MainHeader() {
                         className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-red-200 hover:border-red-500 rounded-xl text-sm font-black text-[#DC2626] hover:bg-red-50/50 shadow-sm transition-all duration-200 cursor-pointer scale-100 hover:scale-[1.02] active:scale-[0.98]"
                       >
                         <SparklesIcon className="w-4 h-4 text-[#DC2626]" />
-                        <span>{searchSuggestion.title}</span>
+                        <span>{searchSuggestion.title
+                          ?.replace(/<[^>]*>/g, "")
+                          ?.replace(/&nbsp;/g, " ")
+                          ?.replace(/&amp;/g, "&")
+                          ?.replace(/&lt;/g, "<")
+                          ?.replace(/&gt;/g, ">")
+                          ?.replace(/&quot;/g, '"')
+                          ?.replace(/&#39;/g, "'")}</span>
                       </button>
                       <div className="text-[11px] text-gray-400 font-medium mt-2">
                         {searchSuggestion.type === "FLIX" ? "FLIX Paketi" : searchSuggestion.type === "KAMP" ? "Soru Kampı" : "Eğitim Programı"}
