@@ -56,7 +56,9 @@ export async function getAbandonedCarts() {
             const coursesList = (c.courses as any[]) || [];
             let cartValue = 0;
             coursesList.forEach(item => {
-                if (item.id && priceMap.has(item.id)) {
+                if (typeof item.price === "number") {
+                    cartValue += item.price;
+                } else if (item.id && priceMap.has(item.id)) {
                     cartValue += priceMap.get(item.id) || 0;
                 }
             });
@@ -100,10 +102,19 @@ export async function recoverAbandonedCartAction(id: string) {
         if (!cart) return { success: false, error: "Sepet kaydı bulunamadı." };
 
         const courseList = (cart.courses as any[]) || [];
-        const courseIds = courseList.map(c => c.id).filter(Boolean);
+        
+        // Extract base course IDs for database verification
+        const dbQueryIds = courseList.map(c => {
+            if (c.id && c.id.startsWith("flix-")) {
+                const parts = c.id.split("-");
+                // format: flix-{courseId}-{variantId} or flix-{courseId}-{variantId}-book
+                return parts[1]; // courseId
+            }
+            return c.id;
+        }).filter(Boolean);
 
         const dbCourses = await prisma.course.findMany({
-            where: { id: { in: courseIds }, isDeleted: false, isActive: true },
+            where: { id: { in: dbQueryIds }, isDeleted: false, isActive: true },
             select: {
                 id: true,
                 slug: true,
@@ -115,7 +126,38 @@ export async function recoverAbandonedCartAction(id: string) {
             }
         });
 
-        return { success: true, courses: dbCourses };
+        const activeCourseIds = new Set(dbCourses.map(c => c.id));
+
+        // Reconstruct the recovered courses list from the saved courses in JSON,
+        // but only for those whose base courses are still active in the database.
+        const recoveredCourses: any[] = [];
+        for (const item of courseList) {
+            let baseId = item.id;
+            if (item.id && item.id.startsWith("flix-")) {
+                const parts = item.id.split("-");
+                baseId = parts[1];
+            }
+            
+            if (activeCourseIds.has(baseId)) {
+                // If it's a FLIX variant, we might have saved its custom title and price in the JSON.
+                // We should use the JSON values if they exist, falling back to the database course values.
+                const dbCourse = dbCourses.find(c => c.id === baseId);
+                
+                recoveredCourses.push({
+                    id: item.id || dbCourse?.id,
+                    slug: item.slug || dbCourse?.slug,
+                    title: item.title || dbCourse?.title,
+                    price: typeof item.price === "number" ? item.price : dbCourse?.price,
+                    originalPrice: typeof item.originalPrice === "number" ? item.originalPrice : item.price || dbCourse?.price,
+                    imageUrl: item.imageUrl || dbCourse?.imageUrl,
+                    category: item.category || (item.id?.startsWith("flix-") ? "FLIX" : undefined),
+                    isCouponApplicable: item.isCouponApplicable !== undefined ? item.isCouponApplicable : dbCourse?.isCouponApplicable,
+                    isInstallmentApplicable: item.isInstallmentApplicable !== undefined ? item.isInstallmentApplicable : dbCourse?.isInstallmentApplicable
+                });
+            }
+        }
+
+        return { success: true, courses: recoveredCourses };
     } catch (error: any) {
         console.error("recoverAbandonedCartAction Error:", error);
         return { success: false, error: error.message || "Sepet yüklenirken hata oluştu." };

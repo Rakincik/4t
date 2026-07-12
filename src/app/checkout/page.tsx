@@ -213,7 +213,17 @@ export default function CheckoutPage() {
           name: fullName,
           email: email,
           phone: phone,
-          courses: items.map(i => ({ id: i.id, title: i.title }))
+          courses: items.map(i => ({
+            id: i.id,
+            title: i.title,
+            price: i.price,
+            originalPrice: (i as any).originalPrice,
+            imageUrl: (i as any).imageUrl,
+            slug: (i as any).slug,
+            category: (i as any).category,
+            isCouponApplicable: (i as any).isCouponApplicable,
+            isInstallmentApplicable: (i as any).isInstallmentApplicable
+          }))
         })
       });
     } catch (err) {

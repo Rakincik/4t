@@ -54,7 +54,7 @@ export default function FlixDetailClient({ course }: { course: any }) {
     const [withBook, setWithBook] = useState(false);
     
     const initialVariantId = isMainFlix 
-        ? (variants.find(v => v.slug === course.slug)?.id || variants[0]?.id)
+        ? (variants.find((v: any) => v.slug === course.slug)?.id || variants[0]?.id)
         : (variants[0]?.id);
 
     const [selectedVariantId, setSelectedVariantId] = useState(initialVariantId);
