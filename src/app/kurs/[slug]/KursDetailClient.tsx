@@ -1,7 +1,8 @@
 // Dosya Yolu: app/kurslar/[slug]/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { logViewItem, logAddToCart } from "@/lib/gtag";
 import Image from "next/image";
 import {
   StarIcon,
@@ -312,11 +313,27 @@ export default function KursDetailClient({ course }: { course: any }) {
   const { add } = useCart();
   const router = useRouter();
 
+  useEffect(() => {
+    logViewItem({
+      id: course.id,
+      title: course.title,
+      price: course.price,
+      category: course.type || "KURS"
+    });
+  }, [course]);
+
   const handleAddToCart = () => {
+    const itemTitle = course.title + (selectedVariant.title ? ` (${selectedVariant.title})` : "");
+    logAddToCart({
+      id: course.id,
+      title: itemTitle,
+      price: currentPrice,
+      category: course.type || "KURS"
+    });
     add({
       id: course.id,
       slug: course.slug,
-      title: course.title + (selectedVariant.title ? ` (${selectedVariant.title})` : ""),
+      title: itemTitle,
       price: currentPrice,
       imageUrl: course.imageUrl || "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop",
       qty: 1,
@@ -328,10 +345,17 @@ export default function KursDetailClient({ course }: { course: any }) {
   };
 
   const handleBuyNow = () => {
+    const itemTitle = course.title + (selectedVariant.title ? ` (${selectedVariant.title})` : "");
+    logAddToCart({
+      id: course.id,
+      title: itemTitle,
+      price: currentPrice,
+      category: course.type || "KURS"
+    });
     add({
       id: course.id,
       slug: course.slug,
-      title: course.title + (selectedVariant.title ? ` (${selectedVariant.title})` : ""),
+      title: itemTitle,
       price: currentPrice,
       imageUrl: course.imageUrl || "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop",
       qty: 1,

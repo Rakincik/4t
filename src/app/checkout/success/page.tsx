@@ -6,6 +6,7 @@ import Footer from "@/app/components/Footer";
 import { CheckCircleIcon, DocumentDuplicateIcon, AcademicCapIcon } from "@heroicons/react/24/outline";
 import { useState, Suspense, useEffect } from "react";
 import { useCart } from "@/app/components/cart/cartStore";
+import { logPurchase } from "@/lib/gtag";
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
@@ -50,6 +51,18 @@ function CheckoutSuccessContent() {
           }
         });
         (window as any).dataLayer = dataLayer;
+
+        // Direct GA4 Purchase tracking
+        logPurchase(
+          data.transactionId,
+          data.items.map((item: any) => ({
+            id: item.id,
+            title: item.name,
+            price: item.price,
+            qty: item.quantity
+          })),
+          data.value
+        );
 
         sessionStorage.setItem(key, "true");
       })

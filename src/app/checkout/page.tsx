@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { logBeginCheckout, logPurchase } from "@/lib/gtag";
 import { contractTextParagraphs } from "./contractText";
 import MainHeader from "@/app/components/MainHeader";
 import Footer from "@/app/components/Footer";
@@ -70,6 +71,14 @@ export default function CheckoutPage() {
     typeof (cart as any).remove === "function";
 
   const [step, setStep] = useState<Step>(1);
+
+  const [hasLoggedBeginCheckout, setHasLoggedBeginCheckout] = useState(false);
+  useEffect(() => {
+    if (items.length > 0 && !hasLoggedBeginCheckout) {
+      logBeginCheckout(items as any[], total);
+      setHasLoggedBeginCheckout(true);
+    }
+  }, [items, total, hasLoggedBeginCheckout]);
 
   // form
   const [fullName, setFullName] = useState("");

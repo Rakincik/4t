@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { logViewItem, logAddToCart } from "@/lib/gtag";
 import { motion } from "framer-motion";
 import {
     PlayCircleIcon,
@@ -89,8 +90,35 @@ export default function FlixDetailClient({ course }: { course: any }) {
         isInstallmentApplicable: course.isInstallmentApplicable ?? true
     };
 
-    const handleAddToCart = () => { add(product, { openDrawer: true }); };
-    const handleBuyNow = () => { add(product, { openDrawer: false }); router.push("/sepet"); };
+    useEffect(() => {
+        logViewItem({
+            id: course.id,
+            title: course.title,
+            price: course.price,
+            category: "FLIX"
+        });
+    }, [course]);
+
+    const handleAddToCart = () => { 
+        logAddToCart({
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            category: "FLIX"
+        });
+        add(product, { openDrawer: true }); 
+    };
+
+    const handleBuyNow = () => { 
+        logAddToCart({
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            category: "FLIX"
+        });
+        add(product, { openDrawer: false }); 
+        router.push("/sepet"); 
+    };
 
     /* ===================================================== */
     /* PURCHASE CARD COMPONENT (Internal)                    */

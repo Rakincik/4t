@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { validateCouponAction, getRecommendedCoursesAction } from "./actions";
 import { recoverAbandonedCartAction } from "@/app/admin/sepet-takip/actions";
 import Image from "next/image";
+import { logViewCart, logRemoveFromCart } from "@/lib/gtag";
 
 function formatTRY(n: number) {
   try {
@@ -72,6 +73,19 @@ export default function SepetPage() {
     };
     fetchRecs();
   }, [state.items]);
+
+  const [hasLoggedViewCart, setHasLoggedViewCart] = useState(false);
+  useEffect(() => {
+    if (state.items.length > 0 && !hasLoggedViewCart) {
+      logViewCart(state.items, total);
+      setHasLoggedViewCart(true);
+    }
+  }, [state.items, total, hasLoggedViewCart]);
+
+  const handleRemove = (item: any) => {
+    logRemoveFromCart(item);
+    remove(item.id);
+  };
 
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) return;
@@ -155,7 +169,7 @@ export default function SepetPage() {
                         </div>
 
                         <button
-                          onClick={() => remove(it.id)}
+                          onClick={() => handleRemove(it)}
                           className="rounded-2xl px-4 py-2 font-extrabold text-dark border border-black/10 bg-white hover:bg-light-muted transition"
                         >
                           Kaldır
