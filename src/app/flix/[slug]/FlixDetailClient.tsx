@@ -59,6 +59,7 @@ export default function FlixDetailClient({ course }: { course: any }) {
 
     const [selectedVariantId, setSelectedVariantId] = useState(initialVariantId);
     const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
     const selectedVariant = variants.find((v: any) => v.id === selectedVariantId) || variants[0];
 
@@ -282,10 +283,23 @@ export default function FlixDetailClient({ course }: { course: any }) {
                                 />
 
                                 {(course.subtitle || course.description) && (
-                                    <div 
-                                        className="text-gray-300 text-lg leading-relaxed mb-8 font-light break-normal [word-break:normal] text-pretty prose prose-invert max-w-none whitespace-normal"
-                                        dangerouslySetInnerHTML={{ __html: (course.subtitle || course.description || "").replace(/&nbsp;|\u00A0/g, " ") }}
-                                    />
+                                    <div className="relative mb-6">
+                                        <div 
+                                            className={`text-gray-300 text-base md:text-lg leading-relaxed font-light break-normal [word-break:normal] text-pretty prose prose-invert max-w-none whitespace-normal transition-all duration-300 overflow-hidden ${
+                                                !isDescriptionExpanded ? "max-h-[100px] md:max-h-none" : "max-h-[1000px]"
+                                            }`}
+                                            dangerouslySetInnerHTML={{ __html: (course.subtitle || course.description || "").replace(/&nbsp;|\u00A0/g, " ") }}
+                                        />
+                                        {!isDescriptionExpanded && (
+                                            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#0B1221] to-transparent pointer-events-none md:hidden" />
+                                        )}
+                                        <button
+                                            onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                                            className="text-white text-xs font-bold underline hover:text-gray-300 transition-colors md:hidden mt-3 block cursor-pointer"
+                                        >
+                                            {isDescriptionExpanded ? "Daha Az Göster" : "Devamını Oku..."}
+                                        </button>
+                                    </div>
                                 )}
 
                                 <div className="flex flex-wrap gap-4 items-center">
