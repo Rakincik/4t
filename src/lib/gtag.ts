@@ -15,6 +15,13 @@ const runGtag = (...args: any[]) => {
   }
 };
 
+// Safe fbq wrapper
+const runFbq = (...args: any[]) => {
+  if (typeof window !== "undefined" && (window as any).fbq) {
+    (window as any).fbq(...args);
+  }
+};
+
 export const logViewItem = (item: GAEventItem) => {
   runGtag("event", "view_item", {
     currency: "TRY",
@@ -28,6 +35,14 @@ export const logViewItem = (item: GAEventItem) => {
         item_category: item.category || "Course"
       }
     ]
+  });
+
+  runFbq("track", "ViewContent", {
+    content_name: item.title,
+    content_ids: [item.id],
+    content_type: "product",
+    value: item.price,
+    currency: "TRY"
   });
 };
 
@@ -44,6 +59,14 @@ export const logAddToCart = (item: GAEventItem) => {
         item_category: item.category || "Course"
       }
     ]
+  });
+
+  runFbq("track", "AddToCart", {
+    content_name: item.title,
+    content_ids: [item.id],
+    content_type: "product",
+    value: item.price,
+    currency: "TRY"
   });
 };
 
@@ -89,6 +112,11 @@ export const logBeginCheckout = (items: GAEventItem[], total: number) => {
       item_category: item.category || "Course"
     }))
   });
+
+  runFbq("track", "InitiateCheckout", {
+    value: total,
+    currency: "TRY"
+  });
 };
 
 export const logPurchase = (transactionId: string, items: GAEventItem[], total: number, coupon?: string) => {
@@ -105,6 +133,13 @@ export const logPurchase = (transactionId: string, items: GAEventItem[], total: 
       item_category: item.category || "Course"
     }))
   });
+
+  runFbq("track", "Purchase", {
+    value: total,
+    currency: "TRY",
+    content_ids: items.map(i => i.id),
+    content_type: "product"
+  });
 };
 
 export const logGenerateLead = (method: string, category: string = "Contact Form") => {
@@ -113,5 +148,11 @@ export const logGenerateLead = (method: string, category: string = "Contact Form
     value: 0,
     lead_type: category,
     method: method
+  });
+
+  runFbq("track", "Lead", {
+    content_category: category,
+    value: 0,
+    currency: "TRY"
   });
 };
