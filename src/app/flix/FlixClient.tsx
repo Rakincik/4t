@@ -139,7 +139,7 @@ function FlixProductCard({ product }: { product: FlixProduct }) {
                 }`}
               >
                 <CalendarDaysIcon className="w-3.5 h-3.5" />
-                Yıllık Abonelik
+                Sadece Abonelik
               </button>
               <button
                 onClick={() => setWithBook(true)}

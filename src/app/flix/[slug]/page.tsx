@@ -48,5 +48,5 @@ export default async function FlixDetailPageServer({ params }: PageProps) {
         data: { viewsCount: { increment: 1 } }
     }).catch(err => console.error("Prisma flix views increment error:", err));
 
-    return <FlixDetailClient course={course} />;
+    return <FlixDetailClient key={course.id} course={course} />;
 }

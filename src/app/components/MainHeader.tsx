@@ -17,7 +17,8 @@ import {
   MapIcon, 
   SparklesIcon, 
   ScaleIcon, 
-  CalculatorIcon
+  CalculatorIcon,
+  MagnifyingGlassIcon
 } from "@heroicons/react/24/outline";
 import { FireIcon } from "@heroicons/react/24/solid";
 
@@ -64,11 +65,61 @@ export default function MainHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(null);
 
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchSuggestion, setSearchSuggestion] = useState<any>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (!mobileOpen) {
       setOpenMobileSubmenu(null);
     }
   }, [mobileOpen]);
+
+  useEffect(() => {
+    if (searchOpen) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 50);
+    } else {
+      setSearchQuery("");
+      setSearchResults([]);
+      setSearchSuggestion(null);
+    }
+  }, [searchOpen]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setSearchSuggestion(null);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    const timer = setTimeout(() => {
+      fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && Array.isArray(data.results)) {
+            setSearchResults(data.results);
+            setSearchSuggestion(data.suggestion);
+          } else {
+            setSearchResults([]);
+            setSearchSuggestion(null);
+          }
+          setSearchLoading(false);
+        })
+        .catch(err => {
+          console.error("Search fetch error:", err);
+          setSearchResults([]);
+          setSearchSuggestion(null);
+          setSearchLoading(false);
+        });
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
   const [announcement, setAnnouncement] = useState("Geleceğe Hazırlık");
   const [phone, setPhone] = useState("(0312) 433 40 44");
   
@@ -168,6 +219,7 @@ export default function MainHeader() {
       if (e.key === "Escape") {
         setOpenDropdownId(null);
         setMobileOpen(false);
+        setSearchOpen(false);
       }
     };
 
@@ -181,11 +233,11 @@ export default function MainHeader() {
 
   useEffect(() => {
     if (!isMounted) return;
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    document.body.style.overflow = (mobileOpen || searchOpen) ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [mobileOpen, isMounted]);
+  }, [mobileOpen, searchOpen, isMounted]);
 
   /* =========================
      SSR FALLBACK
@@ -450,6 +502,14 @@ export default function MainHeader() {
               </a>
 
               <button
+                onClick={() => setSearchOpen(true)}
+                className="p-2 rounded-xl border border-transparent hover:border-gray-100 hover:bg-gray-50 text-gray-700 transition-all flex items-center justify-center shrink-0"
+                aria-label="Arama Yap"
+              >
+                <MagnifyingGlassIcon className="h-6 w-6 text-gray-600 hover:text-black" />
+              </button>
+
+              <button
                 onClick={() => setMobileOpen(true)}
                 className="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-700"
               >
@@ -605,6 +665,172 @@ export default function MainHeader() {
                 <BookOpenIcon className="w-5 h-5" />
                 4T Yayınevi
               </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SEARCH OVERLAY */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-[300] bg-[#0b1221]/90 backdrop-blur-sm flex flex-col justify-start p-4 md:p-6 transition-all duration-300 animate-fade-in">
+          {/* Close trigger area */}
+          <div className="absolute inset-0 z-0" onClick={() => setSearchOpen(false)} />
+          
+          <div className="relative z-10 w-full max-w-2xl mx-auto flex flex-col h-full max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mt-12 md:mt-20 animate-slide-in">
+            {/* Header: Input Bar */}
+            <div className="flex items-center gap-3 p-4 border-b border-gray-100 shrink-0">
+              <div className="relative flex-1">
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Eğitim, kamp veya FLIX paketi arayın..."
+                  className="w-full bg-gray-50 border border-gray-100 focus:border-red-200 focus:bg-white rounded-2xl py-3 pl-12 pr-10 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-500/20 text-[15px] sm:text-base font-medium transition-all shadow-inner"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <XMarkIcon className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setSearchOpen(false)}
+                className="px-3 py-2 text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors"
+              >
+                Vazgeç
+              </button>
+            </div>
+
+            {/* Results Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {searchLoading ? (
+                // Skeleton Loader List
+                <div className="space-y-3 animate-pulse">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="flex gap-4 p-3 rounded-2xl bg-gray-50 border border-gray-100">
+                      <div className="w-14 h-14 bg-gray-200 rounded-xl shrink-0"></div>
+                      <div className="flex-1 space-y-2 py-1">
+                        <div className="h-4 bg-gray-200 rounded-md w-3/4"></div>
+                        <div className="h-3 bg-gray-200 rounded-md w-1/4"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : searchQuery.trim() === "" ? (
+                // Initial State
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                    <MagnifyingGlassIcon className="w-8 h-8 text-[#DC2626]" />
+                  </div>
+                  <h4 className="font-bold text-[#0B1221] text-base mb-1">Ne aramak istersiniz?</h4>
+                  <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
+                    Aradığınız dersin adını, sınav kategorisini veya paket adını yazarak hızlıca bulabilirsiniz.
+                  </p>
+                </div>
+              ) : searchResults.length > 0 ? (
+                // Results List
+                <div className="space-y-2">
+                  <div className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1 mb-2">
+                    Eşleşen Sonuçlar ({searchResults.length})
+                  </div>
+                  {searchResults.map((item) => {
+                    const isFlix = item.type === "FLIX";
+                    const isKamp = item.type === "KAMP";
+                    const linkUrl = isFlix ? `/flix/${item.slug}` : `/kurs/${item.slug}`;
+                    
+                    // Badge styles
+                    let badgeLabel = "Online Eğitim";
+                    let badgeClass = "bg-blue-50 text-blue-600 border-blue-100";
+                    if (isFlix) {
+                      badgeLabel = "FLIX Paketi";
+                      badgeClass = "bg-purple-50 text-purple-600 border-purple-100";
+                    } else if (isKamp) {
+                      badgeLabel = "Soru Kampı";
+                      badgeClass = "bg-amber-50 text-amber-600 border-amber-100";
+                    }
+
+                    return (
+                      <a
+                        key={item.id}
+                        href={linkUrl}
+                        className="flex items-center gap-4 p-3 rounded-2xl border border-gray-100 bg-white hover:bg-red-50/20 hover:border-red-100 transition-all group duration-200"
+                      >
+                        {/* Course Image */}
+                        <div className="w-14 h-14 rounded-xl border border-gray-100 overflow-hidden bg-gray-50 shrink-0 relative">
+                          <img
+                            src={item.imageUrl || "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop"}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                          />
+                        </div>
+
+                        {/* Title & Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeClass} shrink-0`}>
+                              {badgeLabel}
+                            </span>
+                            {item.category && (
+                              <span className="text-[10px] text-gray-400 font-semibold truncate">
+                                {item.category.split(',')[0]}
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="font-bold text-[#0B1221] text-sm group-hover:text-[#DC2626] transition-colors truncate">
+                            {item.title}
+                          </h4>
+                        </div>
+
+                        {/* Price */}
+                        <div className="text-right shrink-0">
+                          <div className="text-sm font-black text-[#DC2626]">
+                            ₺{item.price.toLocaleString("tr-TR")}
+                          </div>
+                          {item.oldPrice && (
+                            <div className="text-[10px] text-gray-400 line-through">
+                              ₺{item.oldPrice.toLocaleString("tr-TR")}
+                            </div>
+                          )}
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              ) : (
+                // Empty State & Spelling Suggestion
+                <div className="flex flex-col items-center justify-center py-10 text-center animate-fade-in">
+                  {searchSuggestion ? (
+                    <div className="w-full max-w-md p-6 rounded-2xl bg-red-50/50 border border-red-100/50 text-center my-4 shadow-sm animate-slide-in">
+                      <div className="text-sm font-bold text-gray-500 mb-2">Bunu mu demek istediniz?</div>
+                      <button
+                        onClick={() => setSearchQuery(searchSuggestion.title)}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-red-200 hover:border-red-500 rounded-xl text-sm font-black text-[#DC2626] hover:bg-red-50/50 shadow-sm transition-all duration-200 cursor-pointer scale-100 hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        <SparklesIcon className="w-4 h-4 text-[#DC2626]" />
+                        <span>{searchSuggestion.title}</span>
+                      </button>
+                      <div className="text-[11px] text-gray-400 font-medium mt-2">
+                        {searchSuggestion.type === "FLIX" ? "FLIX Paketi" : searchSuggestion.type === "KAMP" ? "Soru Kampı" : "Eğitim Programı"}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
+                        <MagnifyingGlassIcon className="w-8 h-8 text-gray-300" />
+                      </div>
+                      <h4 className="font-bold text-[#0B1221] text-base mb-1">Sonuç Bulunamadı</h4>
+                      <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
+                        <strong>"{searchQuery}"</strong> ile eşleşen bir eğitim bulamadık. Farklı bir kelimeyle aramayı deneyebilirsiniz.
+                      </p>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

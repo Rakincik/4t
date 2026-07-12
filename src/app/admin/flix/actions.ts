@@ -35,7 +35,10 @@ export async function getFlixPackages(page: number = 1, limit: number = 12) {
 export async function getFlixPackage(id: string) {
     return prisma.course.findUnique({ 
         where: { id },
-        include: { variants: { orderBy: { order: 'asc'} } }
+        include: { 
+            variants: { orderBy: { order: 'asc'} },
+            coupons: { orderBy: { createdAt: 'desc' } }
+        }
     });
 }
 
@@ -68,8 +71,24 @@ function parseFlixFormData(formData: FormData) {
 
 function parseRelations(formData: FormData) {
     const variantsList = formData.get("variants") ? JSON.parse(formData.get("variants") as string) : [];
+    const couponsList = formData.get("coupons") ? JSON.parse(formData.get("coupons") as string) : [];
     return {
-        variants: variantsList.map((v: any, i: number) => ({ id: v.id, title: v.title, price: Number(v.price), oldPrice: v.oldPrice ? Number(v.oldPrice) : null, accessDurationDays: v.accessDurationDays ? Number(v.accessDurationDays) : null, order: i }))
+        variants: variantsList.map((v: any, i: number) => ({ id: v.id, title: v.title, price: Number(v.price), oldPrice: v.oldPrice ? Number(v.oldPrice) : null, accessDurationDays: v.accessDurationDays ? Number(v.accessDurationDays) : null, order: i })),
+        coupons: couponsList.map((c: any) => {
+            const parsedAmount = Number(c.amount);
+            if (!parsedAmount || parsedAmount <= 0) {
+                throw new Error("Kupon indirimi sıfırdan büyük olmalıdır.");
+            }
+            return {
+                id: c.id,
+                code: c.code.toUpperCase(),
+                type: c.type,
+                amount: parsedAmount,
+                maxUses: c.maxUses ? Number(c.maxUses) : null,
+                expiresAt: c.expiresAt ? new Date(c.expiresAt) : null,
+                isActive: c.isActive
+            };
+        })
     };
 }
 
@@ -94,6 +113,14 @@ export async function createFlixPackage(formData: FormData) {
             variants: { create: rels.variants.map((v: any) => ({ title: v.title, price: v.price, oldPrice: v.oldPrice, accessDurationDays: v.accessDurationDays, order: v.order })) }
         }
     });
+
+    // Create coupons linked to this FLIX course
+    if (rels.coupons.length > 0) {
+        for (const c of rels.coupons) {
+            await prisma.coupon.create({ data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, courseId: pkg.id } });
+        }
+    }
+
     revalidateFlixPaths();
     return { success: true, id: pkg.id };
 }
@@ -139,6 +166,30 @@ export async function updateFlixPackage(id: string, formData: FormData) {
         } else {
             await prisma.courseVariant.create({
                 data: { courseId: id, title: v.title, price: v.price, oldPrice: v.oldPrice, accessDurationDays: v.accessDurationDays, order: v.order }
+            });
+        }
+    }
+
+    // Sync coupons: upsert existing, create new, delete removed
+    const existingCoupons = await prisma.coupon.findMany({ where: { courseId: id } });
+    const submittedIds = rels.coupons.filter((c: any) => c.id).map((c: any) => c.id);
+    
+    // Delete removed coupons
+    const toDelete = existingCoupons.filter(ec => !submittedIds.includes(ec.id));
+    for (const d of toDelete) {
+        await prisma.coupon.delete({ where: { id: d.id } });
+    }
+    
+    // Upsert coupons
+    for (const c of rels.coupons) {
+        if (c.id) {
+            await prisma.coupon.update({ 
+                where: { id: c.id }, 
+                data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive } 
+            });
+        } else {
+            await prisma.coupon.create({ 
+                data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, courseId: id } 
             });
         }
     }

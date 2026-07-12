@@ -35,17 +35,40 @@ export default function FlixDetailClient({ course }: { course: any }) {
     const cast = parseJson(course.cast, []);
     const features = parseJson(course.features, []);
     const tags = parseJson(course.tags, []);
-    const variants = course.variants && course.variants.length > 0 
+    const isMainFlix = course.slug.startsWith("4t-flix-kurum-sinavlari-ve-kpss-a-egitimi-");
+    let variants = course.variants && course.variants.length > 0 
         ? course.variants.sort((a: any, b: any) => a.order - b.order) 
         : [{ id: "v_base", title: "Varsayılan", price: course.price, oldPrice: course.oldPrice }];
+
+    if (isMainFlix) {
+        variants = [
+            { id: "aylik", title: "1 Aylık", price: 3900, oldPrice: 4100, slug: "4t-flix-kurum-sinavlari-ve-kpss-a-egitimi-aylik-abonelik" },
+            { id: "3aylik", title: "3 Aylık", price: 9500, oldPrice: 55000, slug: "4t-flix-kurum-sinavlari-ve-kpss-a-egitimi-3-aylik-abonelik" },
+            { id: "6aylik", title: "6 Aylık", price: 17000, oldPrice: 55000, slug: "4t-flix-kurum-sinavlari-ve-kpss-a-egitimi-6-aylik-abonelik" },
+            { id: "yillik", title: "Yıllık", price: 30000, oldPrice: 55000, slug: "4t-flix-kurum-sinavlari-ve-kpss-a-egitimi-yillik-abonelik" }
+        ];
+    }
 
     const { add } = useCart();
     const router = useRouter();
     const [withBook, setWithBook] = useState(false);
-    const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id);
+    
+    const initialVariantId = isMainFlix 
+        ? (variants.find(v => v.slug === course.slug)?.id || variants[0]?.id)
+        : (variants[0]?.id);
+
+    const [selectedVariantId, setSelectedVariantId] = useState(initialVariantId);
     const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
     const selectedVariant = variants.find((v: any) => v.id === selectedVariantId) || variants[0];
+
+    const handleVariantChange = (v: any) => {
+        if (isMainFlix) {
+            router.push(`/flix/${v.slug}`);
+        } else {
+            setSelectedVariantId(v.id);
+        }
+    };
     
     const bookPrice = course.bookPrice || 0;
     const basePrice = selectedVariant.price;
@@ -102,7 +125,7 @@ export default function FlixDetailClient({ course }: { course: any }) {
                                 {variants.map((v: any) => (
                                     <button
                                         key={v.id}
-                                        onClick={() => setSelectedVariantId(v.id)}
+                                        onClick={() => handleVariantChange(v)}
                                         className={`py-2 px-1 rounded-lg text-[11px] leading-tight font-bold transition-all border text-center ${
                                             selectedVariantId === v.id
                                                 ? "bg-blue-600 border-blue-500 text-white shadow-md"
@@ -446,7 +469,7 @@ export default function FlixDetailClient({ course }: { course: any }) {
                                     {variants.map((v: any) => (
                                         <button
                                             key={v.id}
-                                            onClick={() => setSelectedVariantId(v.id)}
+                                            onClick={() => handleVariantChange(v)}
                                             className={`py-2.5 px-1 rounded-xl text-xs font-bold transition-all border text-center ${
                                                 selectedVariantId === v.id
                                                     ? "bg-blue-600 border-blue-500 text-white shadow-md"

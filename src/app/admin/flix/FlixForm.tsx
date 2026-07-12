@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
     ArrowLeftIcon, CheckIcon, XMarkIcon, CloudArrowUpIcon, PlusIcon, TrashIcon,
     FireIcon, BookOpenIcon, ClockIcon, PlayCircleIcon, UsersIcon,
-    TagIcon, FilmIcon, UserIcon,
+    TagIcon, FilmIcon, UserIcon, TicketIcon,
 } from "@heroicons/react/24/outline";
 import dynamic from "next/dynamic";
 import { stripHtml } from "@/lib/htmlUtils";
@@ -33,6 +33,7 @@ interface FlixPackage {
     cast: any;
     tags: any;
     variants?: any;
+    coupons?: any;
     instructorList?: string | null;
     sortOrder?: number;
     isCouponApplicable?: boolean;
@@ -112,6 +113,18 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
     const [instructorList, setInstructorList] = useState(pkg?.instructorList || "");
     const [variants, setVariants] = useState<{ id?: string; title: string; price: string; oldPrice: string; order: number; accessDurationDays?: string }[]>(
         pkg?.variants?.map((v: any) => ({ id: v.id, title: v.title, price: v.price.toString(), oldPrice: v.oldPrice?.toString() || "", order: v.order, accessDurationDays: v.accessDurationDays?.toString() || "" })) || []
+    );
+    const [coupons, setCoupons] = useState<{ code: string; type: string; amount: string; maxUses: string; expiresAt: string; isActive: boolean; isExisting?: boolean; id?: string }[]>(
+        pkg?.coupons?.map((c: any) => ({
+            id: c.id,
+            code: c.code,
+            type: c.type,
+            amount: c.amount.toString(),
+            maxUses: c.maxUses?.toString() || "",
+            expiresAt: c.expiresAt ? new Date(c.expiresAt).toISOString().slice(0, 16) : "",
+            isActive: c.isActive,
+            isExisting: true
+        })) || []
     );
 
     const handleTitleChange = (v: string) => { setTitle(v); if (mode === "create") setSlug(slugify(v + "-flix")); };
@@ -209,6 +222,15 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
             fd.append("tags", JSON.stringify(tags.filter(t => t.trim() !== "")));
             if (instructorList) fd.append("instructorList", instructorList);
             fd.append("variants", JSON.stringify(variants.filter(v => v.title.trim())));
+            fd.append("coupons", JSON.stringify(coupons.map(c => ({
+                id: c.id,
+                code: c.code.trim().toUpperCase(),
+                type: c.type,
+                amount: parseFloat(c.amount) || 0,
+                maxUses: c.maxUses ? parseInt(c.maxUses) : null,
+                expiresAt: c.expiresAt ? new Date(c.expiresAt).toISOString() : null,
+                isActive: c.isActive
+            }))));
             await onSave(fd);
             if (mode === "create") {
                 setToast({ message: "Paket başarıyla oluşturuldu! Yönlendiriliyorsunuz...", type: "success" });
@@ -490,6 +512,142 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
                                 minHeight="120px"
                             />
                         </div>
+                    </div>
+
+                    {/* Kuponlar */}
+                    <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                <TicketIcon className="w-4 h-4 text-purple-500" /> Kupon Yönetimi
+                            </h2>
+                            <button 
+                                type="button" 
+                                onClick={() => setCoupons([...coupons, { code: "", type: "PERCENT", amount: "", maxUses: "", expiresAt: "", isActive: true }])} 
+                                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition"
+                            >
+                                <PlusIcon className="w-3.5 h-3.5" /> Kupon Ekle
+                            </button>
+                        </div>
+                        <p className="text-xs text-gray-400">Bu pakete özel geçerli indirim kuponları oluşturun.</p>
+                        
+                        {coupons.length === 0 ? (
+                            <div className="py-8 text-center border-2 border-dashed border-gray-100 rounded-xl text-gray-400 text-xs">
+                                Henüz bu pakete özel bir kupon oluşturulmamış. "Kupon Ekle" butonunu kullanarak oluşturabilirsiniz.
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {coupons.map((c, i) => (
+                                    <div key={i} className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 relative">
+                                        <div className="flex items-center justify-between border-b border-gray-150 pb-2">
+                                            <span className="text-[11px] font-bold text-gray-500 uppercase">KUPON #{i + 1}</span>
+                                            <div className="flex items-center gap-2">
+                                                {c.isExisting && (
+                                                    <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold">
+                                                        Kullanım: {pkg?.coupons?.find((k: any) => k.id === c.id)?.usedCount || 0}
+                                                    </span>
+                                                )}
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => {
+                                                        const n = [...coupons];
+                                                        n[i] = { ...n[i], isActive: !n[i].isActive };
+                                                        setCoupons(n);
+                                                    }} 
+                                                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${c.isActive ? 'bg-green-500' : 'bg-gray-200'}`}
+                                                >
+                                                    <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${c.isActive ? 'translate-x-4' : 'translate-x-0'}`} />
+                                                </button>
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => setCoupons(coupons.filter((_, idx) => idx !== i))} 
+                                                    className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                                                >
+                                                    <TrashIcon className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                                            <div className="lg:col-span-2">
+                                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kupon Kodu *</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={c.code} 
+                                                    required 
+                                                    onChange={e => {
+                                                        const n = [...coupons];
+                                                        n[i] = { ...n[i], code: e.target.value };
+                                                        setCoupons(n);
+                                                    }} 
+                                                    className={inputCls + " uppercase font-mono font-bold !py-1.5 !text-xs"} 
+                                                    placeholder="KAMPANYA20" 
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tür</label>
+                                                <select 
+                                                    value={c.type} 
+                                                    onChange={e => {
+                                                        const n = [...coupons];
+                                                        n[i] = { ...n[i], type: e.target.value };
+                                                        setCoupons(n);
+                                                    }} 
+                                                    className={inputCls + " !py-1.5 !text-xs bg-white"}
+                                                >
+                                                    <option value="PERCENT">Yüzde (%)</option>
+                                                    <option value="FIXED">Sabit (₺)</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Miktar *</label>
+                                                <input 
+                                                    type="number" 
+                                                    value={c.amount} 
+                                                    required 
+                                                    min="1" 
+                                                    step="0.01" 
+                                                    onChange={e => {
+                                                        const n = [...coupons];
+                                                        n[i] = { ...n[i], amount: e.target.value };
+                                                        setCoupons(n);
+                                                    }} 
+                                                    className={inputCls + " !py-1.5 !text-xs"} 
+                                                    placeholder={c.type === 'PERCENT' ? '20' : '500'} 
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Limit (Adet)</label>
+                                                <input 
+                                                    type="number" 
+                                                    value={c.maxUses} 
+                                                    min="1" 
+                                                    onChange={e => {
+                                                        const n = [...coupons];
+                                                        n[i] = { ...n[i], maxUses: e.target.value };
+                                                        setCoupons(n);
+                                                    }} 
+                                                    className={inputCls + " !py-1.5 !text-xs"} 
+                                                    placeholder="Sınırsız" 
+                                                />
+                                            </div>
+                                            <div className="lg:col-span-2">
+                                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Son Geçerlilik Tarihi</label>
+                                                <input 
+                                                    type="datetime-local" 
+                                                    suppressHydrationWarning 
+                                                    value={c.expiresAt} 
+                                                    onChange={e => {
+                                                        const n = [...coupons];
+                                                        n[i] = { ...n[i], expiresAt: e.target.value };
+                                                        setCoupons(n);
+                                                    }} 
+                                                    className={inputCls + " !py-1.5 !text-xs"} 
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
