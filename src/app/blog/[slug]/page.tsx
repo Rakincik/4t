@@ -60,6 +60,36 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": `https://www.4takademi.com/blog/${post.slug}`
+            },
+            "headline": post.title,
+            "description": post.excerpt || post.title,
+            "image": post.imageUrl || "https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80",
+            "datePublished": post.publishedAt || post.createdAt,
+            "dateModified": post.updatedAt,
+            "author": {
+              "@type": "Person",
+              "name": "4T Akademi Ekibi"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "4T Akademi",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://www.4takademi.com/logo.png"
+              }
+            }
+          })
+        }}
+      />
       
       {/* 1. Parça: Header */}
       <MainHeader />

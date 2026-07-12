@@ -48,5 +48,33 @@ export default async function FlixDetailPageServer({ params }: PageProps) {
         data: { viewsCount: { increment: 1 } }
     }).catch(err => console.error("Prisma flix views increment error:", err));
 
-    return <FlixDetailClient key={course.id} course={course} />;
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "Course",
+                        "name": course.title,
+                        "description": stripHtml(course.description || course.subtitle || ""),
+                        "provider": {
+                            "@type": "Organization",
+                            "name": "4T Akademi",
+                            "sameAs": "https://www.4takademi.com"
+                        },
+                        "offers": {
+                            "@type": "Offer",
+                            "price": course.price,
+                            "priceCurrency": "TRY",
+                            "availability": "https://schema.org/InStock",
+                            "url": `https://www.4takademi.com/flix/${course.slug}`
+                        },
+                        "image": course.imageUrl || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80"
+                    })
+                }}
+            />
+            <FlixDetailClient key={course.id} course={course} />
+        </>
+    );
 }

@@ -113,6 +113,23 @@ export default function SssPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": allFaqs.map(faq => ({
+              "@type": "Question",
+              "name": faq.q,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.a
+              }
+            }))
+          })
+        }}
+      />
       
       {/* 1. Parça: Header */}
       <MainHeader />

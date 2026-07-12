@@ -110,5 +110,33 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         flixUpsellLink: dbCourse.flixUpsellLink || null
     };
 
-    return <KursDetailClient course={course} />;
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "Course",
+                        "name": course.title,
+                        "description": stripHtml(course.description || ""),
+                        "provider": {
+                            "@type": "Organization",
+                            "name": "4T Akademi",
+                            "sameAs": "https://www.4takademi.com"
+                        },
+                        "offers": {
+                            "@type": "Offer",
+                            "price": course.price,
+                            "priceCurrency": "TRY",
+                            "availability": "https://schema.org/InStock",
+                            "url": `https://www.4takademi.com/kurs/${course.slug}`
+                        },
+                        "image": course.image
+                    })
+                }}
+            />
+            <KursDetailClient course={course} />
+        </>
+    );
 }
