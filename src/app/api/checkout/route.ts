@@ -165,19 +165,51 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: `Kuponu kullanmak için minimum ₺${coupon.minOrder} tutarında sipariş vermelisiniz.` }, { status: 400 });
             }
             
-            // Eğer kupon belli bir kursa bağlıysa sepette o kursun kontrolü
-            if (coupon.courseId && !orderItemsToCreate.some(i => i.courseId === coupon.courseId)) {
-                return NextResponse.json({ error: "Bu kupon sepetinizdeki ürünler için geçerli değil." }, { status: 400 });
+            // Eğer kupon belli bir kursa/seçeneğe bağlıysa sepette onun kontrolü
+            let discountableAmount = 0;
+            let hasMatchingItem = false;
+            
+            for (const item of orderItemsToCreate) {
+                let matches = true;
+                if (coupon.courseId) {
+                    if (item.courseId !== coupon.courseId) {
+                        matches = false;
+                    } else if (coupon.variantId && item.variantId !== coupon.variantId) {
+                        matches = false;
+                    }
+                } else {
+                    // Global kuponlar için hariç tutulanları kontrol et
+                    const excludedCourses = (coupon.excludedCourseIds as string[]) || [];
+                    const excludedVariants = (coupon.excludedVariantIds as string[]) || [];
+                    if (excludedCourses.includes(item.courseId)) {
+                        matches = false;
+                    } else if (item.variantId && excludedVariants.includes(item.variantId)) {
+                        matches = false;
+                    }
+                }
+                
+                if (matches) {
+                    discountableAmount += (item.price * item.quantity);
+                    hasMatchingItem = true;
+                }
+            }
+
+            if (discountableAmount === 0 || (coupon.courseId && !hasMatchingItem)) {
+                return NextResponse.json({ error: "Bu kupon sepetinizdeki ürünler için geçerli değil veya seçili üründe kupon kullanımı kapalıdır." }, { status: 400 });
             }
 
             couponId = coupon.id;
             
-            // İndirim uygulama işlemi (Şimdilik fiyatlar ön tarafta da hesaplanabileceği için backend sadece orders'a yazıp kullanimi arttırır)
+            // İndirim uygulama işlemi
+            let discount = 0;
             if (coupon.type === "PERCENT") {
-                totalAmount -= (totalAmount * coupon.amount) / 100;
+                discount = (discountableAmount * coupon.amount) / 100;
             } else {
-                totalAmount -= coupon.amount;
+                discount = coupon.amount;
             }
+            if (discount > discountableAmount) discount = discountableAmount;
+            
+            totalAmount -= discount;
             if (totalAmount < 0) totalAmount = 0;
             
             // Kullanım miktarını artır

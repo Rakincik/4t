@@ -145,6 +145,7 @@ model CourseVariant {
   accessDurationDays Int?     // Satın alındığında eklenecek gün sayısı (Örn: 90)
 
   orderItems  OrderItem[]
+  coupons     Coupon[]
 
   @@index([courseId])
 }
@@ -372,6 +373,12 @@ model Coupon {
   isActive  Boolean   @default(true)
   courseId   String?
   course    Course?   @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  variantId  String?
+  variant    CourseVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  
+  excludedCourseIds  Json?
+  excludedVariantIds Json?
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   

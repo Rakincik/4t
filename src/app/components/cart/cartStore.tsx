@@ -26,7 +26,15 @@ export type CartItem = {
 
 type CartState = {
   items: CartItem[];
-  coupon?: { code: string; type: string; amount: number; courseId: string | null };
+  coupon?: { 
+    code: string; 
+    type: string; 
+    amount: number; 
+    courseId: string | null; 
+    variantId: string | null;
+    excludedCourseIds?: string[] | null;
+    excludedVariantIds?: string[] | null;
+  };
 };
 
 type CartActions =
@@ -37,7 +45,15 @@ type CartActions =
   | { type: "INC"; id: string }
   | { type: "DEC"; id: string }
   | { type: "CLEAR" }
-  | { type: "APPLY_COUPON"; payload: { code: string; type: string; amount: number; courseId: string | null } }
+  | { type: "APPLY_COUPON"; payload: { 
+      code: string; 
+      type: string; 
+      amount: number; 
+      courseId: string | null; 
+      variantId: string | null;
+      excludedCourseIds?: string[] | null;
+      excludedVariantIds?: string[] | null;
+    } }
   | { type: "REMOVE_COUPON" }
   | { type: "OPEN" }
   | { type: "CLOSE" };
@@ -60,7 +76,15 @@ type CartContextValue = {
   dec: (id: string) => void;
 
   clear: () => void;
-  applyCoupon: (coupon: { code: string; type: string; amount: number; courseId: string | null }) => void;
+  applyCoupon: (coupon: { 
+    code: string; 
+    type: string; 
+    amount: number; 
+    courseId: string | null; 
+    variantId: string | null;
+    excludedCourseIds?: string[] | null;
+    excludedVariantIds?: string[] | null;
+  }) => void;
   removeCoupon: () => void;
 };
 
@@ -172,10 +196,41 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [state.items]
   );
 
-  const discountableAmount = useMemo(
-    () => state.items.reduce((s, x) => s + (x.isCouponApplicable !== false ? x.price * x.qty : 0), 0),
-    [state.items]
-  );
+  const discountableAmount = useMemo(() => {
+    if (!state.coupon) return 0;
+    return state.items.reduce((s, x) => {
+      if (x.isCouponApplicable === false) return s;
+
+      // ID'yi normalize et (Flix ögeleri için)
+      let courseId = x.id;
+      let variantId = x.variantId || null;
+      if (x.id.startsWith("flix-")) {
+        const parts = x.id.split("-");
+        courseId = parts[1];
+        variantId = parts[2] || null;
+      }
+
+      let matches = true;
+      if (state.coupon.courseId) {
+        if (courseId !== state.coupon.courseId) {
+          matches = false;
+        } else if (state.coupon.variantId && variantId !== state.coupon.variantId) {
+          matches = false;
+        }
+      } else {
+        // Global kuponlar için hariç tutulanları kontrol et
+        const excludedCourses = (state.coupon.excludedCourseIds as string[]) || [];
+        const excludedVariants = (state.coupon.excludedVariantIds as string[]) || [];
+        if (excludedCourses.includes(courseId)) {
+          matches = false;
+        } else if (variantId && excludedVariants.includes(variantId)) {
+          matches = false;
+        }
+      }
+
+      return s + (matches ? x.price * x.qty : 0);
+    }, 0);
+  }, [state.items, state.coupon]);
 
   let discount = 0;
   if (state.coupon) {

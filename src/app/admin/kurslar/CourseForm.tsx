@@ -289,10 +289,10 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
     );
 
     // Kuponlar
-    const [coupons, setCoupons] = useState<{ code: string; type: string; amount: string; maxUses: string; expiresAt: string; isActive: boolean; isExisting?: boolean; id?: string }[]>(
+    const [coupons, setCoupons] = useState<{ code: string; type: string; amount: string; maxUses: string; expiresAt: string; isActive: boolean; isExisting?: boolean; id?: string; variantId?: string | null }[]>(
         course?.coupons?.map(c => ({
             code: c.code, type: c.type, amount: String(c.amount), maxUses: c.maxUses?.toString() || "",
-            expiresAt: c.expiresAt ? new Date(new Date(c.expiresAt).getTime() - new Date(c.expiresAt).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "", isActive: c.isActive, isExisting: true, id: c.id
+            expiresAt: c.expiresAt ? new Date(new Date(c.expiresAt).getTime() - new Date(c.expiresAt).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "", isActive: c.isActive, isExisting: true, id: c.id, variantId: c.variantId || ""
         })) || []
     );
 
@@ -419,6 +419,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
                 code: c.code.toUpperCase().trim(), type: c.type, amount: parseFloat(c.amount) || 0,
                 maxUses: c.maxUses ? parseInt(c.maxUses) : null,
                 expiresAt: c.expiresAt || null, isActive: c.isActive,
+                variantId: c.variantId || null,
                 ...(c.isExisting && c.id ? { id: c.id } : {})
             }))));
 
@@ -1353,7 +1354,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
                                             <button type="button" onClick={() => setCoupons(coupons.filter((_, idx) => idx !== i))} className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"><TrashIcon className="w-4 h-4" /></button>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-4 gap-3">
+                                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${variants.length > 0 ? '5' : '4'} gap-3`}>
                                         <div>
                                             <label className={labelCls}>Kupon Kodu *</label>
                                             <input type="text" value={c.code} required onChange={e => { const n = [...coupons]; n[i] = { ...n[i], code: e.target.value }; setCoupons(n); }} className={inputCls + " uppercase font-mono font-bold !py-2"} placeholder="YAZ2025" />
@@ -1373,6 +1374,27 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
                                             <label className={labelCls}>Max Kullanım</label>
                                             <input type="number" value={c.maxUses} min="1" onChange={e => { const n = [...coupons]; n[i] = { ...n[i], maxUses: e.target.value }; setCoupons(n); }} className={inputCls + " !py-2"} placeholder="∞" />
                                         </div>
+                                        {variants.length > 0 && (
+                                            <div>
+                                                <label className={labelCls}>Geçerli Seçenek</label>
+                                                <select
+                                                    value={c.variantId || ""}
+                                                    onChange={e => {
+                                                        const n = [...coupons];
+                                                        n[i] = { ...n[i], variantId: e.target.value || null };
+                                                        setCoupons(n);
+                                                    }}
+                                                    className={inputCls + " !py-2 bg-white"}
+                                                >
+                                                    <option value="">Tüm Seçenekler</option>
+                                                    {variants.map(v => (
+                                                        <option key={v.id || v.title} value={v.id || ""}>
+                                                            {v.title}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>

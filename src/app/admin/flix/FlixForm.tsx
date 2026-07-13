@@ -114,7 +114,7 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
     const [variants, setVariants] = useState<{ id?: string; title: string; price: string; oldPrice: string; order: number; accessDurationDays?: string }[]>(
         pkg?.variants?.map((v: any) => ({ id: v.id, title: v.title, price: v.price.toString(), oldPrice: v.oldPrice?.toString() || "", order: v.order, accessDurationDays: v.accessDurationDays?.toString() || "" })) || []
     );
-    const [coupons, setCoupons] = useState<{ code: string; type: string; amount: string; maxUses: string; expiresAt: string; isActive: boolean; isExisting?: boolean; id?: string }[]>(
+    const [coupons, setCoupons] = useState<{ code: string; type: string; amount: string; maxUses: string; expiresAt: string; isActive: boolean; isExisting?: boolean; id?: string; variantId?: string | null }[]>(
         pkg?.coupons?.map((c: any) => ({
             id: c.id,
             code: c.code,
@@ -123,7 +123,8 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
             maxUses: c.maxUses?.toString() || "",
             expiresAt: c.expiresAt ? new Date(c.expiresAt).toISOString().slice(0, 16) : "",
             isActive: c.isActive,
-            isExisting: true
+            isExisting: true,
+            variantId: c.variantId || ""
         })) || []
     );
 
@@ -223,13 +224,14 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
             if (instructorList) fd.append("instructorList", instructorList);
             fd.append("variants", JSON.stringify(variants.filter(v => v.title.trim())));
             fd.append("coupons", JSON.stringify(coupons.map(c => ({
-                id: c.id,
-                code: c.code.trim().toUpperCase(),
-                type: c.type,
+                code: c.code.toUpperCase().trim(), 
+                type: c.type, 
                 amount: parseFloat(c.amount) || 0,
                 maxUses: c.maxUses ? parseInt(c.maxUses) : null,
-                expiresAt: c.expiresAt ? new Date(c.expiresAt).toISOString() : null,
-                isActive: c.isActive
+                expiresAt: c.expiresAt || null, 
+                isActive: c.isActive,
+                variantId: c.variantId || null,
+                ...(c.isExisting && c.id ? { id: c.id } : {})
             }))));
             await onSave(fd);
             if (mode === "create") {
@@ -643,6 +645,27 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
                                                     className={inputCls + " !py-1.5 !text-xs"} 
                                                 />
                                             </div>
+                                            {variants.length > 0 && (
+                                                <div className="lg:col-span-3">
+                                                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Geçerli Seçenek</label>
+                                                    <select
+                                                        value={c.variantId || ""}
+                                                        onChange={e => {
+                                                            const n = [...coupons];
+                                                            n[i] = { ...n[i], variantId: e.target.value || null };
+                                                            setCoupons(n);
+                                                        }}
+                                                        className={inputCls + " !py-1.5 !text-xs bg-white"}
+                                                    >
+                                                        <option value="">Tüm Seçenekler</option>
+                                                        {variants.map(v => (
+                                                            <option key={v.id || v.title} value={v.id || ""}>
+                                                                {v.title}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}

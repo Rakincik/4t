@@ -25,6 +25,9 @@ async function createGlobalCoupon(formData: FormData) {
     const expiresAtStr = formData.get("expiresAt") as string;
     const expiresAt = expiresAtStr ? new Date(expiresAtStr) : null;
 
+    const excludedCourses = formData.getAll("excludedCourses") as string[];
+    const excludedVariants = formData.getAll("excludedVariants") as string[];
+
     if (!code || !amount) return;
 
     await prisma.coupon.create({
@@ -36,6 +39,8 @@ async function createGlobalCoupon(formData: FormData) {
             expiresAt,
             isActive: true,
             courseId: null,
+            excludedCourseIds: excludedCourses.length > 0 ? excludedCourses : null,
+            excludedVariantIds: excludedVariants.length > 0 ? excludedVariants : null,
         }
     });
     revalidatePath("/admin/kuponlar");
@@ -84,7 +89,10 @@ export default async function AdminKuponlarPage({ searchParams }: { searchParams
 
     const coupons = await prisma.coupon.findMany({
         orderBy: { createdAt: "desc" },
-        include: { course: { select: { id: true, title: true, slug: true } } },
+        include: { 
+            course: { select: { id: true, title: true, slug: true } },
+            variant: { select: { id: true, title: true } }
+        },
     });
 
     const activeCoupons = coupons.filter(c => c.isActive && (!c.expiresAt || new Date(c.expiresAt) >= new Date()));
@@ -109,6 +117,22 @@ export default async function AdminKuponlarPage({ searchParams }: { searchParams
             }
         });
     }
+
+    const courses = await prisma.course.findMany({
+        where: { isDeleted: false, isActive: true },
+        select: {
+            id: true,
+            title: true,
+            variants: {
+                select: {
+                    id: true,
+                    title: true
+                },
+                orderBy: { order: "asc" }
+            }
+        },
+        orderBy: [{ sortOrder: "asc" }, { title: "asc" }]
+    });
 
     return (
         <div className="space-y-6">
@@ -255,12 +279,26 @@ export default async function AdminKuponlarPage({ searchParams }: { searchParams
                                             </td>
                                             <td className="px-5 py-4">
                                                 {coupon.course ? (
-                                                    <a href={`/admin/kurslar/${coupon.course.id}`} className="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1">
-                                                        <span className="w-1.5 h-1.5 bg-blue-400 rounded-full inline-block" />
-                                                        {coupon.course.title.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ')}
-                                                    </a>
+                                                    <div className="space-y-0.5">
+                                                        <a href={`/admin/kurslar/${coupon.course.id}`} className="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 bg-blue-400 rounded-full inline-block" />
+                                                            {coupon.course.title.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ')}
+                                                        </a>
+                                                        {coupon.variant && (
+                                                            <span className="block text-[10px] text-purple-600 font-bold ml-2.5">
+                                                                Seçenek: {coupon.variant.title}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 ) : (
-                                                    <span className="text-[10px] text-gray-300 font-medium bg-gray-50 px-2 py-0.5 rounded">Global</span>
+                                                    <div className="space-y-1">
+                                                        <span className="text-[10px] text-gray-400 font-bold bg-gray-50 px-2 py-0.5 rounded border border-gray-200">Global</span>
+                                                        {(coupon.excludedCourseIds || coupon.excludedVariantIds) && (
+                                                            <span className="block text-[9px] text-red-500 font-extrabold ml-1">
+                                                                (Bazı Seçenekler Hariç)
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 )}
                                             </td>
                                             <td className="px-5 py-4">
@@ -447,6 +485,30 @@ export default async function AdminKuponlarPage({ searchParams }: { searchParams
                                         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Son Kullanım</label>
                                         <input type="datetime-local" name="expiresAt" className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                                     </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Geçersiz Olacağı Ürünler / Seçenekler (Hariç Tutulanlar)</label>
+                                    <div className="border border-gray-200 rounded-lg max-h-48 overflow-y-auto p-3 space-y-2 text-sm bg-gray-50/50">
+                                        {courses.map(course => (
+                                            <div key={course.id} className="space-y-1">
+                                                <label className="flex items-center gap-2 cursor-pointer font-bold text-gray-700">
+                                                    <input type="checkbox" name="excludedCourses" value={course.id} className="rounded text-blue-600 focus:ring-blue-500 border-gray-300 w-4 h-4" />
+                                                    <span dangerouslySetInnerHTML={{ __html: course.title }} />
+                                                </label>
+                                                {course.variants.length > 0 && (
+                                                    <div className="pl-6 space-y-1 border-l-2 border-gray-200 ml-2">
+                                                        {course.variants.map(v => (
+                                                            <label key={v.id} className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-500">
+                                                                <input type="checkbox" name="excludedVariants" value={v.id} className="rounded text-purple-600 focus:ring-purple-500 border-gray-300 w-3.5 h-3.5" />
+                                                                {v.title}
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <p className="text-[10px] text-gray-400 mt-1">İpucu: Global kuponun uygulanmasını istemediğiniz kursları veya abonelik sürelerini seçin.</p>
                                 </div>
                                 <div className="pt-2 flex justify-end gap-3 mt-6">
                                     <a href="/admin/kuponlar" className="px-4 py-2 border border-gray-200 text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition text-sm">İptal</a>

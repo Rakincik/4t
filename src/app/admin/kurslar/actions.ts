@@ -95,7 +95,8 @@ function parseRelations(formData: FormData) {
                 amount: parsedAmount,
                 maxUses: c.maxUses ? Number(c.maxUses) : null,
                 expiresAt: c.expiresAt ? new Date(c.expiresAt) : null,
-                isActive: c.isActive
+                isActive: c.isActive,
+                variantId: c.variantId || null
             };
         })
     };
@@ -130,7 +131,7 @@ export async function createCourse(formData: FormData) {
         // Create coupons linked to this course
         if (rels.coupons.length > 0) {
             for (const c of rels.coupons) {
-                await prisma.coupon.create({ data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, courseId: course.id } });
+                await prisma.coupon.create({ data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, courseId: course.id, variantId: c.variantId } });
             }
         }
         revalidateAll();
@@ -195,9 +196,9 @@ export async function updateCourse(id: string, formData: FormData) {
         // Upsert coupons
         for (const c of rels.coupons) {
             if (c.id) {
-                await prisma.coupon.update({ where: { id: c.id }, data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive } });
+                await prisma.coupon.update({ where: { id: c.id }, data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, variantId: c.variantId } });
             } else {
-                await prisma.coupon.create({ data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, courseId: id } });
+                await prisma.coupon.create({ data: { code: c.code, type: c.type, amount: c.amount, maxUses: c.maxUses, expiresAt: c.expiresAt, isActive: c.isActive, courseId: id, variantId: c.variantId } });
             }
         }
         revalidateAll(data.slug);

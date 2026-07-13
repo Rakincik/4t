@@ -13,7 +13,26 @@ export async function validateCouponAction(code: string, cartItems: { id: string
         if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) return { error: "Bu kuponun süresi dolmuş." };
         if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) return { error: "Bu kupon limitine ulaştı." };
 
-        const courseIds = cartItems.map(i => i.id);
+        const normalizedCartItems = cartItems.map(item => {
+            if (item.id && typeof item.id === "string" && item.id.startsWith("flix-")) {
+                const parts = item.id.split("-");
+                const courseId = parts[1];
+                const variantId = parts[2] || null;
+                return {
+                    ...item,
+                    originalId: item.id,
+                    id: courseId,
+                    variantId: variantId
+                };
+            }
+            return {
+                ...item,
+                originalId: item.id,
+                variantId: null
+            };
+        });
+
+        const courseIds = normalizedCartItems.map(i => i.id);
         const courses = await prisma.course.findMany({
             where: { id: { in: courseIds } },
             select: { id: true, isCouponApplicable: true }
@@ -21,34 +40,49 @@ export async function validateCouponAction(code: string, cartItems: { id: string
 
         let totalAmount = 0;
         let discountableAmount = 0;
-        let isCourseInCart = false;
+        let isCouponValidForItem = false;
 
-        cartItems.forEach(item => {
+        normalizedCartItems.forEach(item => {
             const course = courses.find(c => c.id === item.id);
             const isApplicable = course?.isCouponApplicable ?? true;
             
             const itemTotal = (item.price * item.qty);
             totalAmount += itemTotal;
             
-            if (isApplicable) {
-                discountableAmount += itemTotal;
+            let isThisItemMatch = true;
+            if (coupon.courseId) {
+                if (item.id !== coupon.courseId) {
+                    isThisItemMatch = false;
+                } else if (coupon.variantId && item.variantId !== coupon.variantId) {
+                    isThisItemMatch = false;
+                }
+            } else {
+                // Global kuponlar için hariç tutulanları kontrol et
+                const excludedCourses = (coupon.excludedCourseIds as string[]) || [];
+                const excludedVariants = (coupon.excludedVariantIds as string[]) || [];
+                if (excludedCourses.includes(item.id)) {
+                    isThisItemMatch = false;
+                } else if (item.variantId && excludedVariants.includes(item.variantId)) {
+                    isThisItemMatch = false;
+                }
             }
 
-            if (coupon.courseId && item.id === coupon.courseId && isApplicable) {
-                isCourseInCart = true;
+            if (isThisItemMatch && isApplicable) {
+                discountableAmount += itemTotal;
+                isCouponValidForItem = true;
             }
         });
 
+        if (coupon.courseId && !isCouponValidForItem) {
+            return { error: "Bu kupon sepetinizdeki ürünler için geçerli değil veya seçili üründe kupon kullanımı kapalıdır." };
+        }
+
         if (discountableAmount === 0) {
-            return { error: "Sepetinizdeki ürünler indirim kuponu kullanımına kapalıdır." };
+            return { error: "Sepetinizdeki ürünler indirim kuponu kullanımına kapalıdır veya bu kuponun geçerli olmadığı ürünlerdir." };
         }
 
         if (coupon.minOrder && totalAmount < coupon.minOrder) {
             return { error: `Kuponu kullanmak için minimum ₺${coupon.minOrder} tutarında sipariş vermelisiniz.` };
-        }
-
-        if (coupon.courseId && !isCourseInCart) {
-            return { error: "Bu kupon sepetinizdeki ürünler için geçerli değil veya seçili üründe kupon kullanımı kapalıdır." };
         }
 
         return { 
@@ -58,7 +92,10 @@ export async function validateCouponAction(code: string, cartItems: { id: string
                 code: coupon.code,
                 type: coupon.type,
                 amount: coupon.amount,
-                courseId: coupon.courseId
+                courseId: coupon.courseId,
+                variantId: coupon.variantId,
+                excludedCourseIds: coupon.excludedCourseIds,
+                excludedVariantIds: coupon.excludedVariantIds
             }
         };
     } catch (error) {
