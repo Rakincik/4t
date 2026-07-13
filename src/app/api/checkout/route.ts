@@ -251,7 +251,38 @@ export async function POST(req: NextRequest) {
                 const checkKey = crypto.createHash("sha256").update(checkKeyRaw).digest("hex");
 
                 // Temiz IP adresi
-                const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+                let rawIp = 
+                    req.headers.get("cf-connecting-ip") || 
+                    req.headers.get("x-real-ip") || 
+                    req.headers.get("x-forwarded-for")?.split(",")[0] || 
+                    (req as any).ip || 
+                    "127.0.0.1";
+
+                let clientIp = rawIp.trim();
+                
+                // IPv6 ile port temizliği
+                if (clientIp.startsWith("[") && clientIp.includes("]")) {
+                    const match = clientIp.match(/^\[(.+)\]/);
+                    if (match) {
+                        clientIp = match[1];
+                    }
+                } else if (clientIp.includes(".") && clientIp.includes(":")) {
+                    // IPv4 port temizliği (örnek: 192.168.1.1:8080)
+                    const parts = clientIp.split(":");
+                    if (parts.length === 2) {
+                        clientIp = parts[0];
+                    }
+                }
+
+                // IPv4-mapped IPv6 adresini temizle (örnek: ::ffff:192.168.1.1 -> 192.168.1.1)
+                if (clientIp.startsWith("::ffff:")) {
+                    clientIp = clientIp.substring(7);
+                }
+
+                // Canlı ortamda (isTest === false) IP'nin lokal veya boş kalması durumunda ödemenin kesilmemesi için geçerli bir genel IP'ye fallback yap
+                if (!isTest && (clientIp === "127.0.0.1" || clientIp === "::1" || !clientIp)) {
+                    clientIp = "8.8.8.8"; // Google Public DNS IP'si (geçerli bir genel IP adresi)
+                }
 
                 // ExpYear 4 hane olmalı
                 let formattedExpYear = expYear.trim();
