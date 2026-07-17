@@ -286,7 +286,7 @@ export default function SepetPage() {
                     <button 
                         onClick={handleApplyCoupon}
                         disabled={couponLoading || !couponInput.trim()}
-                        className="bg-dark text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-dark/90 transition disabled:opacity-50"
+                        className="bg-black hover:bg-black/80 text-white px-4 py-2 rounded-xl text-sm font-bold transition disabled:opacity-50"
                     >
                         {couponLoading ? "..." : "Ekle"}
                     </button>
