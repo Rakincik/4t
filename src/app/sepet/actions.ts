@@ -6,7 +6,7 @@ export async function validateCouponAction(code: string, cartItems: { id: string
     try {
         if (!code) return { error: "Lütfen bir kupon kodu girin." };
 
-        const coupon = await prisma.coupon.findUnique({ where: { code: code.toUpperCase().trim() } });
+        const coupon = await prisma.coupon.findUnique({ where: { code: code.toLocaleUpperCase('tr-TR').trim() } });
         
         if (!coupon) return { error: "Geçersiz kupon kodu." };
         if (!coupon.isActive) return { error: "Bu kupon aktif değil." };

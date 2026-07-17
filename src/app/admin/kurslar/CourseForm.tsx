@@ -416,7 +416,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
             fd.append("flixUpsellLink", flixUpsellLink);
             fd.append("recommendedCourseIds", JSON.stringify(recommendedCourseIds));
             fd.append("coupons", JSON.stringify(coupons.map(c => ({
-                code: c.code.toUpperCase().trim(), type: c.type, amount: parseFloat(c.amount) || 0,
+                code: c.code.toLocaleUpperCase('tr-TR').trim(), type: c.type, amount: parseFloat(c.amount) || 0,
                 maxUses: c.maxUses ? parseInt(c.maxUses) : null,
                 expiresAt: c.expiresAt || null, isActive: c.isActive,
                 variantId: c.variantId || null,
@@ -1403,7 +1403,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
                                         </div>
                                         <div className="flex items-end">
                                             <div className="bg-white rounded-lg border border-gray-200 px-3 py-2 text-xs font-mono w-full">
-                                                {c.code ? <span className="font-bold text-orange-600">{c.code.toUpperCase()}</span> : <span className="text-gray-300">KUPON_KODU</span>}
+                                                {c.code ? <span className="font-bold text-orange-600">{c.code.toLocaleUpperCase('tr-TR')}</span> : <span className="text-gray-300">KUPON_KODU</span>}
                                                 {' → '}
                                                 <span className="font-bold text-green-600">{c.type === 'PERCENT' ? `%${c.amount || '?'} indirim` : `₺${c.amount || '?'} indirim`}</span>
                                             </div>

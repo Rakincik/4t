@@ -57,7 +57,36 @@ export default function CheckoutPage() {
    * - useCart store’una bu action’ları ekle (önerilir)
    * - veya aşağıdaki butonları pasif yap.
    */
-  const { state, subtotal, total } = cart as any;
+  const { state, subtotal, total, applyCoupon, removeCoupon } = cart as any;
+
+  const [couponInput, setCouponInput] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponMsg, setCouponMsg] = useState({ type: "", text: "" });
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setCouponLoading(true);
+    setCouponMsg({ type: "", text: "" });
+
+    const itemsForValidation = state.items.map((i: any) => ({ id: i.id, price: i.price, qty: i.qty }));
+    const { validateCouponAction } = await import("@/app/sepet/actions");
+    const res = await validateCouponAction(couponInput, itemsForValidation);
+    
+    if (res.error) {
+        setCouponMsg({ type: "error", text: res.error });
+        removeCoupon();
+    } else if (res.success && res.coupon) {
+        setCouponMsg({ type: "success", text: "Kupon başarıyla uygulandı!" });
+        applyCoupon(res.coupon);
+        setCouponInput("");
+    }
+    setCouponLoading(false);
+  };
+
+  const handleRemoveCoupon = () => {
+      removeCoupon();
+      setCouponMsg({ type: "", text: "" });
+  };
   const items = (state?.items ?? []) as Array<{
     id: string;
     title: string;
@@ -991,12 +1020,39 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
-                {(state as any).coupon && (
+                {(state as any).coupon ? (
                   <div className="mt-2 flex items-center justify-between text-sm">
-                    <span className="text-dark/60 font-bold">Kupon İndirimi ({(state as any).coupon.code})</span>
+                    <div>
+                      <span className="text-dark/60 font-bold block">Kupon İndirimi ({(state as any).coupon.code})</span>
+                      <button onClick={handleRemoveCoupon} className="text-xs font-bold text-red-500 hover:text-red-700">Kaldır</button>
+                    </div>
                     <span className="text-green-600 font-extrabold">
                       -{formatTRY((state as any).coupon.type === 'PERCENT' ? (subtotal * (state as any).coupon.amount) / 100 : (state as any).coupon.amount)}
                     </span>
+                  </div>
+                ) : (
+                  <div className="mt-4">
+                    <div className="flex gap-2">
+                      <input 
+                          type="text" 
+                          value={couponInput}
+                          onChange={(e) => setCouponInput(e.target.value.toLocaleUpperCase('tr-TR'))}
+                          placeholder="Kupon girin" 
+                          className="flex-1 rounded-xl border border-black/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" 
+                      />
+                      <button 
+                          onClick={handleApplyCoupon}
+                          disabled={couponLoading || !couponInput.trim()}
+                          className="bg-black/90 hover:bg-black text-white px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-50 transition"
+                      >
+                          {couponLoading ? "..." : "Ekle"}
+                      </button>
+                    </div>
+                    {couponMsg.text && (
+                        <p className={`text-[11px] font-bold mt-2 ${couponMsg.type === 'error' ? 'text-red-500' : 'text-green-600'}`}>
+                            {couponMsg.text}
+                        </p>
+                    )}
                   </div>
                 )}
 

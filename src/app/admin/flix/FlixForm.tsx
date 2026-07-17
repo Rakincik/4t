@@ -224,7 +224,7 @@ export default function FlixForm({ mode, pkg, onSave }: FlixFormProps) {
             if (instructorList) fd.append("instructorList", instructorList);
             fd.append("variants", JSON.stringify(variants.filter(v => v.title.trim())));
             fd.append("coupons", JSON.stringify(coupons.map(c => ({
-                code: c.code.toUpperCase().trim(), 
+                code: c.code.toLocaleUpperCase('tr-TR').trim(), 
                 type: c.type, 
                 amount: parseFloat(c.amount) || 0,
                 maxUses: c.maxUses ? parseInt(c.maxUses) : null,

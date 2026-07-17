@@ -90,7 +90,7 @@ function parseRelations(formData: FormData) {
             }
             return {
                 id: c.id,
-                code: c.code.toUpperCase(),
+                code: c.code.toLocaleUpperCase('tr-TR'),
                 type: c.type,
                 amount: parsedAmount,
                 maxUses: c.maxUses ? Number(c.maxUses) : null,

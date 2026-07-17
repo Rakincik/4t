@@ -32,7 +32,7 @@ async function createGlobalCoupon(formData: FormData) {
 
     await prisma.coupon.create({
         data: {
-            code: code.toUpperCase().trim(),
+            code: code.toLocaleUpperCase('tr-TR').trim(),
             type,
             amount,
             maxUses,

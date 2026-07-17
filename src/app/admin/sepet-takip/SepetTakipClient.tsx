@@ -157,7 +157,7 @@ export default function SepetTakipClient({ initialCarts }: { initialCarts: Aband
 
         try {
             if (useCoupon) {
-                const finalCode = customCouponCode.trim().toUpperCase();
+                const finalCode = customCouponCode.trim().toLocaleUpperCase('tr-TR');
                 if (!finalCode) {
                     alert("Lütfen kupon kodunu girin veya kuponsuz gönderme seçeneğini seçin.");
                     setCouponGeneratingId(null);

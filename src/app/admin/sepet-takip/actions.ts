@@ -180,7 +180,7 @@ export async function updateCartStatus(id: string, status: string) {
 
 export async function createRecoveryCoupon(name: string, amount: number = 10, customCode?: string) {
     try {
-        let code = customCode?.trim().toUpperCase();
+        let code = customCode?.trim().toLocaleUpperCase('tr-TR');
         
         if (!code) {
             // Strip non-turkish-alphabetic chars and convert to uppercase for firstName
