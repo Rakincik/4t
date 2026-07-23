@@ -1,13 +1,14 @@
 // Dosya Yolu: app/components/WhatsAppButton.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 export default function WhatsAppButton() {
   const pathname = usePathname();
   const [showTooltip, setShowTooltip] = useState(false);
   const [phone, setPhone] = useState("905531724044");
+  const [whatsappUrl, setWhatsappUrl] = useState(`https://wa.me/905531724044`);
 
   if (pathname?.startsWith("/admin")) {
     return null;
@@ -24,7 +25,52 @@ export default function WhatsAppButton() {
       .catch(console.error);
   }, []);
 
-  const message = encodeURIComponent("Merhaba, 4T Akademi hakkında bilgi almak istiyorum.");
+  useEffect(() => {
+    let msg = "Merhaba, 4T Akademi hakkında bilgi almak istiyorum.";
+
+    // Client-side control and dynamic DOM extraction
+    try {
+      const path = window.location.pathname;
+      const search = window.location.search;
+
+      if (path.startsWith("/kurs/") || path.startsWith("/flix/")) {
+        const h1Text = document.querySelector("h1")?.innerText;
+        if (h1Text) {
+          msg = `Merhaba, "${h1Text.trim()}" eğitimi hakkında detaylı bilgi alabilir miyim?`;
+        } else {
+          msg = "Merhaba, detay sayfasını incelediğim bu eğitim hakkında bilgi almak istiyorum.";
+        }
+      } else if (path === "/kurslar" || path.startsWith("/kurslar")) {
+        const urlParams = new URLSearchParams(search);
+        const catParam = urlParams.get("kategori");
+        if (catParam) {
+          const formattedCat = catParam
+            .replace(/-/g, " ")
+            .split(" ")
+            .map(word => {
+              const upper = word.toUpperCase();
+              if (["KPSS", "GUY", "SGS", "ALAN", "FLIX"].includes(upper)) return upper;
+              if (upper === "SAYISTAY") return "Sayıştay";
+              return word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1);
+            })
+            .join(" ");
+
+          msg = `Merhaba, "${formattedCat}" grubu eğitimleriniz hakkında bilgi alabilir miyim?`;
+        }
+      } else if (path.startsWith("/blog/")) {
+        const h1Text = document.querySelector("h1")?.innerText;
+        if (h1Text) {
+          msg = `Merhaba, "${h1Text.trim()}" konulu blog yazınız hakkında görüşmek istiyorum.`;
+        }
+      } else if (path === "/orgun-egitim") {
+        msg = "Merhaba, Ankara'daki örgün eğitim programlarınız hakkında detaylı bilgi alabilir miyim?";
+      }
+    } catch (err) {
+      console.error("WhatsApp message generation failed:", err);
+    }
+
+    setWhatsappUrl(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`);
+  }, [pathname, phone]);
 
   return (
     <div className="fixed bottom-20 sm:bottom-6 right-6 z-[9999] flex items-end gap-3">
@@ -44,7 +90,7 @@ export default function WhatsAppButton() {
 
       {/* WhatsApp Button */}
       <a
-        href={`https://wa.me/${phone}?text=${message}`}
+        href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
         onMouseEnter={() => setShowTooltip(true)}
