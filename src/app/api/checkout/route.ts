@@ -230,6 +230,26 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "En fazla 6 taksit seçilebilir." }, { status: 400 });
         }
 
+        // Son 30 dakikada bu kullanıcının başarısız (FAILED) siparişi varsa,
+        // admin panelinde kirlilik yaratmaması için onu temizliyoruz (Cascade ile alt kalemler de silinir)
+        try {
+            const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+            const oldFailedOrder = await prisma.order.findFirst({
+                where: {
+                    userId,
+                    status: "FAILED",
+                    createdAt: { gte: thirtyMinutesAgo }
+                }
+            });
+            if (oldFailedOrder) {
+                await prisma.order.delete({
+                    where: { id: oldFailedOrder.id }
+                });
+            }
+        } catch (cleanupErr) {
+            console.error("Old failed order cleanup error:", cleanupErr);
+        }
+
         // 5. Siparişi Oluştur (PENDING)
         const order = await prisma.order.create({
             data: {
@@ -404,6 +424,14 @@ export async function POST(req: NextRequest) {
                         }
                     });
 
+                    // Kupon kullanım sayacını geri düşür
+                    if (couponId) {
+                        await prisma.coupon.update({
+                            where: { id: couponId },
+                            data: { usedCount: { decrement: 1 } }
+                        }).catch(err => console.error("Coupon decrement error:", err));
+                    }
+
                     return NextResponse.json({ 
                         error: `${friendlyMessage} (Kod: ${resultCode})` 
                     }, { status: 400 });
@@ -418,6 +446,14 @@ export async function POST(req: NextRequest) {
                         notes: `Sistem Ödeme Hatası: ${err.message || err}`
                     }
                 });
+
+                // Kupon kullanım sayacını geri düşür
+                if (couponId) {
+                    await prisma.coupon.update({
+                        where: { id: couponId },
+                        data: { usedCount: { decrement: 1 } }
+                    }).catch(err => console.error("Coupon decrement error:", err));
+                }
 
                 return NextResponse.json({ 
                     error: "Ödeme entegrasyonu sunucu bağlantı hatası. Lütfen daha sonra tekrar deneyiniz." 

@@ -165,6 +165,14 @@ export async function POST(req: NextRequest) {
                 }
             });
 
+            // Kupon kullanım sayacını geri düşür
+            if (order.couponId) {
+                await prisma.coupon.update({
+                    where: { id: order.couponId },
+                    data: { usedCount: { decrement: 1 } }
+                }).catch(err => console.error("Coupon decrement error on callback fail:", err));
+            }
+
             return NextResponse.redirect(
                 new URL(`/checkout/error?error=${encodeURIComponent(errorMsg)}&orderId=${order.id}`, process.env.NEXTAUTH_URL || req.url).toString(),
                 303
@@ -178,6 +186,14 @@ export async function POST(req: NextRequest) {
                     notes: `Güvenlik İmzası Uyuşmazlığı. Gelen: ${hashValue}, Beklenen(T): ${hashValue1}`
                 }
             });
+
+            // Kupon kullanım sayacını geri düşür
+            if (order.couponId) {
+                await prisma.coupon.update({
+                    where: { id: order.couponId },
+                    data: { usedCount: { decrement: 1 } }
+                }).catch(err => console.error("Coupon decrement error on signature mismatch:", err));
+            }
 
             return NextResponse.redirect(
                 new URL(`/checkout/error?error=${encodeURIComponent("Geçersiz güvenlik imzası.")}&orderId=${order.id}`, process.env.NEXTAUTH_URL || req.url).toString(),
