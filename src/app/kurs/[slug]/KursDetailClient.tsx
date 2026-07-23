@@ -1,9 +1,10 @@
 // Dosya Yolu: app/kurslar/[slug]/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { logViewItem, logAddToCart } from "@/lib/gtag";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   StarIcon,
   PlayCircleIcon,
@@ -366,6 +367,29 @@ export default function KursDetailClient({ course }: { course: any }) {
     }, { openDrawer: false });
     router.push("/sepet"); // Check out sayfasına da gidebilir
   };
+
+  // =================== POP-UP MANTIGI ===================
+  const popupCfg = course.popupConfig;
+  const [showPopup, setShowPopup] = useState(false);
+
+  const closePopup = useCallback(() => {
+    setShowPopup(false);
+    if (popupCfg?.showOnceOnly) {
+      try { localStorage.setItem(`popup-seen-${course.slug}`, "1"); } catch {}
+    }
+  }, [popupCfg, course.slug]);
+
+  useEffect(() => {
+    if (!popupCfg?.enabled) return;
+    if (popupCfg.showOnceOnly) {
+      try {
+        if (localStorage.getItem(`popup-seen-${course.slug}`)) return;
+      } catch {}
+    }
+    const timer = setTimeout(() => setShowPopup(true), (popupCfg.delaySeconds || 2) * 1000);
+    return () => clearTimeout(timer);
+  }, [popupCfg, course.slug]);
+  // ======================================================
 
   return (
     <main className="min-h-screen bg-gray-50 font-sans">
@@ -762,6 +786,95 @@ export default function KursDetailClient({ course }: { course: any }) {
           Satın Al
         </button>
       </div>
+
+      {/* =================== POP-UP MODAL =================== */}
+      <AnimatePresence>
+        {showPopup && popupCfg && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[999] flex items-center justify-center p-4"
+            onClick={closePopup}
+          >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 40 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              className="relative w-full max-w-lg"
+            >
+              {/* Close Button */}
+              <button
+                onClick={closePopup}
+                className="absolute -top-3 -right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-xl text-gray-600 hover:text-gray-900 hover:scale-110 transition-all"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+
+              {popupCfg.imageUrl ? (
+                /* ===== GÖRSEL ODAKLI POP-UP ===== */
+                <a
+                  href={popupCfg.ctaLink || "#pricing"}
+                  onClick={closePopup}
+                  className="block rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow cursor-pointer group"
+                >
+                  <img
+                    src={popupCfg.imageUrl}
+                    alt={popupCfg.title || "Kampanya"}
+                    className="w-full h-auto object-contain rounded-2xl group-hover:scale-[1.02] transition-transform duration-300"
+                  />
+                </a>
+              ) : (
+                /* ===== METİN TABANLI FALLBACK ===== */
+                <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="p-6">
+                    <div
+                      className="w-12 h-1 rounded-full mb-4"
+                      style={{ backgroundColor: popupCfg.bgColor || "#6366f1" }}
+                    />
+                    {popupCfg.title && (
+                      <h3 className="text-xl font-extrabold text-gray-900 mb-2 leading-tight">
+                        {popupCfg.title}
+                      </h3>
+                    )}
+                    {popupCfg.description && (
+                      <p className="text-sm text-gray-500 leading-relaxed mb-5">
+                        {popupCfg.description}
+                      </p>
+                    )}
+                    {popupCfg.ctaText && (
+                      <a
+                        href={popupCfg.ctaLink || "#pricing"}
+                        onClick={closePopup}
+                        className="block w-full text-center py-3.5 rounded-xl text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all hover:brightness-110 active:scale-[0.98]"
+                        style={{
+                          backgroundColor: popupCfg.bgColor || "#6366f1",
+                          boxShadow: `0 8px 24px ${(popupCfg.bgColor || "#6366f1")}40`
+                        }}
+                      >
+                        {popupCfg.ctaText}
+                      </a>
+                    )}
+                    <button
+                      onClick={closePopup}
+                      className="block w-full text-center mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors font-medium py-1"
+                    >
+                      Şimdi değil, teşekkürler
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </main>

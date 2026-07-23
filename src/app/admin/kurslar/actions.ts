@@ -72,6 +72,7 @@ function parseFormData(formData: FormData) {
         flixUpsellText: formData.get("flixUpsellText") as string || null,
         flixUpsellLink: formData.get("flixUpsellLink") as string || null,
         recommendedCourseIds: formData.get("recommendedCourseIds") ? JSON.parse(formData.get("recommendedCourseIds") as string) : null,
+        popupConfig: formData.get("popupConfig") ? JSON.parse(formData.get("popupConfig") as string) : null,
     };
 }
 

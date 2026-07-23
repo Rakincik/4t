@@ -29,7 +29,8 @@ import {
     DocumentTextIcon,
     DevicePhoneMobileIcon,
     TrophyIcon,
-    BuildingLibraryIcon
+    BuildingLibraryIcon,
+    ChatBubbleBottomCenterTextIcon
 } from "@heroicons/react/24/outline";
 import { createCourse, updateCourse, deleteCustomCategory } from "./actions";
 import { createCategory } from "../kategoriler/actions";
@@ -125,6 +126,7 @@ interface Course {
     isInstallmentApplicable?: boolean;
     instructorList?: string | null;
     coupons?: { id: string; code: string; type: string; amount: number; maxUses: number | null; usedCount: number; expiresAt: string | null; isActive: boolean }[];
+    popupConfig?: any;
 }
 
 interface CourseFormProps {
@@ -296,6 +298,28 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
         })) || []
     );
 
+    // Pop-up Ayarları
+    const defaultPopup = { enabled: false, title: "", description: "", imageUrl: "", ctaText: "", ctaLink: "", bgColor: "#6366f1", delaySeconds: 2, showOnceOnly: true };
+    const [popupConfig, setPopupConfig] = useState(() => {
+        const saved = parseJsonSafe((course as any)?.popupConfig, null);
+        return saved ? { ...defaultPopup, ...saved } : defaultPopup;
+    });
+    const popupImageInputRef = useRef<HTMLInputElement>(null);
+    const [uploadingPopupImage, setUploadingPopupImage] = useState(false);
+
+    async function handlePopupImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploadingPopupImage(true);
+        try {
+            const fd = new FormData(); fd.append("file", file);
+            const res = await fetch("/api/upload", { method: "POST", body: fd });
+            const data = await res.json();
+            if (!data.error) setPopupConfig((prev: any) => ({ ...prev, imageUrl: data.url }));
+        } catch {}
+        finally { setUploadingPopupImage(false); if (popupImageInputRef.current) popupImageInputRef.current.value = ""; }
+    }
+
     const handleTitleChange = (v: string) => { setTitle(v); if (mode === "create") setSlug(slugify(v)); };
 
     // Eğitmen Helpers
@@ -422,6 +446,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
                 variantId: c.variantId || null,
                 ...(c.isExisting && c.id ? { id: c.id } : {})
             }))));
+            fd.append("popupConfig", JSON.stringify(popupConfig));
 
             if (mode === "create") {
                 const res = await createCourse(fd);
@@ -502,6 +527,7 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
         { id: "mufredat", label: "Müfredat", icon: ListBulletIcon },
         { id: "egitmen", label: "Eğitmen", icon: UserIcon },
         { id: "kuponlar", label: "Kuponlar", icon: TicketIcon },
+        { id: "popup", label: "Pop-up", icon: ChatBubbleBottomCenterTextIcon },
     ];
 
     const inputCls = "w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition";
@@ -1419,6 +1445,156 @@ export default function CourseForm({ mode, course, existingCategories = [], dbCa
                                 </div>
                             )}
                         </div>
+                    </div>
+
+                    {/* ======================= POP-UP ======================= */}
+                    <div id="section-popup" className="bg-white rounded-xl border border-gray-200 p-5 space-y-5 border-t-4 border-t-indigo-500 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2"><ChatBubbleBottomCenterTextIcon className="w-4 h-4 text-gray-400" /> Kurs Detay Pop-up</h2>
+                            <button
+                                type="button"
+                                onClick={() => setPopupConfig((prev: any) => ({ ...prev, enabled: !prev.enabled }))}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${popupConfig.enabled ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                            >
+                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow ${popupConfig.enabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                            </button>
+                        </div>
+                        <p className="text-xs text-gray-400">Bu kursun detay sayfasını ziyaret eden kullanıcılara gösterilecek pop-up ayarları.</p>
+
+                        {popupConfig.enabled && (
+                            <div className="space-y-4 pt-2 border-t border-gray-100">
+                                {/* Başlık */}
+                                <div>
+                                    <label className={labelCls}>Pop-up Başlığı</label>
+                                    <input
+                                        type="text"
+                                        value={popupConfig.title}
+                                        onChange={e => setPopupConfig((prev: any) => ({ ...prev, title: e.target.value }))}
+                                        className={inputCls}
+                                        placeholder="🔥 Erken Kayıt Fırsatı!"
+                                    />
+                                </div>
+
+                                {/* Açıklama */}
+                                <div>
+                                    <label className={labelCls}>Pop-up Açıklaması</label>
+                                    <textarea
+                                        value={popupConfig.description}
+                                        onChange={e => setPopupConfig((prev: any) => ({ ...prev, description: e.target.value }))}
+                                        className={inputCls + " min-h-[80px] resize-y"}
+                                        placeholder="Bu fırsatı kaçırmayın! Sınırlı kontenjan ile erken kayıt indirimi..."
+                                        rows={3}
+                                    />
+                                </div>
+
+                                {/* Görsel */}
+                                <div>
+                                    <label className={labelCls}>Pop-up Görseli (Opsiyonel)</label>
+                                    <input type="file" ref={popupImageInputRef} onChange={handlePopupImageUpload} accept="image/*" className="hidden" />
+                                    {popupConfig.imageUrl ? (
+                                        <div className="relative group w-full h-32 rounded-lg overflow-hidden border border-gray-200">
+                                            <img src={popupConfig.imageUrl} alt="" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button type="button" onClick={() => popupImageInputRef.current?.click()} className="px-2 py-1.5 bg-white text-gray-900 rounded text-[10px] font-bold">Değiştir</button>
+                                                <button type="button" onClick={() => setPopupConfig((prev: any) => ({ ...prev, imageUrl: "" }))} className="px-2 py-1.5 bg-red-500 text-white rounded text-[10px] font-bold">Kaldır</button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <button type="button" onClick={() => popupImageInputRef.current?.click()} disabled={uploadingPopupImage}
+                                            className="w-full h-24 rounded-lg border-2 border-dashed border-gray-300 hover:border-indigo-400 hover:bg-indigo-50/50 transition-all flex flex-col items-center justify-center gap-1 text-gray-400">
+                                            {uploadingPopupImage ? <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                                            : <><CloudArrowUpIcon className="w-6 h-6" /><span className="text-[10px] font-bold">Banner Yükle</span></>}
+                                        </button>
+                                    )}
+                                    <p className="text-[10px] text-gray-400 mt-2 leading-tight">📐 Önerilen: <strong>600x800px</strong> (Dikey) veya <strong>800x600px</strong> (Yatay) • Maks 5MB • PNG/JPG</p>
+                                </div>
+
+                                {/* CTA Buton */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className={labelCls}>Buton Yazısı</label>
+                                        <input
+                                            type="text"
+                                            value={popupConfig.ctaText}
+                                            onChange={e => setPopupConfig((prev: any) => ({ ...prev, ctaText: e.target.value }))}
+                                            className={inputCls}
+                                            placeholder="Hemen Kayıt Ol"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className={labelCls}>Buton Linki</label>
+                                        <input
+                                            type="text"
+                                            value={popupConfig.ctaLink}
+                                            onChange={e => setPopupConfig((prev: any) => ({ ...prev, ctaLink: e.target.value }))}
+                                            className={inputCls}
+                                            placeholder="#pricing veya /checkout"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Renk + Gecikme + Tekrar Gösterme */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div>
+                                        <label className={labelCls}>Tema Rengi</label>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="color"
+                                                value={popupConfig.bgColor}
+                                                onChange={e => setPopupConfig((prev: any) => ({ ...prev, bgColor: e.target.value }))}
+                                                className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer"
+                                            />
+                                            <span className="text-xs text-gray-500 font-mono">{popupConfig.bgColor}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className={labelCls}>Gecikme (sn)</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="30"
+                                            value={popupConfig.delaySeconds}
+                                            onChange={e => setPopupConfig((prev: any) => ({ ...prev, delaySeconds: parseInt(e.target.value) || 0 }))}
+                                            className={inputCls}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className={labelCls}>Sadece 1 Kez</label>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPopupConfig((prev: any) => ({ ...prev, showOnceOnly: !prev.showOnceOnly }))}
+                                            className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-xs font-bold transition ${popupConfig.showOnceOnly ? 'bg-indigo-50 border-indigo-300 text-indigo-700' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+                                        >
+                                            {popupConfig.showOnceOnly ? '✅ Aktif' : '❌ Pasif'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Önizleme */}
+                                {(popupConfig.title || popupConfig.description) && (
+                                    <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Önizleme</p>
+                                        <div className="rounded-xl overflow-hidden shadow-lg border border-gray-200" style={{ maxWidth: '320px' }}>
+                                            {popupConfig.imageUrl && (
+                                                <img src={popupConfig.imageUrl} alt="" className="w-full h-28 object-cover" />
+                                            )}
+                                            <div className="p-4 bg-white">
+                                                <div className="w-8 h-1 rounded-full mx-auto mb-3" style={{ backgroundColor: popupConfig.bgColor }} />
+                                                {popupConfig.title && <h4 className="font-bold text-gray-900 text-sm mb-1">{popupConfig.title}</h4>}
+                                                {popupConfig.description && <p className="text-xs text-gray-500 mb-3">{popupConfig.description}</p>}
+                                                {popupConfig.ctaText && (
+                                                    <div className="text-center">
+                                                        <span className="inline-block px-4 py-2 rounded-lg text-white text-xs font-bold" style={{ backgroundColor: popupConfig.bgColor }}>
+                                                            {popupConfig.ctaText}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                 </div>

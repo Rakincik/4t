@@ -107,7 +107,8 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         instructors: instructorsList,
         instructorList: dbCourse.instructorList || null,
         flixUpsellText: dbCourse.flixUpsellText || null,
-        flixUpsellLink: dbCourse.flixUpsellLink || null
+        flixUpsellLink: dbCourse.flixUpsellLink || null,
+        popupConfig: parseJsonSafe((dbCourse as any).popupConfig, null)
     };
 
     return (

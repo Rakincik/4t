@@ -118,6 +118,9 @@ model Course {
   // Çapraz Satış Önerileri
   recommendedCourseIds Json?
 
+  // Kurs Detay Pop-up Ayarları
+  popupConfig    Json?    // {enabled, title, description, imageUrl, ctaText, ctaLink, bgColor, delaySeconds, showOnceOnly}
+
   // Erişim Yönetimi
   accessEndDate      DateTime?  // Sabit bitiş tarihi (KURS tipi: sınav tarihi vb.)
   accessDurationDays Int?       // Satın almadan itibaren kaç gün erişim (FLIX tipi)

@@ -14,7 +14,12 @@ function createPrismaClient() {
     }
 
     // Create a pg Pool with the connection string
-    const pool = new Pool({ connectionString });
+    const pool = new Pool({ 
+        connectionString,
+        max: process.env.NODE_ENV === "development" ? 3 : 10,
+        idleTimeoutMillis: 30000,
+        allowExitOnIdle: true,
+    });
 
     // Create adapter with the pool
     const adapter = new PrismaPg(pool);
